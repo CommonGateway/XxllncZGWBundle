@@ -18,7 +18,7 @@
             <argument key="$objectEntityService" type="service" id="App\Service\ObjectEntityService"/>
             <argument key="$translationService" type="service" id="App\Service\TranslationService"/>
             <argument key="$synchronizationService" type="service" id="App\Service\SynchronizationService"/>
-        </service>
+        </service> 
 
         <!-- Handlers -->
         <service public="true" id="CommonGateway\XxllncZGWBundle\ActionHandler\MapZaakHandler" />
