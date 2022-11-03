@@ -19,12 +19,12 @@ in the directory where your composer.json lives.
 To create your own symfony bundle. You can copy this repository for a fast start.
 
 1. Login on [GitHub](https://github.com)
-2. Use [this template](https://github.com/CommonGateway/PetStoreBundle/generate)
+2. Use [this template](https://github.com/CommonGateway/XxllncZGWBundle/generate)
 3. Name your bundle (CamelCase)
 4. Press the green button `Create repository from template`
 5. Update file names and namespace to your fitting 
    - Open composer.json, and change the name to your fitting. The first word should be the namespace and the second the name of your bundle. Check the autoload field to be set accordingly. Note: this is kebab-case. Also read: [naming your package](https://packagist.org/about#naming-your-package)
-   - Open PetStoreBundle.php and change the Bundle name and namespace. The namespace should be the same as your package name in composer.json but in CamelCase. So common-gateway/pet-store-bundle becomes CommonGateway/PetStoreBundle
+   - Open PetStoreBundle.php and change the Bundle name and namespace. The namespace should be the same as your package name in composer.json but in CamelCase. So common-gateway/pet-store-bundle becomes CommonGateway/XxllncZGWBundle
    - Rename the /Service and /ActionHandler accordingly (or delete if not used).
    - Rename the /DependencyInjection/PetStoreExtension.php to your BundleNameExtension.php
    - Rename the /Resources/config/services.xml service and handler to your new namespace and BundleName  
