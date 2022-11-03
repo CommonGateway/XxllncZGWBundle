@@ -1,0 +1,21 @@
+publiccodeYmlVersion: "0.1"
+
+name: "PetStoreBundle"
+url: "https://github.com/CommonGateway/PetStoreBundle"
+releaseDate: "2022-10-01"
+
+softwareType: addon
+platforms:
+  - web
+  
+categories:
+  - collaboration
+  - it-development
+  
+developmentStatus: beta
+
+description:
+  nl:
+    shortDescription: "Een symfony bundel als voorbeeld."
+  en:
+    shortDescription: "A symfony bundle as example."
