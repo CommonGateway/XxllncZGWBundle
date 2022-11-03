@@ -1,6 +1,6 @@
 {
-    "name": "common-gateway/pet-store-bundle",
-    "description": "An example package for creating symfony flex bundles as plugins",
+    "name": "common-gateway/xxllnc-zgw-bundle",
+    "description": "A package for a symfony flex bundle containing functionality for mapping ZGW api standard to XXLLNC api",
 	"type" : "symfony-bundle",
     "license": "EUPL-1.2",
     "minimum-stability" : "dev",
@@ -12,7 +12,7 @@
 	},
 	"autoload" : {
 		"psr-4" : {
-			"CommonGateway\\PetStoreBundle\\" : ""
+			"CommonGateway\\XxllncZGWBundle\\" : ""
 		}
 	}
 }

@@ -5,7 +5,24 @@
         https://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
         <defaults autowire="true" autoconfigure="true" />
-        <service public="true" id="CommonGateway\PetStoreBundle\Service\PetStoreService" />
-        <service public="true" id="CommonGateway\PetStoreBundle\ActionHandler\PetStoreHandler" />
+
+        <!-- Services -->
+        <service public="true" id="CommonGateway\XxllncZGWBundle\Service\MapZaakService" >
+            <argument key="$entityManager" type="service" id="Doctrine\ORM\EntityManagerInterface"/>
+            <argument key="$objectEntityService" type="service" id="App\Service\ObjectEntityService"/>
+            <argument key="$translationService" type="service" id="App\Service\TranslationService"/>
+            <argument key="$synchronizationService" type="service" id="App\Service\SynchronizationService"/>
+        </service>
+        <service public="true" id="CommonGateway\XxllncZGWBundle\Service\MapZaakTypeService" >
+            <argument key="$entityManager" type="service" id="Doctrine\ORM\EntityManagerInterface"/>
+            <argument key="$objectEntityService" type="service" id="App\Service\ObjectEntityService"/>
+            <argument key="$translationService" type="service" id="App\Service\TranslationService"/>
+            <argument key="$synchronizationService" type="service" id="App\Service\SynchronizationService"/>
+        </service>
+
+        <!-- Handlers -->
+        <service public="true" id="CommonGateway\XxllncZGWBundle\ActionHandler\MapZaakHandler" />
+        <service public="true" id="CommonGateway\XxllncZGWBundle\ActionHandler\MapZaakTypeHandler" />
+        <service public="true" id="CommonGateway\XxllncZGWBundle\ActionHandler\ZgwToXxllncHandler" />
     </services>
 </container>
