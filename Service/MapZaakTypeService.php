@@ -5,6 +5,9 @@ namespace CommonGateway\XxllncZGWBundle\Service;
 use App\Entity\Entity;
 use App\Entity\ObjectEntity;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Service\TranslationService;
+use App\Service\ObjectEntityService;
+use App\Service\SynchronizationService;
 
 class MapZaakTypeService
 {
@@ -70,28 +73,21 @@ class MapZaakTypeService
         $zaakTypeArray['roltypen'] = [];
 
         // Manually map phases to statustypen
-        if (isset($this->data['embedded']['instance']['embedded']['phases'])) {
+        if (isset($this->data['instance']['phases'])) {
             $zaakTypeArray['statustypen'] = [];
 
-            foreach ($this->data['embedded']['instance']['embedded']['phases'] as $phase) {
+            foreach ($this->data['instance']['phases'] as $phase) {
                 // Mapping maken voor status
                 $statusTypeArray = [];
                 isset($phase['name']) && $statusTypeArray['omschrijving'] = $phase['name'];
-                isset($phase['embedded']['fields'][0]['label']) ? $statusTypeArray['omschrijvingGeneriek'] = $phase['embedded']['fields'][0]['label'] : 'geen omschrijving';
-                isset($phase['embedded']['fields'][0]['help']) ? $statusTypeArray['statustekst'] = $phase['embedded']['fields'][0]['help'] : 'geen statustekst';
+                isset($phase['fields'][0]['label']) ? $statusTypeArray['omschrijvingGeneriek'] = $phase['fields'][0]['label'] : 'geen omschrijving';
+                isset($phase['fields'][0]['help']) ? $statusTypeArray['statustekst'] = $phase['fields'][0]['help'] : 'geen statustekst';
                 isset($phase['seq']) && $statusTypeArray['volgnummer'] = $phase['seq'];
 
-                if (isset($phase['embedded']['route']['embedded']['role'])) {
-                    $rolTypeArray = [];
-
-                    // Get rolInstanceObject
-                    $rolIdArray = explode('/', $phase['embedded']['route']['role']);
-                    $rolObjectEntity = $this->objectEntityRepo->find(end($rolIdArray));
-                    $roleInstanceObjectEntity = $this->objectEntityRepo->find($rolObjectEntity->getValue('instance')->getId()->toString());
-
+                if (isset($phase['route']['role']['reference'])) {
                     $rolTypeArray = [
-                        'omschrijving'         => $roleInstanceObjectEntity->getValue('description'),
-                        'omschrijvingGeneriek' => strtolower($roleInstanceObjectEntity->getValue('name')),
+                        'omschrijving'         => isset($phase['route']['role']['instance']['description']) ? $phase['route']['role']['instance']['description'] : null,
+                        'omschrijvingGeneriek' => isset($phase['route']['role']['instance']['name']) ? strtolower($phase['route']['role']['instance']['name']) : null
                     ];
                     $zaakTypeArray['roltypen'][] = $rolTypeArray;
                 }
@@ -113,9 +109,9 @@ class MapZaakTypeService
     private function mapResultaatTypen(array $zaakTypeArray): array
     {
         // Manually map results to resultaattypen
-        if (isset($this->data['embedded']['instance']['embedded']['results'])) {
+        if (isset($this->data['instance']['results'])) {
             $zaakTypeArray['resultaattypen'] = [];
-            foreach ($this->data['embedded']['instance']['embedded']['results'] as $result) {
+            foreach ($this->data['instance']['results'] as $result) {
                 $resultaatTypeArray = [];
                 $result['type'] && $resultaatTypeArray['omschrijving'] = $result['type'];
                 $result['label'] && $resultaatTypeArray['toelichting'] = $result['label'];
@@ -142,7 +138,7 @@ class MapZaakTypeService
         // // Manually map properties to eigenschappen
         $zaakTypeArray['eigenschappen'] = [];
         $propertyIgnoreList = ['lead_time_legal', 'lead_time_service', 'designation_of_confidentiality', 'extension', 'publication', 'supervisor_relation', 'suspension'];
-        foreach ($this->data['embedded']['instance']['embedded']['properties'] as $propertyName => $propertyValue) {
+        foreach ($this->data['instance']['properties'] as $propertyName => $propertyValue) {
             !in_array($propertyName, $propertyIgnoreList) && $zaakTypeArray['eigenschappen'][] = ['naam' => $propertyName, 'definitie' => $propertyName];
         }
 
@@ -180,6 +176,7 @@ class MapZaakTypeService
      */
     public function mapZaakTypeHandler(array $data, array $configuration): array
     {
+        var_dump('MapZaakType triggered');
         $this->data = $data['response'];
         $this->configuration = $configuration;
 
@@ -208,7 +205,9 @@ class MapZaakTypeService
 
         $this->entityManager->persist($zaakTypeObjectEntity);
         $this->entityManager->flush();
+        $this->entityManager->clear('App:ObjectEntity');
 
-        return $this->data;
+        var_dump('MapZaakType finished with id: ' . $zaakTypeObjectEntity->getId()->toString());
+        return ['response' => $zaakTypeObjectEntity->toArray()];
     }
 }
