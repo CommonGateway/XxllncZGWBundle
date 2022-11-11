@@ -1,7 +1,7 @@
 {
     "name": "common-gateway/xxllnc-zgw-bundle",
     "description": "A package for a symfony flex bundle containing functionality for mapping ZGW api standard to XXLLNC api",
-	"type" : "symfony-bundle",
+    "type" : "common-gateway-plugin",
     "license": "EUPL-1.2",
     "minimum-stability" : "dev",
     "require": {
