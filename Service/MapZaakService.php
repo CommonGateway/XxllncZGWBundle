@@ -38,15 +38,15 @@ class MapZaakService
 
         $this->mappingIn = [
             'identificatie' => 'reference',
-            'omschrijving' => 'instance.embedded.subject',
-            'toelichting' => 'instance.embedded.subject_external',
-            'registratiedatum' => 'instance.embedded.date_of_registration',
-            'startdatum' => 'instance.embedded.date_of_registration',
-            'einddatum' => 'instance.embedded.date_of_completion',
-            'einddatumGepland' => 'instance.embedded.date_target',
-            'publicatiedatum' => 'instance.embedded.date_target',
-            'communicatiekanaal' => 'instance.embedded.channel_of_contact',
-            'vertrouwelijkheidaanduidng' => 'instance.embedded.confidentiality.mapped'
+            'omschrijving' => 'instance.subject',
+            'toelichting' => 'instance.subject_external',
+            'registratiedatum' => 'instance.date_of_registration',
+            'startdatum' => 'instance.date_of_registration',
+            'einddatum' => 'instance.date_of_completion',
+            'einddatumGepland' => 'instance.date_target',
+            'publicatiedatum' => 'instance.date_target',
+            'communicatiekanaal' => 'instance.channel_of_contact',
+            'vertrouwelijkheidaanduidng' => 'instance.confidentiality.mapped'
 
 
         ];
