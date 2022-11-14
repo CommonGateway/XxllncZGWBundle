@@ -36,18 +36,18 @@ class MapZaakTypeService
         $this->entityRepo = $this->entityManager->getRepository(Entity::class);
 
         $this->mappingIn = [
-            'identificatie'                   => 'embedded.instance.legacy.zaaktype_id|string',
-            'onderwerp'                       => 'embedded.instance.title',
-            'indicatieInternOfExtern'         => 'embedded.instance.trigger',
-            'doorlooptijd'                    => 'embedded.instance.properties.lead_time_legal.weken',
-            'servicenorm'                     => 'embedded.instance.properties.lead_time_service.weken',
-            'vertrouwelijkheidaanduiding'     => 'embedded.instance.properties.designation_of_confidentiality',
-            'verlengingMogelijk'              => 'embedded.instance.properties.extension',
-            'trefwoorden'                     => 'embedded.instance.subject_types',
-            'publicatieIndicatie'             => 'embedded.instance.properties.publication|bool',
-            'verantwoordingsrelatie'          => 'embedded.instance.properties.supervisor_relation|array',
-            'omschrijving'                    => 'embedded.instance.title',
-            'opschortingEnAanhoudingMogelijk' => 'embedded.instance.properties.suspension|bool',
+            'identificatie'                   => 'instance.legacy.zaaktype_id|string',
+            'onderwerp'                       => 'instance.title',
+            'indicatieInternOfExtern'         => 'instance.trigger',
+            'doorlooptijd'                    => 'instance.properties.lead_time_legal.weken',
+            'servicenorm'                     => 'instance.properties.lead_time_service.weken',
+            'vertrouwelijkheidaanduiding'     => 'instance.properties.designation_of_confidentiality',
+            'verlengingMogelijk'              => 'instance.properties.extension',
+            'trefwoorden'                     => 'instance.subject_types',
+            'publicatieIndicatie'             => 'instance.properties.publication|bool',
+            'verantwoordingsrelatie'          => 'instance.properties.supervisor_relation|array',
+            'omschrijving'                    => 'instance.title',
+            'opschortingEnAanhoudingMogelijk' => 'instance.properties.suspension|bool',
         ];
 
         $this->skeletonIn = [
@@ -62,13 +62,13 @@ class MapZaakTypeService
     }
 
     /**
-     * Maps the statusTypen from xxllnc to zgw.
+     * Maps the statusTypen and rolTypen from xxllnc to zgw.
      *
      * @param array $zaakTypeArray This is the ZGW ZaakType array.
      *
      * @return array $zaakTypeArray This is the ZGW ZaakType array with the added statustypen.
      */
-    private function mapStatusTypen(array $zaakTypeArray): array
+    private function mapStatusAndRolTypen(array $zaakTypeArray, Entity $rolTypeEntity): array
     {
         $zaakTypeArray['roltypen'] = [];
 
@@ -84,12 +84,17 @@ class MapZaakTypeService
                 isset($phase['fields'][0]['help']) ? $statusTypeArray['statustekst'] = $phase['fields'][0]['help'] : 'geen statustekst';
                 isset($phase['seq']) && $statusTypeArray['volgnummer'] = $phase['seq'];
 
+                // Map role to roltype
                 if (isset($phase['route']['role']['reference'])) {
                     $rolTypeArray = [
                         'omschrijving'         => isset($phase['route']['role']['instance']['description']) ? $phase['route']['role']['instance']['description'] : null,
                         'omschrijvingGeneriek' => isset($phase['route']['role']['instance']['name']) ? strtolower($phase['route']['role']['instance']['name']) : null
                     ];
-                    $zaakTypeArray['roltypen'][] = $rolTypeArray;
+                    $rolTypeObject = new ObjectEntity($rolTypeEntity);
+                    isset($phase['route']['role']['reference']) && $rolTypeObject->setExternalId($phase['route']['role']['reference']);
+                    $rolTypeObject->hydrate($rolTypeArray);
+                    $this->entityManager->persist($rolTypeObject);
+                    $zaakTypeArray['roltypen'][] = $rolTypeObject;
                 }
 
                 $zaakTypeArray['statustypen'][] = $statusTypeArray;
@@ -182,9 +187,13 @@ class MapZaakTypeService
 
         // Find ZGW Type entities by id from config
         $zaakTypeEntity = $this->entityRepo->find($configuration['entities']['ZaakType']);
+        $rolTypeEntity = $this->entityRepo->find($configuration['entities']['RolType']);
 
         if (!isset($zaakTypeEntity)) {
-            throw new \Exception('ZaakType entity could not be found');
+            throw new \Exception('ZaakType entity could not be found, check MapZaakTypeHandler Action config');
+        }
+        if (!isset($zaakTypeEntity)) {
+            throw new \Exception('RolType entity could not be found, check MapZaakTypeHandler Action config');
         }
 
         $zaakTypeObjectEntity = $this->getZaakTypeObjectEntity($zaakTypeEntity);
@@ -194,7 +203,7 @@ class MapZaakTypeService
         $zgwZaakTypeArray['instance'] = null;
         $zgwZaakTypeArray['embedded'] = null;
 
-        $zgwZaakTypeArray = $this->mapStatusTypen($zgwZaakTypeArray);
+        $zgwZaakTypeArray = $this->mapStatusAndRolTypen($zgwZaakTypeArray, $rolTypeEntity);
         $zgwZaakTypeArray = $this->mapResultaatTypen($zgwZaakTypeArray);
         $zgwZaakTypeArray = $this->mapEigenschappen($zgwZaakTypeArray);
 
