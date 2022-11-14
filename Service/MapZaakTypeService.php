@@ -36,18 +36,18 @@ class MapZaakTypeService
         $this->entityRepo = $this->entityManager->getRepository(Entity::class);
 
         $this->mappingIn = [
-            'identificatie'                   => 'embedded.instance.embedded.legacy.zaaktype_id|string',
+            'identificatie'                   => 'embedded.instance.legacy.zaaktype_id|string',
             'onderwerp'                       => 'embedded.instance.title',
             'indicatieInternOfExtern'         => 'embedded.instance.trigger',
-            'doorlooptijd'                    => 'embedded.instance.embedded.properties.lead_time_legal.weken',
-            'servicenorm'                     => 'embedded.instance.embedded.properties.lead_time_service.weken',
-            'vertrouwelijkheidaanduiding'     => 'embedded.instance.embedded.properties.designation_of_confidentiality',
-            'verlengingMogelijk'              => 'embedded.instance.embedded.properties.extension',
+            'doorlooptijd'                    => 'embedded.instance.properties.lead_time_legal.weken',
+            'servicenorm'                     => 'embedded.instance.properties.lead_time_service.weken',
+            'vertrouwelijkheidaanduiding'     => 'embedded.instance.properties.designation_of_confidentiality',
+            'verlengingMogelijk'              => 'embedded.instance.properties.extension',
             'trefwoorden'                     => 'embedded.instance.subject_types',
-            'publicatieIndicatie'             => 'embedded.instance.embedded.properties.publication|bool',
-            'verantwoordingsrelatie'          => 'embedded.instance.embedded.properties.supervisor_relation|array',
+            'publicatieIndicatie'             => 'embedded.instance.properties.publication|bool',
+            'verantwoordingsrelatie'          => 'embedded.instance.properties.supervisor_relation|array',
             'omschrijving'                    => 'embedded.instance.title',
-            'opschortingEnAanhoudingMogelijk' => 'embedded.instance.embedded.properties.suspension|bool',
+            'opschortingEnAanhoudingMogelijk' => 'embedded.instance.properties.suspension|bool',
         ];
 
         $this->skeletonIn = [
