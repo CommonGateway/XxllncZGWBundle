@@ -260,18 +260,25 @@ class MapZaakService
         }
 
         // rollen to subjects
-        if (isset($zaakArrayObject['rollen'])) {
+        if (isset($zaakArrayObject['rollen']) && isset($zaakArrayObject['zaaktype']['roltypen'])) {
             foreach ($zaakArrayObject['rollen'] as $rol) {
-                $xxllncZaakArray['subjects'][] = [
-                    'subject' => [
-                        'type' => 'subject',
-                        // 'referene' => $rol['id']
-                    ],
-                    'role' => $rol['roltoelichting'],
-                    'magic_string_prefix' => $rol['roltoelichting'],
-                    'pip_authorized' => true,
-                    'send_auth_notification' => false
-                ];
+                foreach ($zaakArrayObject['zaaktype']['roltypen'] as $rolType) {
+                    if ($rolType['omschrijving'] === $rol['roltoelichting']) {
+                        $rolTypeObject = $this->entityManager->find('App:ObjectEntity', $rolType['id']);
+                        if ($rolTypeObject instanceof ObjectEntity && $rolTypeObject->getExternalId() !== null) {
+                            $xxllncZaakArray['subjects'][] = [
+                                'subject' => [
+                                    'type' => 'subject',
+                                    'reference' => $rolTypeObject->getExternalId()
+                                ],
+                                'role' => $rol['roltoelichting'],
+                                'magic_string_prefix' => $rol['roltoelichting'],
+                                'pip_authorized' => true,
+                                'send_auth_notification' => false
+                            ];
+                        }
+                    }
+                }
             }
         }
 
