@@ -388,8 +388,10 @@ class MapZaakService
         while ($i < 5 && !$zaakTypeObjectEntity instanceof ObjectEntity) {
 
             // Find existing sync or create a empty sync for casetype 
-            $zaakTypeSync = $this->synchronizationService->findSyncBySource($xxllncGateway, $xxllncZaakTypeEntity, $zaakTypeId, true);
-            $zaakTypeSync = $this->synchronizationService->handleSync($zaakTypeSync, [], $xxllncZaakTypeConfiguration, true);
+            $zaakTypeSync = $this->synchronizationService->findSyncBySource($xxllncGateway, $xxllncZaakTypeEntity, $zaakTypeId);
+            $zaakTypeSync = $this->synchronizationService->handleSync($zaakTypeSync, [], $xxllncZaakTypeConfiguration);
+
+            $zaakTypeSync = $this->entityManager->find('App:Synchronization', $zaakTypeSync->getId()->toString());
 
             $this->entityManager->persist($zaakTypeSync);
             $this->entityManager->flush();
