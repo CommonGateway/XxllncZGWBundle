@@ -75,6 +75,7 @@ class MapZaakTypeService
         // Manually map phases to statustypen
         if (isset($this->data['instance']['phases'])) {
             $zaakTypeArray['statustypen'] = [];
+            $zaakTypeArray['eigenschappen'] = [];
 
             foreach ($this->data['instance']['phases'] as $phase) {
                 // Mapping maken voor status
@@ -83,6 +84,12 @@ class MapZaakTypeService
                 isset($phase['fields'][0]['label']) ? $statusTypeArray['omschrijvingGeneriek'] = $phase['fields'][0]['label'] : 'geen omschrijving';
                 isset($phase['fields'][0]['help']) ? $statusTypeArray['statustekst'] = $phase['fields'][0]['help'] : 'geen statustekst';
                 isset($phase['seq']) && $statusTypeArray['volgnummer'] = $phase['seq'];
+
+                if (isset($phase['fields'])) {
+                    foreach ($phase['fields'] as $field) {
+                        isset($field['magic_string']) && $zaakTypeArray['eigenschappen'][] = ['naam' => $field['magic_string'], 'definitie' => $field['magic_string']];
+                    }
+                }
 
                 // Map role to roltype
                 if (isset($phase['route']['role']['reference'])) {
@@ -162,6 +169,15 @@ class MapZaakTypeService
         // Find already existing zgwZaakType by $this->data['reference']
         $zaakTypeObjectEntity = $this->objectEntityRepo->findOneBy(['externalId' => $this->data['reference'], 'entity' => $zaakTypeEntity]);
 
+        if ($this->data['reference'] == '196c5c90-deff-48f4-bb7f-e092ddf1d829') {
+            // var_dump('ZAAKTYPE CREATED FROM MELDING INDIENEN');
+            // var_dump('ZAAKTYPE CREATED FROM MELDING INDIENEN');
+            // var_dump('ZAAKTYPE CREATED FROM MELDING INDIENEN');
+            // var_dump('ZAAKTYPE CREATED FROM MELDING INDIENEN');
+            // var_dump('ZAAKTYPE CREATED FROM MELDING INDIENEN');
+            // var_dump('ZAAKTYPE CREATED FROM MELDING INDIENEN');
+        }
+
         // Create new empty ObjectEntity if no ObjectEntity has been found
         if (!$zaakTypeObjectEntity instanceof ObjectEntity) {
             $zaakTypeObjectEntity = new ObjectEntity();
@@ -196,11 +212,21 @@ class MapZaakTypeService
             throw new \Exception('RolType entity could not be found, check MapZaakTypeHandler Action config');
         }
 
+        $totalObjectsWithCertianExternalId = count($this->entityManager->getRepository('App:ObjectEntity')->findBy(['externalId' => '196c5c90-deff-48f4-bb7f-e092ddf1d829']));
+        var_dump($this->data['reference']);
+        var_dump($totalObjectsWithCertianExternalId);
+        var_dump($totalObjectsWithCertianExternalId);
+        var_dump($totalObjectsWithCertianExternalId);
+        var_dump($totalObjectsWithCertianExternalId);
+        var_dump($totalObjectsWithCertianExternalId);
+
         $zaakTypeObjectEntity = $this->getZaakTypeObjectEntity($zaakTypeEntity);
 
         // Map and set default values from xxllnc casetype to zgw zaaktype
         $zgwZaakTypeArray = $this->translationService->dotHydrator(isset($skeletonIn) ? array_merge($this->data, $this->skeletonIn) : $this->data, $this->data, $this->mappingIn);
         if (!isset($zgwZaakTypeArray['omschrijving']) || empty($zgwZaakTypeArray['omschrijving'])) {
+            var_dump($this->data['preview']);
+            var_dump($this->data['instance']['title']);
             var_dump('MapZaakType aborted because omschrijving not set');
             return ['response' => $zaakTypeObjectEntity->toArray()];
         }
@@ -210,7 +236,7 @@ class MapZaakTypeService
 
         $zgwZaakTypeArray = $this->mapStatusAndRolTypen($zgwZaakTypeArray, $rolTypeEntity);
         $zgwZaakTypeArray = $this->mapResultaatTypen($zgwZaakTypeArray);
-        $zgwZaakTypeArray = $this->mapEigenschappen($zgwZaakTypeArray);
+        // $zgwZaakTypeArray = $this->mapEigenschappen($zgwZaakTypeArray);
 
         $zaakTypeObjectEntity->hydrate($zgwZaakTypeArray);
 
@@ -222,6 +248,7 @@ class MapZaakTypeService
         $this->entityManager->clear('App:ObjectEntity');
 
         $value = $zaakTypeObjectEntity->getValue('omschrijving');
+
 
         var_dump('MapZaakType finished with id: ' . $zaakTypeObjectEntity->getId()->toString());
         // die;
