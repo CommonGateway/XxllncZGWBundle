@@ -186,19 +186,27 @@ class MapZaakService
      * Maps the eigenschappen from zgw to xxllnc.
      *
      * @param array  $xxllncZaakArray This is the Xxllnc Zaak array.
-     * @param array  $zaakTypeArray This is the ZGW Zaak array.
+     * @param array  $zaakArrayObject This is the ZGW Zaak array.
+     * @param array  $zaakTypeEigenschappen These are the ZGW ZaakType eigenschappen.
      *
      * @return array $xxllncZaakArray This is the Xxllnc Zaak array with the added eigenschappen.
      */
-    private function mapPostEigenschappen(array $xxllncZaakArray, array $zaakArrayObject): array
+    private function mapPostEigenschappen(array $xxllncZaakArray, array $zaakArrayObject, array $zaakTypeEigenschappen): array
     {
+        $eigenschapIds = [];
+        foreach ($zaakTypeEigenschappen as $eigenschap) {
+            $eigenschapIds[] = $eigenschap->getValue('id');
+        }
+
+
         // eigenschappen to values
         if (isset($zaakArrayObject['eigenschappen'])) {
             foreach ($zaakArrayObject['eigenschappen'] as $zaakEigenschap) {
-                $xxllncZaakArray['values'][] = [
-                    'name' => $zaakEigenschap['eigenschap']['definitie'],
-                    'value' => $zaakEigenschap['waarde']
-                ];
+                if (isset($zaakEigenschap['eigenschap'])) {
+                    in_array($zaakEigenschap['eigenschap']['id'], $eigenschapIds) && $xxllncZaakArray['values'][] = [
+                        $zaakEigenschap['eigenschap']['definitie'] => $zaakEigenschap['waarde']
+                    ];
+                }
             }
         }
 
@@ -297,7 +305,7 @@ class MapZaakService
         isset($this->configuration['entities']['XxllncZaakPost']) && $xxllncZaakPostEntity = $this->entityRepo->find($this->configuration['entities']['XxllncZaakPost']);
 
         if (!isset($xxllncZaakPostEntity)) {
-            throw new \Exception('Xxllnc zaak entity not found, check ZgwToXxllncHandler conngi');
+            throw new \Exception('Xxllnc zaak entity not found, check ZgwToXxllncHandler config');
         }
 
         if (isset($this->data['zaaktype'])) {
@@ -320,7 +328,7 @@ class MapZaakService
         $xxllncZaakArray['source'] = "behandelaar";
         $xxllncZaakArray['confidentiality'] = "public";
 
-        $xxllncZaakArray = $this->mapPostEigenschappen($xxllncZaakArray, $zaakArrayObject);
+        $xxllncZaakArray = $this->mapPostEigenschappen($xxllncZaakArray, $zaakArrayObject, $zaakTypeObject->getValue('eigenschappen'));
         $xxllncZaakArray = $this->mapPostInfoObjecten($xxllncZaakArray, $zaakArrayObject);
         $xxllncZaakArray = $this->mapPostRollen($xxllncZaakArray, $zaakArrayObject);
 
