@@ -208,17 +208,25 @@ class MapZaakTypeService
         if (!isset($zaakTypeEntity)) {
             throw new \Exception('ZaakType entity could not be found, check MapZaakTypeHandler Action config');
         }
-        if (!isset($zaakTypeEntity)) {
+        if (!isset($rolTypeEntity)) {
             throw new \Exception('RolType entity could not be found, check MapZaakTypeHandler Action config');
         }
 
         $totalObjectsWithCertianExternalId = count($this->entityManager->getRepository('App:ObjectEntity')->findBy(['externalId' => '196c5c90-deff-48f4-bb7f-e092ddf1d829']));
-        var_dump($this->data['reference']);
+        var_dump('ExternalID', $this->data['reference']);
         var_dump($totalObjectsWithCertianExternalId);
         var_dump($totalObjectsWithCertianExternalId);
         var_dump($totalObjectsWithCertianExternalId);
         var_dump($totalObjectsWithCertianExternalId);
         var_dump($totalObjectsWithCertianExternalId);
+
+        if ($this->data['reference'] == '196c5c90-deff-48f4-bb7f-e092ddf1d829') {
+            var_dump('SPECIFIK ZAAKTYPE CREATED');
+            var_dump('SPECIFIK ZAAKTYPE CREATED');
+            var_dump('SPECIFIK ZAAKTYPE CREATED');
+            var_dump('SPECIFIK ZAAKTYPE CREATED');
+            var_dump('SPECIFIK ZAAKTYPE CREATED');
+        }
 
         $zaakTypeObjectEntity = $this->getZaakTypeObjectEntity($zaakTypeEntity);
 

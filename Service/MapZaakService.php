@@ -95,7 +95,7 @@ class MapZaakService
                     $zaakArray['eigenschappen'][] = [
                         'naam' => $attributeName,
                         'waarde' => is_array($attributeValue) ?
-                            strval(array_shift($attributeValue)) :
+                            json_encode($attributeValue) :
                             strval($attributeValue),
                         'eigenschap' => $this->objectEntityRepo->find($eigenschap['id'])
                     ];

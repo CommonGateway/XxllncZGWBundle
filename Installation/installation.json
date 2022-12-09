@@ -1,0 +1,3 @@
+{
+    "installationService": "CommonGateway\\XxllncZGWBundle\\Service\\InstallationService"
+}

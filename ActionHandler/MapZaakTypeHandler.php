@@ -9,7 +9,7 @@ use Psr\Cache\CacheException;
 use Psr\Cache\InvalidArgumentException;
 use Respect\Validation\Exceptions\ComponentException;
 
-class MapZaakTypeHandler implements ActionHandlerInterface
+class MapZaakTypeHandler
 {
     private MapZaakTypeService $mapZaakTypeService;
 
