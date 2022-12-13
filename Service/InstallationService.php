@@ -63,14 +63,7 @@ class InstallationService implements InstallerInterface
             if (
                 !$dashboardCard = $this->entityManager->getRepository('App:DashboardCard')->findOneBy(['entityId' => $entity->getId()])
             ) {
-                $dashboardCard = new DashboardCard();
-                $dashboardCard->setType('schema');
-                $dashboardCard->setEntity('App:Entity');
-                $dashboardCard->setObject('App:Entity');
-                $dashboardCard->setName($entity->getName());
-                $dashboardCard->setDescription($entity->getDescription());
-                $dashboardCard->setEntityId($entity->getId());
-                $dashboardCard->setOrdering(1);
+                $dashboardCard = new DashboardCard($entity);
                 $this->entityManager->persist($dashboardCard);
                 (isset($this->io) ? $this->io->writeln('Dashboard card created') : '');
                 continue;
@@ -95,6 +88,7 @@ class InstallationService implements InstallerInterface
             }
             (isset($this->io) ? $this->io->writeln('Endpoint found') : '');
         }
+        //@todo Hier de ZGW bundle requieren
 
         // Xxllnc v1 api
         $source = new Gateway();
@@ -188,6 +182,7 @@ class InstallationService implements InstallerInterface
         $action->setIsEnabled(true);
         $this->entityManager->persist($action);
         isset($this->io) && $this->io->writeln('Action: \'SyncZaakTypeAction\' created');
+
         // MapZaakTypeAction
         $action = new Action();
         $action->setName('MapZaakTypeAction');
@@ -200,6 +195,7 @@ class InstallationService implements InstallerInterface
         $action->setIsEnabled(true);
         $this->entityManager->persist($action);
         isset($this->io) && $this->io->writeln('Action: \'MapZaakTypeAction\' created');
+
         // SyncZakenCollectionAction
         $action = new Action();
         $action->setName('SyncZakenCollectionAction');
@@ -212,6 +208,7 @@ class InstallationService implements InstallerInterface
         $action->setIsEnabled(true);
         $this->entityManager->persist($action);
         isset($this->io) && $this->io->writeln('Action: \'SyncZakenCollectionAction\' created');
+
         // MapZaakAction
         $action = new Action();
         $action->setName('MapZaakAction');
@@ -224,6 +221,7 @@ class InstallationService implements InstallerInterface
         $action->setIsEnabled(true);
         $this->entityManager->persist($action);
         isset($this->io) && $this->io->writeln('Action: \'MapZaakAction\' created');
+
         // ZgwToXxllncAction
         $action = new Action();
         $action->setName('ZgwToXxllncAction');
@@ -236,6 +234,7 @@ class InstallationService implements InstallerInterface
         $action->setIsEnabled(true);
         $this->entityManager->persist($action);
         isset($this->io) && $this->io->writeln('Action: \'ZgwToXxllncAction\' created');
+
         // SyncZgwToXxllncAction
         $action = new Action();
         $action->setName('SyncZgwToXxllncAction');
@@ -248,6 +247,7 @@ class InstallationService implements InstallerInterface
         $action->setIsEnabled(true);
         $this->entityManager->persist($action);
         isset($this->io) && $this->io->writeln('Action: \'SyncZgwToXxllncAction\' created');
+
         // SyncZgwToXxllncAction
         $trans = new Translation();
         $trans->setTranslationTable('caseTypeTable1');
@@ -256,6 +256,7 @@ class InstallationService implements InstallerInterface
         $trans->setLanguage('nl');
         $this->entityManager->persist($trans);
         isset($this->io) && $this->io->writeln('Translation created');
+
         $trans = new Translation();
         $trans->setTranslationTable('caseTypeTable1');
         $trans->setTranslateFrom('Ja');
@@ -263,6 +264,7 @@ class InstallationService implements InstallerInterface
         $trans->setLanguage('nl');
         $this->entityManager->persist($trans);
         isset($this->io) && $this->io->writeln('Translation created');
+
         $trans = new Translation();
         $trans->setTranslationTable('caseTypeTable1');
         $trans->setTranslateFrom('internextern');
@@ -270,6 +272,7 @@ class InstallationService implements InstallerInterface
         $trans->setLanguage('nl');
         $this->entityManager->persist($trans);
         isset($this->io) && $this->io->writeln('Translation created');
+
         $trans = new Translation();
         $trans->setTranslationTable('caseTypeTable1');
         $trans->setTranslateFrom('Vernietigen (V)');
@@ -277,6 +280,7 @@ class InstallationService implements InstallerInterface
         $trans->setLanguage('nl');
         $this->entityManager->persist($trans);
         isset($this->io) && $this->io->writeln('Translation created');
+
         $trans = new Translation();
         $trans->setTranslationTable('caseTypeTable1');
         $trans->setTranslateFrom('Bewaren (B)');
