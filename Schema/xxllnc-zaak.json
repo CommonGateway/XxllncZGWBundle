@@ -1,0 +1,746 @@
+{
+    "$id": "https://common-gateway.nl/xxllnc-zaak.schema.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "version": "0.1",
+    "title": "XxllncZaak",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string"
+        },
+        "preview": {
+            "type": "string"
+        },
+        "type": {
+            "type": "string"
+        },
+        "instance": {
+            "type": "object",
+            "properties": {
+                "case_relationships": {
+                    "type": "object",
+                    "properties": {
+                        "child": {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string"
+                                },
+                                "instance": {
+                                    "type": "object",
+                                    "properties": {
+                                        "rows": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "reference": {
+                                                        "type": "string"
+                                                    },
+                                                    "type": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "type": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "plain": {
+                            "type": "object",
+                            "properties": {
+                                "instance": {
+                                    "type": "object",
+                                    "properties": {
+                                        "rows": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "reference": {
+                                                        "type": "string"
+                                                    },
+                                                    "type": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "type": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "continuation": {
+                            "type": "object",
+                            "properties": {
+                                "instance": {
+                                    "type": "object",
+                                    "properties": {
+                                        "rows": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "reference": {
+                                                        "type": "string"
+                                                    },
+                                                    "type": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "type": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "parent": {
+                            "type": "object",
+                            "properties": {
+                                "instance": {
+                                    "type": "object",
+                                    "properties": {
+                                        "rows": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "reference": {
+                                                        "type": "string"
+                                                    },
+                                                    "": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "type": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "current_deadline": {
+                    "type": "object",
+                    "properties": {
+                        "last_modified": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "casetype": {
+                    "type": "object",
+                    "properties": {
+                        "reference": {
+                            "type": "string"
+                        },
+                        "instance": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "version": {
+                                    "type": "integer"
+                                }
+                            }
+                        },
+                        "type": {
+                            "type": "string"
+                        },
+                        "preview": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "requestor": {
+                    "type": "object",
+                    "properties": {
+                        "preview": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        },
+                        "reference": {
+                            "type": "string"
+                        },
+                        "instance": {
+                            "type": "object",
+                            "properties": {
+                                "subject": {
+                                    "type": "object",
+                                    "properties": {
+                                        "preview": {
+                                            "type": "string"
+                                        },
+                                        "type": {
+                                            "type": "string"
+                                        },
+                                        "reference": {
+                                            "type": "string"
+                                        },
+                                        "instance": {
+                                            "type": "object",
+                                            "properties": {
+                                                "use_of_name": {
+                                                    "type": "string"
+                                                },
+                                                "is_secret": {
+                                                    "type": "boolean"
+                                                },
+                                                "noble_title": {
+                                                    "type": "string"
+                                                },
+                                                "personal_number_a": {
+                                                    "type": "integer"
+                                                },
+                                                "phone_number": {
+                                                    "type": "string"
+                                                },
+                                                "date_of_death": {
+                                                    "type": "string"
+                                                },
+                                                "initials": {
+                                                    "type": "string"
+                                                },
+                                                "gender": {
+                                                    "type": "string"
+                                                },
+                                                "is_local_resident": {
+                                                    "type": "boolean"
+                                                },
+                                                "first_names": {
+                                                    "type": "string"
+                                                },
+                                                "family_name": {
+                                                    "type": "string"
+                                                },
+                                                "place_of_birth": {
+                                                    "type": "string"
+                                                },
+                                                "date_of_birth": {
+                                                    "type": "string"
+                                                },
+                                                "date_modified": {
+                                                    "type": "string"
+                                                },
+                                                "address_correspondence": {
+                                                    "type": "string"
+                                                },
+                                                "surname": {
+                                                    "type": "string"
+                                                },
+                                                "prefix": {
+                                                    "type": "string"
+                                                },
+                                                "address_residence": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "preview": {
+                                                            "type": "string"
+                                                        },
+                                                        "type": {
+                                                            "type": "string"
+                                                        },
+                                                        "reference": {
+                                                            "type": "string"
+                                                        },
+                                                        "instance": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "zipcode": {
+                                                                    "type": "string"
+                                                                },
+                                                                "country": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "preview": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "type": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "instance": {
+                                                                            "type": "object",
+                                                                            "properties": {
+                                                                                "alpha_one": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "alpha_two": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "code": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "alpha_tree": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "dutch_code": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "label": {
+                                                                                    "type": "string"
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        "reference": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "foreign_address_line2": {
+                                                                    "type": "string"
+                                                                },
+                                                                "date_created": {
+                                                                    "type": "string"
+                                                                },
+                                                                "longitude": {
+                                                                    "type": "string"
+                                                                },
+                                                                "street_number_suffix": {
+                                                                    "type": "string"
+                                                                },
+                                                                "latitude": {
+                                                                    "type": "string"
+                                                                },
+                                                                "date_modified": {
+                                                                    "type": "string"
+                                                                },
+                                                                "bag_id": {
+                                                                    "type": "string"
+                                                                },
+                                                                "street_number_letter": {
+                                                                    "type": "string"
+                                                                },
+                                                                "foreign_address_line3": {
+                                                                    "type": "string"
+                                                                },
+                                                                "street_number": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "foreign_address_line1": {
+                                                                    "type": "string"
+                                                                },
+                                                                "street": {
+                                                                    "type": "string"
+                                                                },
+                                                                "city": {
+                                                                    "type": "string"
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "mobile_phone_number": {
+                                                    "type": "string"
+                                                },
+                                                "partner": {
+                                                    "type": "string"
+                                                },
+                                                "date_created": {
+                                                    "type": "string"
+                                                },
+                                                "email_address": {
+                                                    "type": "string"
+                                                },
+                                                "personal_number": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "external_subscription": {
+                                    "type": "string"
+                                },
+                                "date_created": {
+                                    "type": "string"
+                                },
+                                "subject_type": {
+                                    "type": "string"
+                                },
+                                "old_subject_identifier": {
+                                    "type": "string"
+                                },
+                                "date_modified": {
+                                    "type": "string"
+                                },
+                                "display_name": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "milestone": {
+                    "type": "object",
+                    "properties": {
+                        "instance": {
+                            "type": "object",
+                            "properties": {
+                                "milestone_sequence_number": {
+                                    "type": "integer"
+                                },
+                                "phase_label": {
+                                    "type": "string"
+                                },
+                                "date_modified": {
+                                    "type": "string"
+                                },
+                                "last_sequence_number": {
+                                    "type": "integer"
+                                },
+                                "milestone_label": {
+                                    "type": "string"
+                                },
+                                "phase_sequence_number": {
+                                    "type": "integer"
+                                },
+                                "date_created": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "reference": {
+                            "type": "string"
+                        },
+                        "preview": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "confidentiality": {
+                    "type": "object",
+                    "properties": {
+                        "mapped": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "relations": {
+                    "type": "object",
+                    "properties": {
+                        "instance": {
+                            "type": "object",
+                            "properties": {
+                                "rows": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "reference": {
+                                                "type": "string"
+                                            },
+                                            "type": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "reference": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "route": {
+                    "type": "object",
+                    "properties": {
+                        "preview": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        },
+                        "instance": {
+                            "type": "object",
+                            "properties": {
+                                "role": {
+                                    "type": "object",
+                                    "properties": {
+                                        "reference": {
+                                            "type": "string"
+                                        },
+                                        "instance": {
+                                            "type": "object",
+                                            "properties": {
+                                                "role_id": {
+                                                    "type": "integer"
+                                                },
+                                                "date_created": {
+                                                    "type": "string"
+                                                },
+                                                "date_modified": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "system_role": {
+                                                    "type": "boolean"
+                                                },
+                                                "description": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "type": {
+                                            "type": "string"
+                                        },
+                                        "preview": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "date_modified": {
+                                    "type": "string"
+                                },
+                                "group": {
+                                    "type": "object",
+                                    "properties": {
+                                        "reference": {
+                                            "type": "string"
+                                        },
+                                        "instance": {
+                                            "type": "object",
+                                            "properties": {
+                                                "group_id": {
+                                                    "type": "integer"
+                                                },
+                                                "date_created": {
+                                                    "type": "string"
+                                                },
+                                                "description": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "date_modified": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "preview": {
+                                            "type": "string"
+                                        },
+                                        "type": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "active_selection_list": {
+                    "type": "string"
+                },
+                "number": {
+                    "type": "integer"
+                },
+                "date_of_completion": {
+                    "type": "string"
+                },
+                "result": {
+                    "type": "string"
+                },
+                "suspension_rationale": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "date_created": {
+                    "type": "string"
+                },
+                "date_destruction": {
+                    "type": "string"
+                },
+                "outcome": {
+                    "type": "object",
+                    "properties": {
+                        "preview": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        },
+                        "instance": {
+                            "type": "object",
+                            "properties": {
+                                "retention_period": {
+                                    "type": "integer"
+                                },
+                                "dossier_type": {
+                                    "type": "string"
+                                },
+                                "selection_list_start": {
+                                    "type": "string"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "date_created": {
+                                    "type": "string"
+                                },
+                                "selection_list_end": {
+                                    "type": "string"
+                                },
+                                "selection_list": {
+                                    "type": "string"
+                                },
+                                "archival_type": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "reference": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "aggregation_scope": {
+                    "type": "string"
+                },
+                "result_id": {
+                    "type": "integer"
+                },
+                "payment_status": {
+                    "type": "string"
+                },
+                "stalled_since": {
+                    "type": "string"
+                },
+                "html_email_template": {
+                    "type": "string"
+                },
+                "channel_of_contact": {
+                    "type": "string"
+                },
+                "coordinator": {
+                    "type": "object",
+                    "properties": {
+                        "reference": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        },
+                        "preview": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "date_modified": {
+                    "type": "string"
+                },
+                "archival_state": {
+                    "type": "string"
+                },
+                "subject_external": {
+                    "type": "string"
+                },
+                "number_previous": {
+                    "type": "integer"
+                },
+                "date_target": {
+                    "type": "string"
+                },
+                "correspondence_location": {
+                    "type": "string"
+                },
+                "assignee": {
+                    "type": "object",
+                    "properties": {
+                        "instance": {
+                            "type": "object",
+                            "properties": {
+                                "subject": {
+                                    "type": "object",
+                                    "properties": {
+                                        "instance": {
+                                            "type": "object",
+                                            "properties": {
+                                                "display_name": {
+                                                    "type": "string"
+                                                },
+                                                "surname": {
+                                                    "type": "string"
+                                                },
+                                                "first_names": {
+                                                    "type": "string"
+                                                },
+                                                "email_address": {
+                                                    "type": "string"
+                                                },
+                                                "username": {
+                                                    "type": "string"
+                                                },
+                                                "initials": {
+                                                    "type": "string"
+                                                },
+                                                "phone_number": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "reference": {
+                                            "type": "string"
+                                        },
+                                        "preview": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "number_parent": {
+                    "type": "integer"
+                },
+                "premature_completion_rationale": {
+                    "type": "string"
+                },
+                "date_of_registration": {
+                    "type": "string"
+                },
+                "case_location": {
+                    "type": "string"
+                },
+                "number_master": {
+                    "type": "integer"
+                },
+                "phase": {
+                    "type": "string"
+                },
+                "attributes": {
+                    "type": "array",
+                    "items": {}
+                }
+            }
+        },
+        "reference": {
+            "type": "string"
+        }
+    }
+}
