@@ -96,120 +96,170 @@ class InstallationService implements InstallerInterface
             (isset($this->io) ? $this->io->writeln('Endpoint found') : '');
         }
 
-        // $collection = new CollectionEntity();
-        // $collection->setAutoLoad(true);
-        // $collection->setLoadTestData(false);
-        // $collection->setLocationOAS('https://raw.githubusercontent.com/CommonGateway/ZaakRegistratieComponentAPI/main/OAS.yaml');
-        // $collection->setName('ZaakRegistratieComponent');
-        // $collection->setSourceType('GitHub');
-        // $collection->setPrefix('zrc');
+        // Xxllnc v1 api
+        $source = new Gateway();
+        $source->setName('zaaksysteem');
+        $source->setAuth('apikey');
+        $source->setLocation('https://development.zaaksysteem.nl/api/v1');
+        $this->entityManager->persist($source);
 
-        // // Xxllnc v1 api
-        // $source = new Gateway();
-        // $source->setName('zaaksysteem');
-        // $source->setAuth('apikeyw');
-        // $source->setLocation('https://development.zaaksysteem.nl/api/v1');
-        // $this->entityManager->persist($source);
+        $collection = new CollectionEntity();
+        $collection->setAutoLoad(true);
+        $collection->setLoadTestData(false);
+        $collection->setLocationOAS('https://raw.githubusercontent.com/CommonGateway/ZaakRegistratieComponentAPI/main/OAS.yaml');
+        $collection->setName('ZaakRegistratieComponent');
+        $collection->setSourceType('GitHub');
+        $collection->setPrefix('zrc');
 
-        // // actionAction
-        // $action = new Action();
-        // $action->setName('actionAction');
-        // $action->setDescription('This is a synchronization action from the xxllnc v2 to the gateway zgw ztc zaaktypen.');
-        // $action->setListens(['commongateway.cronjob.trigger']);
-        // $action->setConditions(['==' => [1, 1]]);
-        // $action->setClass('App\ActionHandler\SynchronizationCollectionHandler');
-        // $action->setPriority(0);
-        // $action->setAsync(false);
-        // $action->setIsEnabled(true);
-        // $this->entityManager->persist($action);
-        // // MapZaakTypeAction
-        // $action = new Action();
-        // $action->setName('MapZaakTypeAction');
-        // $action->setDescription('This is a action to map xxllnc casetype to zgw casetype.');
-        // $action->setListens(['commongateway.object.create', 'commongateway.object.update']);
-        // $action->setConditions(['==' => [1, 1]]);
-        // $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\MapZaakTypeHandler');
-        // $action->setPriority(0);
-        // $action->setAsync(false);
-        // $action->setIsEnabled(true);
-        // $this->entityManager->persist($action);
-        // // SyncZakenCollectionAction
-        // $action = new Action();
-        // $action->setName('SyncZakenCollectionAction');
-        // $action->setDescription('This is a synchronization action from the xxllnc v2 to the gateway zrc zaken.');
-        // $action->setListens(['commongateway.cronjob.trigger']);
-        // $action->setConditions(['==' => [1, 1]]);
-        // $action->setClass('App\ActionHandler\SynchronizationCollectionHandler');
-        // $action->setPriority(0);
-        // $action->setAsync(false);
-        // $action->setIsEnabled(true);
-        // $this->entityManager->persist($action);
-        // // MapZaakAction
-        // $action = new Action();
-        // $action->setName('MapZaakAction');
-        // $action->setDescription('This is a action to map xxllnc case to zgw zaak. ');
-        // $action->setListens(['commongateway.object.create', 'commongateway.object.update']);
-        // $action->setConditions(['==' => [1, 1]]);
-        // $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\MapZaakHandler');
-        // $action->setPriority(0);
-        // $action->setAsync(false);
-        // $action->setIsEnabled(true);
-        // $this->entityManager->persist($action);
-        // // ZgwToXxllncAction
-        // $action = new Action();
-        // $action->setName('ZgwToXxllncAction');
-        // $action->setDescription('This is a mapping action from gateway zrc zaken to xxllnc v1.  ');
-        // $action->setListens(['commongateway.object.create']);
-        // $action->setConditions(['==' => [1, 1]]);
-        // $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\ZgwToXxllncHandler');
-        // $action->setPriority(0);
-        // $action->setAsync(false);
-        // $action->setIsEnabled(true);
-        // $this->entityManager->persist($action);
-        // // SyncZgwToXxllncAction
-        // $action = new Action();
-        // $action->setName('SyncZgwToXxllncAction');
-        // $action->setDescription('This is a synchronization action from gateway zrc zaken to xxllnc v1.');
-        // $action->setListens(['commongateway.object.create']);
-        // $action->setConditions(['==' => [1, 1]]);
-        // $action->setClass('App\ActionHandler\SynchronizationPushHandler');
-        // $action->setPriority(0);
-        // $action->setAsync(false);
-        // $action->setIsEnabled(true);
-        // $this->entityManager->persist($action);
-        // // SyncZgwToXxllncAction
-        // $trans = new Translation();
-        // $trans->setTranslationTable('caseTypeTable1');
-        // $trans->setTranslateFrom('Nee');
-        // $trans->setTranslateTo(false);
-        // $trans->setLanguage('nl');
-        // $this->entityManager->persist($trans);
-        // $trans = new Translation();
-        // $trans->setTranslationTable('caseTypeTable1');
-        // $trans->setTranslateFrom('Ja');
-        // $trans->setTranslateTo(true);
-        // $trans->setLanguage('nl');
-        // $this->entityManager->persist($trans);
-        // $trans = new Translation();
-        // $trans->setTranslationTable('caseTypeTable1');
-        // $trans->setTranslateFrom('internextern');
-        // $trans->setTranslateTo('intern');
-        // $trans->setLanguage('nl');
-        // $this->entityManager->persist($trans);
-        // $trans = new Translation();
-        // $trans->setTranslationTable('caseTypeTable1');
-        // $trans->setTranslateFrom('Vernietigen (V)');
-        // $trans->setTranslateTo('vernietigen');
-        // $trans->setLanguage('nl');
-        // $this->entityManager->persist($trans);
-        // $trans = new Translation();
-        // $trans->setTranslationTable('caseTypeTable1');
-        // $trans->setTranslateFrom('Bewaren (B)');
-        // $trans->setTranslateTo('blijvend_bewaren');
-        // $trans->setLanguage('nl');
-        // $this->entityManager->persist($trans);
+        $collection = new CollectionEntity();
+        $collection->setAutoLoad(true);
+        $collection->setLoadTestData(false);
+        $collection->setLocationOAS('https://raw.githubusercontent.com/CommonGateway/ZaakTypeCatalogusAPI/main/OAS.yaml');
+        $collection->setName('ZaakTypeCatalogus');
+        $collection->setSourceType('GitHub');
+        $collection->setPrefix('ztc');
+        $collection->setSource($source);
 
-        // $this->entityManager->flush();
+        $collection = new CollectionEntity();
+        $collection->setAutoLoad(true);
+        $collection->setLoadTestData(false);
+        $collection->setLocationOAS('https://raw.githubusercontent.com/CommonGateway/KlantenAPI/main/OAS.yaml');
+        $collection->setName('Klanten');
+        $collection->setSourceType('GitHub');
+        $collection->setPrefix('klanten');
+
+        $collection = new CollectionEntity();
+        $collection->setAutoLoad(true);
+        $collection->setLoadTestData(false);
+        $collection->setLocationOAS('https://raw.githubusercontent.com/CommonGateway/ContactmomentenAPI/main/OAS.yaml');
+        $collection->setName('Contactmomenten');
+        $collection->setSourceType('GitHub');
+        $collection->setPrefix('cmc');
+
+        $collection = new CollectionEntity();
+        $collection->setAutoLoad(true);
+        $collection->setLoadTestData(false);
+        $collection->setLocationOAS('https://raw.githubusercontent.com/CommonGateway/BesluitenAPI/main/OAS.yaml');
+        $collection->setName('Besluiten');
+        $collection->setSourceType('GitHub');
+        $collection->setPrefix('brc');
+
+        $collection = new CollectionEntity();
+        $collection->setAutoLoad(true);
+        $collection->setLoadTestData(false);
+        $collection->setLocationOAS('https://raw.githubusercontent.com/CommonGateway/DocumentenAPI/main/OAS.yaml');
+        $collection->setName('Documenten');
+        $collection->setSourceType('GitHub');
+        $collection->setPrefix('drc');
+
+        $collection = new CollectionEntity();
+        $collection->setAutoLoad(true);
+        $collection->setLoadTestData(false);
+        $collection->setLocationOAS('https://raw.githubusercontent.com/CommonGateway/XxllncOverigeObjecten/main/OAS.yaml');
+        $collection->setName('Overige objecten');
+        $collection->setSourceType('GitHub');
+        $collection->setSource($source);
+
+
+        // actionAction
+        $action = new Action();
+        $action->setName('actionAction');
+        $action->setDescription('This is a synchronization action from the xxllnc v2 to the gateway zgw ztc zaaktypen.');
+        $action->setListens(['commongateway.cronjob.trigger']);
+        $action->setConditions(['==' => [1, 1]]);
+        $action->setClass('App\ActionHandler\SynchronizationCollectionHandler');
+        $action->setPriority(0);
+        $action->setAsync(false);
+        $action->setIsEnabled(true);
+        $this->entityManager->persist($action);
+        // MapZaakTypeAction
+        $action = new Action();
+        $action->setName('MapZaakTypeAction');
+        $action->setDescription('This is a action to map xxllnc casetype to zgw casetype.');
+        $action->setListens(['commongateway.object.create', 'commongateway.object.update']);
+        $action->setConditions(['==' => [1, 1]]);
+        $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\MapZaakTypeHandler');
+        $action->setPriority(0);
+        $action->setAsync(false);
+        $action->setIsEnabled(true);
+        $this->entityManager->persist($action);
+        // SyncZakenCollectionAction
+        $action = new Action();
+        $action->setName('SyncZakenCollectionAction');
+        $action->setDescription('This is a synchronization action from the xxllnc v2 to the gateway zrc zaken.');
+        $action->setListens(['commongateway.cronjob.trigger']);
+        $action->setConditions(['==' => [1, 1]]);
+        $action->setClass('App\ActionHandler\SynchronizationCollectionHandler');
+        $action->setPriority(0);
+        $action->setAsync(false);
+        $action->setIsEnabled(true);
+        $this->entityManager->persist($action);
+        // MapZaakAction
+        $action = new Action();
+        $action->setName('MapZaakAction');
+        $action->setDescription('This is a action to map xxllnc case to zgw zaak. ');
+        $action->setListens(['commongateway.object.create', 'commongateway.object.update']);
+        $action->setConditions(['==' => [1, 1]]);
+        $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\MapZaakHandler');
+        $action->setPriority(0);
+        $action->setAsync(false);
+        $action->setIsEnabled(true);
+        $this->entityManager->persist($action);
+        // ZgwToXxllncAction
+        $action = new Action();
+        $action->setName('ZgwToXxllncAction');
+        $action->setDescription('This is a mapping action from gateway zrc zaken to xxllnc v1.  ');
+        $action->setListens(['commongateway.object.create']);
+        $action->setConditions(['==' => [1, 1]]);
+        $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\ZgwToXxllncHandler');
+        $action->setPriority(0);
+        $action->setAsync(false);
+        $action->setIsEnabled(true);
+        $this->entityManager->persist($action);
+        // SyncZgwToXxllncAction
+        $action = new Action();
+        $action->setName('SyncZgwToXxllncAction');
+        $action->setDescription('This is a synchronization action from gateway zrc zaken to xxllnc v1.');
+        $action->setListens(['commongateway.object.create']);
+        $action->setConditions(['==' => [1, 1]]);
+        $action->setClass('App\ActionHandler\SynchronizationPushHandler');
+        $action->setPriority(0);
+        $action->setAsync(false);
+        $action->setIsEnabled(true);
+        $this->entityManager->persist($action);
+        // SyncZgwToXxllncAction
+        $trans = new Translation();
+        $trans->setTranslationTable('caseTypeTable1');
+        $trans->setTranslateFrom('Nee');
+        $trans->setTranslateTo(false);
+        $trans->setLanguage('nl');
+        $this->entityManager->persist($trans);
+        $trans = new Translation();
+        $trans->setTranslationTable('caseTypeTable1');
+        $trans->setTranslateFrom('Ja');
+        $trans->setTranslateTo(true);
+        $trans->setLanguage('nl');
+        $this->entityManager->persist($trans);
+        $trans = new Translation();
+        $trans->setTranslationTable('caseTypeTable1');
+        $trans->setTranslateFrom('internextern');
+        $trans->setTranslateTo('intern');
+        $trans->setLanguage('nl');
+        $this->entityManager->persist($trans);
+        $trans = new Translation();
+        $trans->setTranslationTable('caseTypeTable1');
+        $trans->setTranslateFrom('Vernietigen (V)');
+        $trans->setTranslateTo('vernietigen');
+        $trans->setLanguage('nl');
+        $this->entityManager->persist($trans);
+        $trans = new Translation();
+        $trans->setTranslationTable('caseTypeTable1');
+        $trans->setTranslateFrom('Bewaren (B)');
+        $trans->setTranslateTo('blijvend_bewaren');
+        $trans->setLanguage('nl');
+        $this->entityManager->persist($trans);
+
+        $this->entityManager->flush();
 
         // Lets see if there is a generic search endpoint
 
