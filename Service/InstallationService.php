@@ -88,20 +88,31 @@ class InstallationService implements InstallerInterface
             }
             (isset($this->io) ? $this->io->writeln('Endpoint found') : '');
         }
-        //@todo Hier de ZGW bundle requieren
 
         $sourceRepository = $this->entityManager->getRepository('App:Gateway');
         $actionRepository = $this->entityManager->getRepository('App:Action');
-        $schemaRepository = $this->entityManager->getRepository('App:Entity');
-        $xxllncZaakPostID = ($entity = $schemaRepository->findOneBy(['name' => 'XxllncZaakPost']) ? $entity->getId()->toString() : '');
-        $xxllncZaakTypeID = ($entity = $schemaRepository->findOneBy(['name' => 'XxllncZaakType']) ? $entity->getId()->toString() : '');
-        $zaakID = ($entity = $schemaRepository->findOneBy(['name' => 'Zaak']) ? $entity->getId()->toString() : '');
-        $zaakTypeID = ($schema = $schemaRepository->findOneBy(['name' => 'ZaakType']) ? $schema->getId()->toString() : '');
+        $schemaRepository = $this->entityManager->getRepository('App:Entity');        
+        $attributeRepository = $this->entityManager->getRepository('App:Attribute');        
+
+
+        // Get schema ID's
+        $xxllncZaakPost = $schemaRepository->findOneBy(['name' => 'XxllncZaakPost']);
+        $xxllncZaakPostID = $xxllncZaakPost ? $xxllncZaakPost->getId()->toString() : '';
+        $xxllncZaak = $schemaRepository->findOneBy(['name' => 'XxllncZaak']);
+        $xxllncZaakID = $xxllncZaak ? $xxllncZaak->getId()->toString() : '';
+        $xxllncZaakType = $schemaRepository->findOneBy(['name' => 'XxllncZaakType']);
+        $xxllncZaakTypeID = $xxllncZaakType ? $xxllncZaakType->getId()->toString() : '';
+        $zaak = $schemaRepository->findOneBy(['name' => 'Zaak']);
+        $zaakID = $zaak ? $zaak->getId()->toString() : '';
+        $zaakType = $schemaRepository->findOneBy(['name' => 'ZaakType']);
+        $zaakTypeID = $zaakType ? $zaakType->getId()->toString() : '';
+        $rolType = $schemaRepository->findOneBy(['name' => 'RolType']);
+        $rolTypeID = $rolType ? $rolType->getId()->toString() : '';
+
 
         // Sources
-
         // Xxllnc v1 api
-        $source = $sourceRepository->findOneBy(['name' => 'zaaksysteem']) ?? $source = new Gateway();
+        $source = $sourceRepository->findOneBy(['name' => 'zaaksysteem']) ?? new Gateway();
         $source->setName('zaaksysteem');
         $source->setAuth('apikey');
         $source->setLocation('https://development.zaaksysteem.nl/api/v1');
@@ -110,8 +121,7 @@ class InstallationService implements InstallerInterface
         isset($this->io) && $this->io->writeln('Gateway: \'zaaksysteem\' created');
 
 
-        // // Collections
-        // $collectionRepository = $this->entityManager->getRepository('App:CollectionEntity');
+        // // Collections BACKUP
 
         // $collection = $collectionRepository->findOneBy(['name' => 'ZaakRegistratieComponent']) ?? $collection = new CollectionEntity();
         // $collection->setAutoLoad(true);
@@ -174,21 +184,10 @@ class InstallationService implements InstallerInterface
         // $this->entityManager->persist($collection);
         // isset($this->io) && $this->io->writeln('CollectionEntity: \'Documenten\' created');
 
-        // $collection = $collectionRepository->findOneBy(['name' => 'Overige objecten']) ?? $collection = new CollectionEntity();
-        // $collection->setAutoLoad(true);
-        // $collection->setLoadTestData(false);
-        // $collection->setLocationOAS('https://raw.githubusercontent.com/CommonGateway/XxllncOverigeObjecten/main/OAS.yaml');
-        // $collection->setName('Overige objecten');
-        // $collection->setSourceType('GitHub');
-        // $collection->setSource($source);
-        // $this->entityManager->persist($collection);
-        // isset($this->io) && $this->io->writeln('CollectionEntity: \'Overige objecten\' created');
-
 
         // Actions
-
         // SyncZaakTypeAction
-        $action = $actionRepository->findOneBy(['name' => 'SyncZaakTypeAction']) ?? $action = new Action();
+        $action = $actionRepository->findOneBy(['name' => 'SyncZaakTypeAction']) ?? new Action();
         $action->setName('SyncZaakTypeAction');
         $action->setDescription('This is a synchronization action from the xxllnc v2 to the gateway zgw ztc zaaktypen.');
         $action->setListens(['commongateway.cronjob.trigger']);
@@ -214,12 +213,12 @@ class InstallationService implements InstallerInterface
             ]
         ]);
         $action->setClass('App\ActionHandler\SynchronizationCollectionHandler');
-        $action->setIsEnabled(false);
+        $action->setIsEnabled(true);
         $this->entityManager->persist($action);
         isset($this->io) && $this->io->writeln('Action: \'SyncZaakTypeAction\' created');
 
         // MapZaakTypeAction
-        $action = $actionRepository->findOneBy(['name' => 'MapZaakTypeAction']) ?? $action = new Action();
+        $action = $actionRepository->findOneBy(['name' => 'MapZaakTypeAction']) ?? new Action();
         $action->setName('MapZaakTypeAction');
         $action->setDescription('This is a action to map xxllnc casetype to zgw casetype.');
         $action->setListens(['commongateway.object.create', 'commongateway.object.update']);
@@ -230,23 +229,23 @@ class InstallationService implements InstallerInterface
         $action->setConfiguration([
             'entities' => [
                 'ZaakType' => $zaakTypeID,
-                'RolType' => ($schema = $schemaRepository->findOneBy(['name' => 'RolType']) ? $schema->getId()->toString() : '')
+                'RolType' => $rolTypeID
             ]
         ]);
         $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\MapZaakTypeHandler');
-        $action->setIsEnabled(false);
+        $action->setIsEnabled(true);
         $this->entityManager->persist($action);
         isset($this->io) && $this->io->writeln('Action: \'MapZaakTypeAction\' created');
 
         // SyncZakenCollectionAction
-        $action = $actionRepository->findOneBy(['name' => 'SyncZakenCollectionAction']) ?? $action = new Action();
+        $action = $actionRepository->findOneBy(['name' => 'SyncZakenCollectionAction']) ?? new Action();
         $action->setName('SyncZakenCollectionAction');
         $action->setDescription('This is a synchronization action from the xxllnc v2 to the gateway zrc zaken.');
         $action->setListens(['commongateway.cronjob.trigger']);
         $action->setConditions(['==' => [1, 1]]);
         $action->setConfiguration([
             'sourcePaginated' => true,
-            'entity'    => ($schema = $schemaRepository->findOneBy(['name' => 'XxllncZaak']) ? $schema->getId()->toString() : ''),
+            'entity'    => $xxllncZaakID,
             'source'    => $source->getId()->toString(),
             'location'  => '/case',
             'apiSource' => [
@@ -266,12 +265,12 @@ class InstallationService implements InstallerInterface
             ]
         ]);
         $action->setClass('App\ActionHandler\SynchronizationCollectionHandler');
-        $action->setIsEnabled(false);
+        $action->setIsEnabled(true);
         $this->entityManager->persist($action);
         isset($this->io) && $this->io->writeln('Action: \'SyncZakenCollectionAction\' created');
 
         // MapZaakAction
-        $action = $actionRepository->findOneBy(['name' => 'MapZaakAction']) ?? $action = new Action();
+        $action = $actionRepository->findOneBy(['name' => 'MapZaakAction']) ?? new Action();
         $action->setName('MapZaakAction');
         $action->setDescription('This is a action to map xxllnc case to zgw zaak. ');
         $action->setListens(['commongateway.object.create', 'commongateway.object.update']);
@@ -288,12 +287,12 @@ class InstallationService implements InstallerInterface
             ]
         ]);
         $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\MapZaakHandler');
-        $action->setIsEnabled(false);
+        $action->setIsEnabled(true);
         $this->entityManager->persist($action);
         isset($this->io) && $this->io->writeln('Action: \'MapZaakAction\' created');
 
         // ZgwToXxllncAction
-        $action = $actionRepository->findOneBy(['name' => 'ZgwToXxllncAction']) ?? $action = new Action();
+        $action = $actionRepository->findOneBy(['name' => 'ZgwToXxllncAction']) ?? new Action();
         $action->setName('ZgwToXxllncAction');
         $action->setDescription('This is a mapping action from gateway zrc zaken to xxllnc v1.  ');
         $action->setListens(['commongateway.object.create']);
@@ -310,12 +309,12 @@ class InstallationService implements InstallerInterface
 
         ]);
         $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\ZgwToXxllncHandler');
-        $action->setIsEnabled(false);
+        $action->setIsEnabled(true);
         $this->entityManager->persist($action);
         isset($this->io) && $this->io->writeln('Action: \'ZgwToXxllncAction\' created');
 
         // SyncZgwToXxllncAction
-        $action = $actionRepository->findOneBy(['name' => 'SyncZgwToXxllncAction']) ?? $action = new Action();
+        $action = $actionRepository->findOneBy(['name' => 'SyncZgwToXxllncAction']) ?? new Action();
         $action->setName('SyncZgwToXxllncAction');
         $action->setDescription('This is a synchronization action from gateway zrc zaken to xxllnc v1.');
         $action->setListens(['commongateway.object.create']);
@@ -342,7 +341,7 @@ class InstallationService implements InstallerInterface
             ]
         ]);
         $action->setClass('App\ActionHandler\SynchronizationPushHandler');
-        $action->setIsEnabled(false);
+        $action->setIsEnabled(true);
         $this->entityManager->persist($action);
         isset($this->io) && $this->io->writeln('Action: \'SyncZgwToXxllncAction\' created');
 
@@ -351,7 +350,7 @@ class InstallationService implements InstallerInterface
         $translationRepository = $this->entityManager->getRepository('App:Translation');
 
         // SyncZgwToXxllncAction
-        $trans = $translationRepository->findOneBy(['translateFrom' => 'Nee', 'translationTable' => 'caseTypeTable1']) ?? $trans = new Translation();
+        $trans = $translationRepository->findOneBy(['translateFrom' => 'Nee', 'translationTable' => 'caseTypeTable1']) ?? new Translation();
         $trans->setTranslationTable('caseTypeTable1');
         $trans->setTranslateFrom('Nee');
         $trans->setTranslateTo(false);
@@ -359,7 +358,7 @@ class InstallationService implements InstallerInterface
         $this->entityManager->persist($trans);
         isset($this->io) && $this->io->writeln('Translation created');
 
-        $trans = $translationRepository->findOneBy(['translateFrom' => 'Ja', 'translationTable' => 'caseTypeTable1']) ?? $trans = new Translation();
+        $trans = $translationRepository->findOneBy(['translateFrom' => 'Ja', 'translationTable' => 'caseTypeTable1']) ?? new Translation();
         $trans->setTranslationTable('caseTypeTable1');
         $trans->setTranslateFrom('Ja');
         $trans->setTranslateTo(true);
@@ -367,7 +366,7 @@ class InstallationService implements InstallerInterface
         $this->entityManager->persist($trans);
         isset($this->io) && $this->io->writeln('Translation created');
 
-        $trans = $translationRepository->findOneBy(['translateFrom' => 'internextern', 'translationTable' => 'caseTypeTable1']) ?? $trans = new Translation();
+        $trans = $translationRepository->findOneBy(['translateFrom' => 'internextern', 'translationTable' => 'caseTypeTable1']) ?? new Translation();
         $trans->setTranslationTable('caseTypeTable1');
         $trans->setTranslateFrom('internextern');
         $trans->setTranslateTo('intern');
@@ -375,7 +374,7 @@ class InstallationService implements InstallerInterface
         $this->entityManager->persist($trans);
         isset($this->io) && $this->io->writeln('Translation created');
 
-        $trans = $translationRepository->findOneBy(['translateFrom' => 'Vernietigen (V)', 'translationTable' => 'caseTypeTable1']) ?? $trans = new Translation();
+        $trans = $translationRepository->findOneBy(['translateFrom' => 'Vernietigen (V)', 'translationTable' => 'caseTypeTable1']) ?? new Translation();
         $trans->setTranslationTable('caseTypeTable1');
         $trans->setTranslateFrom('Vernietigen (V)');
         $trans->setTranslateTo('vernietigen');
@@ -383,7 +382,7 @@ class InstallationService implements InstallerInterface
         $this->entityManager->persist($trans);
         isset($this->io) && $this->io->writeln('Translation created');
 
-        $trans = $translationRepository->findOneBy(['translateFrom' => 'Bewaren (B)', 'translationTable' => 'caseTypeTable1']) ?? $trans = new Translation();
+        $trans = $translationRepository->findOneBy(['translateFrom' => 'Bewaren (B)', 'translationTable' => 'caseTypeTable1']) ?? new Translation();
         $trans->setTranslationTable('caseTypeTable1');
         $trans->setTranslateFrom('Bewaren (B)');
         $trans->setTranslateTo('blijvend_bewaren');
@@ -391,10 +390,27 @@ class InstallationService implements InstallerInterface
         $this->entityManager->persist($trans);
         isset($this->io) && $this->io->writeln('Translation created');
 
+        if ($xxllncZaakInstance = $attributeRepository->findOneBy(['entity' => $xxllncZaak, 'name' => 'instance'])) {
+            $xxllncZaakInstance->setObject(null);
+            $xxllncZaakInstance->setMultiple(false);
+            $xxllncZaakInstance->setType('array');
+            $this->entityManager->persist($xxllncZaakInstance);
+        }
+        if ($xxllncZaakTypeInstance = $attributeRepository->findOneBy(['entity' => $xxllncZaakType, 'name' => 'instance'])) {
+            $xxllncZaakTypeInstance->setObject(null);
+            $xxllncZaakTypeInstance->setMultiple(false);
+            $xxllncZaakTypeInstance->setType('array');
+            $this->entityManager->persist($xxllncZaakTypeInstance);
+        }
+        if ($xxllncZaakPostFiles = $attributeRepository->findOneBy(['entity' => $xxllncZaakPost, 'name' => 'files'])) {
+            $xxllncZaakPostFiles->setObject(null);
+            $xxllncZaakPostFiles->setMultiple(false);
+            $xxllncZaakPostFiles->setType('array');
+            $this->entityManager->persist($xxllncZaakPostFiles);
+        }
+
         $this->entityManager->flush();
 
         // Lets see if there is a generic search endpoint
-
-
     }
 }
