@@ -9,8 +9,9 @@ use Psr\Cache\CacheException;
 use Psr\Cache\InvalidArgumentException;
 use Psr\Container\ContainerInterface;
 use Respect\Validation\Exceptions\ComponentException;
+use CommonGateway\CoreBundle\ActionHandler\ActionHandlerInterface;
 
-class MapZaakHandler
+class MapZaakHandler implements ActionHandlerInterface
 {
     private mapZaakService $mapZaakService;
 

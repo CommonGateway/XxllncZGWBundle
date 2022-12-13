@@ -8,8 +8,9 @@ use App\Exception\GatewayException;
 use Psr\Cache\CacheException;
 use Psr\Cache\InvalidArgumentException;
 use Respect\Validation\Exceptions\ComponentException;
+use CommonGateway\CoreBundle\ActionHandler\ActionHandlerInterface;
 
-class ZgwToXxllncHandler
+class ZgwToXxllncHandler implements ActionHandlerInterface
 {
     private MapZaakService $mapZaakService;
 
