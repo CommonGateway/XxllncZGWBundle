@@ -105,6 +105,7 @@ class InstallationService implements InstallerInterface
         $source->setName('zaaksysteem');
         $source->setAuth('apikey');
         $source->setLocation('https://development.zaaksysteem.nl/api/v1');
+        $source->setIsEnabled(false);
         $this->entityManager->persist($source);
         isset($this->io) && $this->io->writeln('Gateway: \'zaaksysteem\' created');
 
