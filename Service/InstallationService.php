@@ -90,166 +90,267 @@ class InstallationService implements InstallerInterface
         }
         //@todo Hier de ZGW bundle requieren
 
+        $sourceRepository = $this->entityManager->getRepository('App:Gateway');
+        $actionRepository = $this->entityManager->getRepository('App:Action');
+        $schemaRepository = $this->entityManager->getRepository('App:Entity');
+        $xxllncZaakPostID = ($entity = $schemaRepository->findOneBy(['name' => 'XxllncZaakPost']) ? $entity->getId()->toString() : '');
+        $xxllncZaakTypeID = ($entity = $schemaRepository->findOneBy(['name' => 'XxllncZaakType']) ? $entity->getId()->toString() : '');
+        $zaakID = ($entity = $schemaRepository->findOneBy(['name' => 'Zaak']) ? $entity->getId()->toString() : '');
+        $zaakTypeID = ($schema = $schemaRepository->findOneBy(['name' => 'ZaakType']) ? $schema->getId()->toString() : '');
+
+        // Sources
+
         // Xxllnc v1 api
-        $source = new Gateway();
+        $source = $sourceRepository->findOneBy(['name' => 'zaaksysteem']) ?? $source = new Gateway();
         $source->setName('zaaksysteem');
         $source->setAuth('apikey');
         $source->setLocation('https://development.zaaksysteem.nl/api/v1');
         $this->entityManager->persist($source);
         isset($this->io) && $this->io->writeln('Gateway: \'zaaksysteem\' created');
 
-        $collection = new CollectionEntity();
-        $collection->setAutoLoad(true);
-        $collection->setLoadTestData(false);
-        $collection->setLocationOAS('https://raw.githubusercontent.com/CommonGateway/ZaakRegistratieComponentAPI/main/OAS.yaml');
-        $collection->setName('ZaakRegistratieComponent');
-        $collection->setSourceType('GitHub');
-        $collection->setPrefix('zrc');
-        $this->entityManager->persist($collection);
-        isset($this->io) && $this->io->writeln('CollectionEntity: \'ZaakRegistratieComponent\' created');
 
-        $collection = new CollectionEntity();
-        $collection->setAutoLoad(true);
-        $collection->setLoadTestData(false);
-        $collection->setLocationOAS('https://raw.githubusercontent.com/CommonGateway/ZaakTypeCatalogusAPI/main/OAS.yaml');
-        $collection->setName('ZaakTypeCatalogus');
-        $collection->setSourceType('GitHub');
-        $collection->setPrefix('ztc');
-        $collection->setSource($source);
-        $this->entityManager->persist($collection);
-        isset($this->io) && $this->io->writeln('CollectionEntity: \'ZaakTypeCatalogus\' created');
+        // // Collections
+        // $collectionRepository = $this->entityManager->getRepository('App:CollectionEntity');
 
-        $collection = new CollectionEntity();
-        $collection->setAutoLoad(true);
-        $collection->setLoadTestData(false);
-        $collection->setLocationOAS('https://raw.githubusercontent.com/CommonGateway/KlantenAPI/main/OAS.yaml');
-        $collection->setName('Klanten');
-        $collection->setSourceType('GitHub');
-        $collection->setPrefix('klanten');
-        $this->entityManager->persist($collection);
-        isset($this->io) && $this->io->writeln('CollectionEntity: \'Klanten\' created');
+        // $collection = $collectionRepository->findOneBy(['name' => 'ZaakRegistratieComponent']) ?? $collection = new CollectionEntity();
+        // $collection->setAutoLoad(true);
+        // $collection->setLoadTestData(false);
+        // $collection->setLocationOAS('https://raw.githubusercontent.com/CommonGateway/ZaakRegistratieComponentAPI/main/OAS.yaml');
+        // $collection->setName('ZaakRegistratieComponent');
+        // $collection->setSourceType('GitHub');
+        // $collection->setPrefix('zrc');
+        // $this->entityManager->persist($collection);
+        // isset($this->io) && $this->io->writeln('CollectionEntity: \'ZaakRegistratieComponent\' created');
 
-        $collection = new CollectionEntity();
-        $collection->setAutoLoad(true);
-        $collection->setLoadTestData(false);
-        $collection->setLocationOAS('https://raw.githubusercontent.com/CommonGateway/ContactmomentenAPI/main/OAS.yaml');
-        $collection->setName('Contactmomenten');
-        $collection->setSourceType('GitHub');
-        $collection->setPrefix('cmc');
-        $this->entityManager->persist($collection);
-        isset($this->io) && $this->io->writeln('CollectionEntity: \'Contactmomenten\' created');
+        // $collection = $collectionRepository->findOneBy(['name' => 'ZaakTypeCatalogus']) ?? $collection = new CollectionEntity();
+        // $collection->setAutoLoad(true);
+        // $collection->setLoadTestData(false);
+        // $collection->setLocationOAS('https://raw.githubusercontent.com/CommonGateway/ZaakTypeCatalogusAPI/main/OAS.yaml');
+        // $collection->setName('ZaakTypeCatalogus');
+        // $collection->setSourceType('GitHub');
+        // $collection->setPrefix('ztc');
+        // $collection->setSource($source);
+        // $this->entityManager->persist($collection);
+        // isset($this->io) && $this->io->writeln('CollectionEntity: \'ZaakTypeCatalogus\' created');
 
-        $collection = new CollectionEntity();
-        $collection->setAutoLoad(true);
-        $collection->setLoadTestData(false);
-        $collection->setLocationOAS('https://raw.githubusercontent.com/CommonGateway/BesluitenAPI/main/OAS.yaml');
-        $collection->setName('Besluiten');
-        $collection->setSourceType('GitHub');
-        $collection->setPrefix('brc');
-        $this->entityManager->persist($collection);
-        isset($this->io) && $this->io->writeln('CollectionEntity: \'Besluiten\' created');
+        // $collection = $collectionRepository->findOneBy(['name' => 'Klanten']) ?? $collection = new CollectionEntity();
+        // $collection->setAutoLoad(true);
+        // $collection->setLoadTestData(false);
+        // $collection->setLocationOAS('https://raw.githubusercontent.com/CommonGateway/KlantenAPI/main/OAS.yaml');
+        // $collection->setName('Klanten');
+        // $collection->setSourceType('GitHub');
+        // $collection->setPrefix('klanten');
+        // $this->entityManager->persist($collection);
+        // isset($this->io) && $this->io->writeln('CollectionEntity: \'Klanten\' created');
 
-        $collection = new CollectionEntity();
-        $collection->setAutoLoad(true);
-        $collection->setLoadTestData(false);
-        $collection->setLocationOAS('https://raw.githubusercontent.com/CommonGateway/DocumentenAPI/main/OAS.yaml');
-        $collection->setName('Documenten');
-        $collection->setSourceType('GitHub');
-        $collection->setPrefix('drc');
-        $this->entityManager->persist($collection);
-        isset($this->io) && $this->io->writeln('CollectionEntity: \'Documenten\' created');
+        // $collection = $collectionRepository->findOneBy(['name' => 'Contactmomenten']) ?? $collection = new CollectionEntity();
+        // $collection->setAutoLoad(true);
+        // $collection->setLoadTestData(false);
+        // $collection->setLocationOAS('https://raw.githubusercontent.com/CommonGateway/ContactmomentenAPI/main/OAS.yaml');
+        // $collection->setName('Contactmomenten');
+        // $collection->setSourceType('GitHub');
+        // $collection->setPrefix('cmc');
+        // $this->entityManager->persist($collection);
+        // isset($this->io) && $this->io->writeln('CollectionEntity: \'Contactmomenten\' created');
 
-        $collection = new CollectionEntity();
-        $collection->setAutoLoad(true);
-        $collection->setLoadTestData(false);
-        $collection->setLocationOAS('https://raw.githubusercontent.com/CommonGateway/XxllncOverigeObjecten/main/OAS.yaml');
-        $collection->setName('Overige objecten');
-        $collection->setSourceType('GitHub');
-        $collection->setSource($source);
-        $this->entityManager->persist($collection);
-        isset($this->io) && $this->io->writeln('CollectionEntity: \'Overige objecten\' created');
+        // $collection = $collectionRepository->findOneBy(['name' => 'Besluiten']) ?? $collection = new CollectionEntity();
+        // $collection->setAutoLoad(true);
+        // $collection->setLoadTestData(false);
+        // $collection->setLocationOAS('https://raw.githubusercontent.com/CommonGateway/BesluitenAPI/main/OAS.yaml');
+        // $collection->setName('Besluiten');
+        // $collection->setSourceType('GitHub');
+        // $collection->setPrefix('brc');
+        // $this->entityManager->persist($collection);
+        // isset($this->io) && $this->io->writeln('CollectionEntity: \'Besluiten\' created');
+
+        // $collection = $collectionRepository->findOneBy(['name' => 'Documenten']) ?? $collection = new CollectionEntity();
+        // $collection->setAutoLoad(true);
+        // $collection->setLoadTestData(false);
+        // $collection->setLocationOAS('https://raw.githubusercontent.com/CommonGateway/DocumentenAPI/main/OAS.yaml');
+        // $collection->setName('Documenten');
+        // $collection->setSourceType('GitHub');
+        // $collection->setPrefix('drc');
+        // $this->entityManager->persist($collection);
+        // isset($this->io) && $this->io->writeln('CollectionEntity: \'Documenten\' created');
+
+        // $collection = $collectionRepository->findOneBy(['name' => 'Overige objecten']) ?? $collection = new CollectionEntity();
+        // $collection->setAutoLoad(true);
+        // $collection->setLoadTestData(false);
+        // $collection->setLocationOAS('https://raw.githubusercontent.com/CommonGateway/XxllncOverigeObjecten/main/OAS.yaml');
+        // $collection->setName('Overige objecten');
+        // $collection->setSourceType('GitHub');
+        // $collection->setSource($source);
+        // $this->entityManager->persist($collection);
+        // isset($this->io) && $this->io->writeln('CollectionEntity: \'Overige objecten\' created');
 
 
-        // actionAction
-        $action = new Action();
+        // Actions
+
+        // SyncZaakTypeAction
+        $action = $actionRepository->findOneBy(['name' => 'SyncZaakTypeAction']) ?? $action = new Action();
         $action->setName('SyncZaakTypeAction');
         $action->setDescription('This is a synchronization action from the xxllnc v2 to the gateway zgw ztc zaaktypen.');
         $action->setListens(['commongateway.cronjob.trigger']);
         $action->setConditions(['==' => [1, 1]]);
+        $action->setConfiguration([
+            'entity'    => $xxllncZaakTypeID,
+            'source'    => $source->getId()->toString(),
+            'location'  => '/casetype',
+            'apiSource' => [
+                'location' => [
+                    'objects' => 'result.instance.rows',
+                    'idField' => 'reference'
+                ],
+                'queryMethod' => 'page',
+                'syncFromList' => true,
+                'sourceLeading' => true,
+                'useDataFromCollection' => false,
+                'mappingIn' => [],
+                'mappingOut' => [],
+                'translationsIn' => [],
+                'translationsOut' => [],
+                'skeletonIn' => []
+            ]
+        ]);
         $action->setClass('App\ActionHandler\SynchronizationCollectionHandler');
-        $action->setPriority(0);
-        $action->setAsync(false);
-        $action->setIsEnabled(true);
+        $action->setIsEnabled(false);
         $this->entityManager->persist($action);
         isset($this->io) && $this->io->writeln('Action: \'SyncZaakTypeAction\' created');
 
         // MapZaakTypeAction
-        $action = new Action();
+        $action = $actionRepository->findOneBy(['name' => 'MapZaakTypeAction']) ?? $action = new Action();
         $action->setName('MapZaakTypeAction');
         $action->setDescription('This is a action to map xxllnc casetype to zgw casetype.');
         $action->setListens(['commongateway.object.create', 'commongateway.object.update']);
-        $action->setConditions(['==' => [1, 1]]);
+        $action->setConditions(['==' => [
+            ['var' => 'entity'],
+            $xxllncZaakTypeID
+        ]]);
+        $action->setConfiguration([
+            'entities' => [
+                'ZaakType' => $zaakTypeID,
+                'RolType' => ($schema = $schemaRepository->findOneBy(['name' => 'RolType']) ? $schema->getId()->toString() : '')
+            ]
+        ]);
         $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\MapZaakTypeHandler');
-        $action->setPriority(0);
-        $action->setAsync(false);
-        $action->setIsEnabled(true);
+        $action->setIsEnabled(false);
         $this->entityManager->persist($action);
         isset($this->io) && $this->io->writeln('Action: \'MapZaakTypeAction\' created');
 
         // SyncZakenCollectionAction
-        $action = new Action();
+        $action = $actionRepository->findOneBy(['name' => 'SyncZakenCollectionAction']) ?? $action = new Action();
         $action->setName('SyncZakenCollectionAction');
         $action->setDescription('This is a synchronization action from the xxllnc v2 to the gateway zrc zaken.');
         $action->setListens(['commongateway.cronjob.trigger']);
         $action->setConditions(['==' => [1, 1]]);
+        $action->setConfiguration([
+            'sourcePaginated' => true,
+            'entity'    => ($schema = $schemaRepository->findOneBy(['name' => 'XxllncZaak']) ? $schema->getId()->toString() : ''),
+            'source'    => $source->getId()->toString(),
+            'location'  => '/case',
+            'apiSource' => [
+                'location' => [
+                    'objects' => 'result.instance.rows',
+                    'idField' => 'reference'
+                ],
+                'queryMethod' => 'page',
+                'syncFromList' => true,
+                'sourceLeading' => true,
+                'useDataFromCollection' => false,
+                'mappingIn' => [],
+                'mappingOut' => [],
+                'translationsIn' => [],
+                'translationsOut' => [],
+                'skeletonIn' => []
+            ]
+        ]);
         $action->setClass('App\ActionHandler\SynchronizationCollectionHandler');
-        $action->setPriority(0);
-        $action->setAsync(false);
-        $action->setIsEnabled(true);
+        $action->setIsEnabled(false);
         $this->entityManager->persist($action);
         isset($this->io) && $this->io->writeln('Action: \'SyncZakenCollectionAction\' created');
 
         // MapZaakAction
-        $action = new Action();
+        $action = $actionRepository->findOneBy(['name' => 'MapZaakAction']) ?? $action = new Action();
         $action->setName('MapZaakAction');
         $action->setDescription('This is a action to map xxllnc case to zgw zaak. ');
         $action->setListens(['commongateway.object.create', 'commongateway.object.update']);
-        $action->setConditions(['==' => [1, 1]]);
+        $action->setConditions(['==' => [
+            ['var' => 'entity'],
+            $zaakID
+        ]]);
+        $action->setConfiguration([
+            'source'    => $source->getId()->toString(),
+            'entities' => [
+                'Zaak'           => $zaakID,
+                'ZaakType'       => $zaakTypeID,
+                'XxllncZaakType' => $xxllncZaakTypeID
+            ]
+        ]);
         $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\MapZaakHandler');
-        $action->setPriority(0);
-        $action->setAsync(false);
-        $action->setIsEnabled(true);
+        $action->setIsEnabled(false);
         $this->entityManager->persist($action);
         isset($this->io) && $this->io->writeln('Action: \'MapZaakAction\' created');
 
         // ZgwToXxllncAction
-        $action = new Action();
+        $action = $actionRepository->findOneBy(['name' => 'ZgwToXxllncAction']) ?? $action = new Action();
         $action->setName('ZgwToXxllncAction');
         $action->setDescription('This is a mapping action from gateway zrc zaken to xxllnc v1.  ');
         $action->setListens(['commongateway.object.create']);
-        $action->setConditions(['==' => [1, 1]]);
+        $action->setConditions(['==' => [
+            ['var' => 'entity'],
+            $zaakID
+        ]]);
+        $action->setConfiguration([
+            'source'    => $source->getId()->toString(),
+            'location'  => '/case/create',
+            'entities' => [
+                'XxllncZaakPost' => $xxllncZaakPostID
+            ]
+
+        ]);
         $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\ZgwToXxllncHandler');
-        $action->setPriority(0);
-        $action->setAsync(false);
-        $action->setIsEnabled(true);
+        $action->setIsEnabled(false);
         $this->entityManager->persist($action);
         isset($this->io) && $this->io->writeln('Action: \'ZgwToXxllncAction\' created');
 
         // SyncZgwToXxllncAction
-        $action = new Action();
+        $action = $actionRepository->findOneBy(['name' => 'SyncZgwToXxllncAction']) ?? $action = new Action();
         $action->setName('SyncZgwToXxllncAction');
         $action->setDescription('This is a synchronization action from gateway zrc zaken to xxllnc v1.');
         $action->setListens(['commongateway.object.create']);
-        $action->setConditions(['==' => [1, 1]]);
+        $action->setConditions(['==' => [
+            ['var' => 'entity'],
+            $xxllncZaakPostID
+        ]]);
+        $action->setConfiguration([
+            'entity'    => $xxllncZaakPostID,
+            'source'    => $source->getId()->toString(),
+            'location'  => '/case/create',
+            'apiSource' => [
+                'location' => [
+                    'idField' => 'dossier.dossierId'
+                ],
+                'extend' => [],
+                'mappingIn' => [],
+                'mappingOut' => [],
+                'translationsIn' => [],
+                'translationsOut' => [],
+                'skeletonIn' => [],
+                'skeletonOut' => [],
+                'unavailablePropertiesOut' => []
+            ]
+        ]);
         $action->setClass('App\ActionHandler\SynchronizationPushHandler');
-        $action->setPriority(0);
-        $action->setAsync(false);
-        $action->setIsEnabled(true);
+        $action->setIsEnabled(false);
         $this->entityManager->persist($action);
         isset($this->io) && $this->io->writeln('Action: \'SyncZgwToXxllncAction\' created');
 
+
+        // Translations
+        $translationRepository = $this->entityManager->getRepository('App:Translation');
+
         // SyncZgwToXxllncAction
-        $trans = new Translation();
+        $trans = $translationRepository->findOneBy(['translateFrom' => 'Nee', 'translationTable' => 'caseTypeTable1']) ?? $trans = new Translation();
         $trans->setTranslationTable('caseTypeTable1');
         $trans->setTranslateFrom('Nee');
         $trans->setTranslateTo(false);
@@ -257,7 +358,7 @@ class InstallationService implements InstallerInterface
         $this->entityManager->persist($trans);
         isset($this->io) && $this->io->writeln('Translation created');
 
-        $trans = new Translation();
+        $trans = $translationRepository->findOneBy(['translateFrom' => 'Ja', 'translationTable' => 'caseTypeTable1']) ?? $trans = new Translation();
         $trans->setTranslationTable('caseTypeTable1');
         $trans->setTranslateFrom('Ja');
         $trans->setTranslateTo(true);
@@ -265,7 +366,7 @@ class InstallationService implements InstallerInterface
         $this->entityManager->persist($trans);
         isset($this->io) && $this->io->writeln('Translation created');
 
-        $trans = new Translation();
+        $trans = $translationRepository->findOneBy(['translateFrom' => 'internextern', 'translationTable' => 'caseTypeTable1']) ?? $trans = new Translation();
         $trans->setTranslationTable('caseTypeTable1');
         $trans->setTranslateFrom('internextern');
         $trans->setTranslateTo('intern');
@@ -273,7 +374,7 @@ class InstallationService implements InstallerInterface
         $this->entityManager->persist($trans);
         isset($this->io) && $this->io->writeln('Translation created');
 
-        $trans = new Translation();
+        $trans = $translationRepository->findOneBy(['translateFrom' => 'Vernietigen (V)', 'translationTable' => 'caseTypeTable1']) ?? $trans = new Translation();
         $trans->setTranslationTable('caseTypeTable1');
         $trans->setTranslateFrom('Vernietigen (V)');
         $trans->setTranslateTo('vernietigen');
@@ -281,7 +382,7 @@ class InstallationService implements InstallerInterface
         $this->entityManager->persist($trans);
         isset($this->io) && $this->io->writeln('Translation created');
 
-        $trans = new Translation();
+        $trans = $translationRepository->findOneBy(['translateFrom' => 'Bewaren (B)', 'translationTable' => 'caseTypeTable1']) ?? $trans = new Translation();
         $trans->setTranslationTable('caseTypeTable1');
         $trans->setTranslateFrom('Bewaren (B)');
         $trans->setTranslateTo('blijvend_bewaren');
