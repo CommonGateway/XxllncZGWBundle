@@ -13,7 +13,7 @@ services:
             - '../../DependencyInjection/'
             - '../../Entity/'
             - '../../Resources/'
-            - '../../PetStoreExtension.php'
+            - '../../XxllncZGWExtension.php'
             
     # this config only applies to the services created by this file
     _instanceof:
