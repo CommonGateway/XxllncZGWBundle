@@ -102,6 +102,7 @@ class InstallationService implements InstallerInterface
         $source->setAuth('apikey');
         $source->setLocation('https://development.zaaksysteem.nl/api/v1');
         $this->entityManager->persist($source);
+        isset($this->io) && $this->io->writeln('Gateway: \'zaaksysteem\' created');
 
         $collection = new CollectionEntity();
         $collection->setAutoLoad(true);
@@ -110,6 +111,8 @@ class InstallationService implements InstallerInterface
         $collection->setName('ZaakRegistratieComponent');
         $collection->setSourceType('GitHub');
         $collection->setPrefix('zrc');
+        $this->entityManager->persist($collection);
+        isset($this->io) && $this->io->writeln('CollectionEntity: \'ZaakRegistratieComponent\' created');
 
         $collection = new CollectionEntity();
         $collection->setAutoLoad(true);
@@ -119,6 +122,8 @@ class InstallationService implements InstallerInterface
         $collection->setSourceType('GitHub');
         $collection->setPrefix('ztc');
         $collection->setSource($source);
+        $this->entityManager->persist($collection);
+        isset($this->io) && $this->io->writeln('CollectionEntity: \'ZaakTypeCatalogus\' created');
 
         $collection = new CollectionEntity();
         $collection->setAutoLoad(true);
@@ -127,6 +132,8 @@ class InstallationService implements InstallerInterface
         $collection->setName('Klanten');
         $collection->setSourceType('GitHub');
         $collection->setPrefix('klanten');
+        $this->entityManager->persist($collection);
+        isset($this->io) && $this->io->writeln('CollectionEntity: \'Klanten\' created');
 
         $collection = new CollectionEntity();
         $collection->setAutoLoad(true);
@@ -135,6 +142,8 @@ class InstallationService implements InstallerInterface
         $collection->setName('Contactmomenten');
         $collection->setSourceType('GitHub');
         $collection->setPrefix('cmc');
+        $this->entityManager->persist($collection);
+        isset($this->io) && $this->io->writeln('CollectionEntity: \'Contactmomenten\' created');
 
         $collection = new CollectionEntity();
         $collection->setAutoLoad(true);
@@ -143,6 +152,8 @@ class InstallationService implements InstallerInterface
         $collection->setName('Besluiten');
         $collection->setSourceType('GitHub');
         $collection->setPrefix('brc');
+        $this->entityManager->persist($collection);
+        isset($this->io) && $this->io->writeln('CollectionEntity: \'Besluiten\' created');
 
         $collection = new CollectionEntity();
         $collection->setAutoLoad(true);
@@ -151,6 +162,8 @@ class InstallationService implements InstallerInterface
         $collection->setName('Documenten');
         $collection->setSourceType('GitHub');
         $collection->setPrefix('drc');
+        $this->entityManager->persist($collection);
+        isset($this->io) && $this->io->writeln('CollectionEntity: \'Documenten\' created');
 
         $collection = new CollectionEntity();
         $collection->setAutoLoad(true);
@@ -159,11 +172,13 @@ class InstallationService implements InstallerInterface
         $collection->setName('Overige objecten');
         $collection->setSourceType('GitHub');
         $collection->setSource($source);
+        $this->entityManager->persist($collection);
+        isset($this->io) && $this->io->writeln('CollectionEntity: \'Overige objecten\' created');
 
 
         // actionAction
         $action = new Action();
-        $action->setName('actionAction');
+        $action->setName('SyncZaakTypeAction');
         $action->setDescription('This is a synchronization action from the xxllnc v2 to the gateway zgw ztc zaaktypen.');
         $action->setListens(['commongateway.cronjob.trigger']);
         $action->setConditions(['==' => [1, 1]]);
@@ -172,6 +187,7 @@ class InstallationService implements InstallerInterface
         $action->setAsync(false);
         $action->setIsEnabled(true);
         $this->entityManager->persist($action);
+        isset($this->io) && $this->io->writeln('Action: \'SyncZaakTypeAction\' created');
         // MapZaakTypeAction
         $action = new Action();
         $action->setName('MapZaakTypeAction');
@@ -183,6 +199,7 @@ class InstallationService implements InstallerInterface
         $action->setAsync(false);
         $action->setIsEnabled(true);
         $this->entityManager->persist($action);
+        isset($this->io) && $this->io->writeln('Action: \'MapZaakTypeAction\' created');
         // SyncZakenCollectionAction
         $action = new Action();
         $action->setName('SyncZakenCollectionAction');
@@ -194,6 +211,7 @@ class InstallationService implements InstallerInterface
         $action->setAsync(false);
         $action->setIsEnabled(true);
         $this->entityManager->persist($action);
+        isset($this->io) && $this->io->writeln('Action: \'SyncZakenCollectionAction\' created');
         // MapZaakAction
         $action = new Action();
         $action->setName('MapZaakAction');
@@ -205,6 +223,7 @@ class InstallationService implements InstallerInterface
         $action->setAsync(false);
         $action->setIsEnabled(true);
         $this->entityManager->persist($action);
+        isset($this->io) && $this->io->writeln('Action: \'MapZaakAction\' created');
         // ZgwToXxllncAction
         $action = new Action();
         $action->setName('ZgwToXxllncAction');
@@ -216,6 +235,7 @@ class InstallationService implements InstallerInterface
         $action->setAsync(false);
         $action->setIsEnabled(true);
         $this->entityManager->persist($action);
+        isset($this->io) && $this->io->writeln('Action: \'ZgwToXxllncAction\' created');
         // SyncZgwToXxllncAction
         $action = new Action();
         $action->setName('SyncZgwToXxllncAction');
@@ -227,6 +247,7 @@ class InstallationService implements InstallerInterface
         $action->setAsync(false);
         $action->setIsEnabled(true);
         $this->entityManager->persist($action);
+        isset($this->io) && $this->io->writeln('Action: \'SyncZgwToXxllncAction\' created');
         // SyncZgwToXxllncAction
         $trans = new Translation();
         $trans->setTranslationTable('caseTypeTable1');
@@ -234,30 +255,35 @@ class InstallationService implements InstallerInterface
         $trans->setTranslateTo(false);
         $trans->setLanguage('nl');
         $this->entityManager->persist($trans);
+        isset($this->io) && $this->io->writeln('Translation created');
         $trans = new Translation();
         $trans->setTranslationTable('caseTypeTable1');
         $trans->setTranslateFrom('Ja');
         $trans->setTranslateTo(true);
         $trans->setLanguage('nl');
         $this->entityManager->persist($trans);
+        isset($this->io) && $this->io->writeln('Translation created');
         $trans = new Translation();
         $trans->setTranslationTable('caseTypeTable1');
         $trans->setTranslateFrom('internextern');
         $trans->setTranslateTo('intern');
         $trans->setLanguage('nl');
         $this->entityManager->persist($trans);
+        isset($this->io) && $this->io->writeln('Translation created');
         $trans = new Translation();
         $trans->setTranslationTable('caseTypeTable1');
         $trans->setTranslateFrom('Vernietigen (V)');
         $trans->setTranslateTo('vernietigen');
         $trans->setLanguage('nl');
         $this->entityManager->persist($trans);
+        isset($this->io) && $this->io->writeln('Translation created');
         $trans = new Translation();
         $trans->setTranslationTable('caseTypeTable1');
         $trans->setTranslateFrom('Bewaren (B)');
         $trans->setTranslateTo('blijvend_bewaren');
         $trans->setLanguage('nl');
         $this->entityManager->persist($trans);
+        isset($this->io) && $this->io->writeln('Translation created');
 
         $this->entityManager->flush();
 
