@@ -101,7 +101,7 @@ class MapZaakTypeService
                     isset($phase['route']['role']['reference']) && $rolTypeObject->setExternalId($phase['route']['role']['reference']);
                     $rolTypeObject->hydrate($rolTypeArray);
                     $this->entityManager->persist($rolTypeObject);
-                    $zaakTypeArray['roltypen'][] = $rolTypeObject;
+                    $zaakTypeArray['roltypen'][] = $rolTypeObject->toArray();
                 }
 
                 $zaakTypeArray['statustypen'][] = $statusTypeArray;
@@ -169,6 +169,8 @@ class MapZaakTypeService
         // Find already existing zgwZaakType by $this->data['reference']
         $zaakTypeObjectEntity = $this->objectEntityRepo->findOneBy(['externalId' => $this->data['reference'], 'entity' => $zaakTypeEntity]);
 
+        var_dump($zaakTypeObjectEntity ? true : false);
+
         if ($this->data['reference'] == '196c5c90-deff-48f4-bb7f-e092ddf1d829') {
             // var_dump('ZAAKTYPE CREATED FROM MELDING INDIENEN');
             // var_dump('ZAAKTYPE CREATED FROM MELDING INDIENEN');
@@ -180,6 +182,7 @@ class MapZaakTypeService
 
         // Create new empty ObjectEntity if no ObjectEntity has been found
         if (!$zaakTypeObjectEntity instanceof ObjectEntity) {
+            var_dump('creating new');
             $zaakTypeObjectEntity = new ObjectEntity();
             $zaakTypeObjectEntity->setEntity($zaakTypeEntity);
         }
@@ -197,6 +200,7 @@ class MapZaakTypeService
      */
     public function mapZaakTypeHandler(array $data, array $configuration): array
     {
+//        die;
         var_dump('MapZaakType triggered');
         $this->data = $data['response'];
         $this->configuration = $configuration;
@@ -212,19 +216,11 @@ class MapZaakTypeService
             throw new \Exception('RolType entity could not be found, check MapZaakTypeHandler Action config');
         }
 
-        $totalObjectsWithCertianExternalId = count($this->entityManager->getRepository('App:ObjectEntity')->findBy(['externalId' => '196c5c90-deff-48f4-bb7f-e092ddf1d829']));
+        $totalObjectsWithCertianExternalId = count($this->entityManager->getRepository('App:ObjectEntity')->findBy(['externalId' => $this->data['reference'], 'entity' => $zaakTypeEntity]));
         var_dump('ExternalID', $this->data['reference']);
-        var_dump($totalObjectsWithCertianExternalId);
-        var_dump($totalObjectsWithCertianExternalId);
-        var_dump($totalObjectsWithCertianExternalId);
-        var_dump($totalObjectsWithCertianExternalId);
         var_dump($totalObjectsWithCertianExternalId);
 
         if ($this->data['reference'] == '196c5c90-deff-48f4-bb7f-e092ddf1d829') {
-            var_dump('SPECIFIK ZAAKTYPE CREATED');
-            var_dump('SPECIFIK ZAAKTYPE CREATED');
-            var_dump('SPECIFIK ZAAKTYPE CREATED');
-            var_dump('SPECIFIK ZAAKTYPE CREATED');
             var_dump('SPECIFIK ZAAKTYPE CREATED');
         }
 
@@ -251,15 +247,13 @@ class MapZaakTypeService
         $zaakTypeObjectEntity->setExternalId($this->data['reference']);
         $zaakTypeObjectEntity = $this->synchronizationService->setApplicationAndOrganization($zaakTypeObjectEntity);
 
-        $this->entityManager->persist($zaakTypeObjectEntity);
-        $this->entityManager->flush();
-        $this->entityManager->clear('App:ObjectEntity');
 
         $value = $zaakTypeObjectEntity->getValue('omschrijving');
 
 
+        $this->entityManager->persist($zaakTypeObjectEntity);
+        $this->entityManager->flush();
         var_dump('MapZaakType finished with id: ' . $zaakTypeObjectEntity->getId()->toString());
-        // die;
         return ['response' => $zaakTypeObjectEntity->toArray()];
     }
 }
