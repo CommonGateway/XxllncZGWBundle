@@ -112,11 +112,16 @@ class InstallationService implements InstallerInterface
 
         // Sources
         // Xxllnc v1 api
-        $source = $sourceRepository->findOneBy(['name' => 'zaaksysteem']) ?? new Gateway();
+        if (!$source = $sourceRepository->findOneBy(['name' => 'zaaksysteem'])) {
+            $newGateway = false;
+        } else {
+            $newSource = true;
+            $source = new Gateway();
+        }
         $source->setName('zaaksysteem');
         $source->setAuth('apikey');
         $source->setLocation('https://development.zaaksysteem.nl/api/v1');
-        $source->setIsEnabled(false);
+        $newSource && $source->setIsEnabled(false);
         $this->entityManager->persist($source);
         isset($this->io) && $this->io->writeln('Gateway: \'zaaksysteem\' created');
 
@@ -193,6 +198,7 @@ class InstallationService implements InstallerInterface
         $action->setListens(['commongateway.cronjob.trigger']);
         $action->setConditions(['==' => [1, 1]]);
         $action->setConfiguration([
+            'sourcePaginated' => true,
             'entity'    => $xxllncZaakTypeID,
             'source'    => $source->getId()->toString(),
             'location'  => '/casetype',
