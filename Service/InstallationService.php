@@ -91,8 +91,8 @@ class InstallationService implements InstallerInterface
 
         $sourceRepository = $this->entityManager->getRepository('App:Gateway');
         $actionRepository = $this->entityManager->getRepository('App:Action');
-        $schemaRepository = $this->entityManager->getRepository('App:Entity');        
-        $attributeRepository = $this->entityManager->getRepository('App:Attribute');        
+        $schemaRepository = $this->entityManager->getRepository('App:Entity');
+        $attributeRepository = $this->entityManager->getRepository('App:Attribute');
 
 
         // Get schema ID's
@@ -112,8 +112,8 @@ class InstallationService implements InstallerInterface
 
         // Sources
         // Xxllnc v1 api
-        if (!$source = $sourceRepository->findOneBy(['name' => 'zaaksysteem'])) {
-            $newGateway = false;
+        if ($source = $sourceRepository->findOneBy(['name' => 'zaaksysteem'])) {
+            $newSource = false;
         } else {
             $newSource = true;
             $source = new Gateway();
