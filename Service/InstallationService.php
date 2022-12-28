@@ -1,17 +1,18 @@
 <?php
 
 // src/Service/InstallationService.php
+
 namespace CommonGateway\XxllncZGWBundle\Service;
 
+use App\Entity\Action;
+use App\Entity\CollectionEntity;
 use App\Entity\DashboardCard;
 use App\Entity\Endpoint;
+use App\Entity\Gateway;
+use App\Entity\Translation;
 use CommonGateway\CoreBundle\Installer\InstallerInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use App\Entity\Gateway;
-use App\Entity\Action;
-use App\Entity\CollectionEntity;
-use App\Entity\Translation;
 
 class InstallationService implements InstallerInterface
 {
@@ -24,9 +25,10 @@ class InstallationService implements InstallerInterface
     }
 
     /**
-     * Set symfony style in order to output to the console
+     * Set symfony style in order to output to the console.
      *
      * @param SymfonyStyle $io
+     *
      * @return self
      */
     public function setStyle(SymfonyStyle $io): self
@@ -58,7 +60,7 @@ class InstallationService implements InstallerInterface
         $objectsThatShouldHaveCards = [];
 
         foreach ($objectsThatShouldHaveCards as $object) {
-            (isset($this->io) ? $this->io->writeln('Looking for a dashboard card for: ' . $object) : '');
+            (isset($this->io) ? $this->io->writeln('Looking for a dashboard card for: '.$object) : '');
             $entity = $this->entityManager->getRepository('App:Entity')->findOneBy(['reference' => $object]);
             if (
                 !$dashboardCard = $this->entityManager->getRepository('App:DashboardCard')->findOneBy(['entityId' => $entity->getId()])
@@ -75,7 +77,7 @@ class InstallationService implements InstallerInterface
         $objectsThatShouldHaveEndpoints = [];
 
         foreach ($objectsThatShouldHaveEndpoints as $object) {
-            (isset($this->io) ? $this->io->writeln('Looking for a endpoint for: ' . $object) : '');
+            (isset($this->io) ? $this->io->writeln('Looking for a endpoint for: '.$object) : '');
             $entity = $this->entityManager->getRepository('App:Entity')->findOneBy(['reference' => $object]);
 
             if (
@@ -94,7 +96,6 @@ class InstallationService implements InstallerInterface
         $schemaRepository = $this->entityManager->getRepository('App:Entity');
         $attributeRepository = $this->entityManager->getRepository('App:Attribute');
 
-
         // Get schema ID's
         $xxllncZaakPost = $schemaRepository->findOneBy(['name' => 'XxllncZaakPost']);
         $xxllncZaakPostID = $xxllncZaakPost ? $xxllncZaakPost->getId()->toString() : '';
@@ -108,7 +109,6 @@ class InstallationService implements InstallerInterface
         $zaakTypeID = $zaakType ? $zaakType->getId()->toString() : '';
         $rolType = $schemaRepository->findOneBy(['name' => 'RolType']);
         $rolTypeID = $rolType ? $rolType->getId()->toString() : '';
-
 
         // Sources
         // Xxllnc v1 api
@@ -124,7 +124,6 @@ class InstallationService implements InstallerInterface
         $newSource && $source->setIsEnabled(false);
         $this->entityManager->persist($source);
         isset($this->io) && $this->io->writeln('Gateway: \'zaaksysteem\' created');
-
 
         // // Collections BACKUP
 
@@ -189,7 +188,6 @@ class InstallationService implements InstallerInterface
         // $this->entityManager->persist($collection);
         // isset($this->io) && $this->io->writeln('CollectionEntity: \'Documenten\' created');
 
-
         // Actions
         // SyncZaakTypeAction
         $action = $actionRepository->findOneBy(['name' => 'SyncZaakTypeAction']) ?? new Action();
@@ -199,29 +197,59 @@ class InstallationService implements InstallerInterface
         $action->setConditions(['==' => [1, 1]]);
         $action->setConfiguration([
             'sourcePaginated' => true,
-            'entity'    => $xxllncZaakTypeID,
-            'source'    => $source->getId()->toString(),
-            'location'  => '/casetype',
-            'apiSource' => [
+            'entity'          => $xxllncZaakTypeID,
+            'source'          => $source->getId()->toString(),
+            'location'        => '/casetype',
+            'apiSource'       => [
                 'location' => [
                     'objects' => 'result.instance.rows',
-                    'idField' => 'reference'
+                    'idField' => 'reference',
                 ],
-                'queryMethod' => 'page',
-                'syncFromList' => true,
-                'sourceLeading' => true,
+                'queryMethod'           => 'page',
+                'syncFromList'          => true,
+                'sourceLeading'         => true,
                 'useDataFromCollection' => false,
-                'mappingIn' => [],
-                'mappingOut' => [],
-                'translationsIn' => [],
-                'translationsOut' => [],
-                'skeletonIn' => []
-            ]
+                'mappingIn'             => [],
+                'mappingOut'            => [],
+                'translationsIn'        => [],
+                'translationsOut'       => [],
+                'skeletonIn'            => [],
+            ],
         ]);
         $action->setClass('App\ActionHandler\SynchronizationCollectionHandler');
         $action->setIsEnabled(true);
         $this->entityManager->persist($action);
         isset($this->io) && $this->io->writeln('Action: \'SyncZaakTypeAction\' created');
+
+        $syncOneZaakTypeAction = $actionRepository->findOneBy(['name' => 'SyncOneZaakTypeAction']) ?? new Action();
+        $syncOneZaakTypeAction->setName('SyncOneZaakTypeAction');
+        $syncOneZaakTypeAction->setDescription('This is a synchronization action from the xxllnc v2 to the gateway zgw ztc zaaktype.');
+        $syncOneZaakTypeAction->setListens(['zgw.zaaktype.sync']);
+        $syncOneZaakTypeAction->setConditions(['==' => [1, 1]]);
+        $syncOneZaakTypeAction->setConfiguration([
+            'entity'    => $xxllncZaakTypeID,
+            'source'    => $source->getId()->toString(),
+            'location'  => '/casetype',
+            'apiSource' => [
+                'location' => [
+                    'object'  => 'result',
+                    'idField' => 'reference',
+                ],
+                'queryMethod'           => 'page',
+                'syncFromList'          => true,
+                'sourceLeading'         => true,
+                'useDataFromCollection' => false,
+                'mappingIn'             => [],
+                'mappingOut'            => [],
+                'translationsIn'        => [],
+                'translationsOut'       => [],
+                'skeletonIn'            => [],
+            ],
+        ]);
+        $syncOneZaakTypeAction->setClass('App\ActionHandler\SynchronizationItemHandler');
+        $syncOneZaakTypeAction->setIsEnabled(true);
+        $this->entityManager->persist($syncOneZaakTypeAction);
+        isset($this->io) && $this->io->writeln('Action: \'SyncOneZaakTypeAction\' created');
 
         // MapZaakTypeAction
         $action = $actionRepository->findOneBy(['name' => 'MapZaakTypeAction']) ?? new Action();
@@ -230,13 +258,13 @@ class InstallationService implements InstallerInterface
         $action->setListens(['commongateway.object.create', 'commongateway.object.update']);
         $action->setConditions(['==' => [
             ['var' => 'entity'],
-            $xxllncZaakTypeID
+            $xxllncZaakTypeID,
         ]]);
         $action->setConfiguration([
             'entities' => [
                 'ZaakType' => $zaakTypeID,
-                'RolType' => $rolTypeID
-            ]
+                'RolType'  => $rolTypeID,
+            ],
         ]);
         $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\MapZaakTypeHandler');
         $action->setIsEnabled(true);
@@ -251,24 +279,24 @@ class InstallationService implements InstallerInterface
         $action->setConditions(['==' => [1, 1]]);
         $action->setConfiguration([
             'sourcePaginated' => true,
-            'entity'    => $xxllncZaakID,
-            'source'    => $source->getId()->toString(),
-            'location'  => '/case',
-            'apiSource' => [
+            'entity'          => $xxllncZaakID,
+            'source'          => $source->getId()->toString(),
+            'location'        => '/case',
+            'apiSource'       => [
                 'location' => [
                     'objects' => 'result.instance.rows',
-                    'idField' => 'reference'
+                    'idField' => 'reference',
                 ],
-                'queryMethod' => 'page',
-                'syncFromList' => true,
-                'sourceLeading' => true,
+                'queryMethod'           => 'page',
+                'syncFromList'          => true,
+                'sourceLeading'         => true,
                 'useDataFromCollection' => false,
-                'mappingIn' => [],
-                'mappingOut' => [],
-                'translationsIn' => [],
-                'translationsOut' => [],
-                'skeletonIn' => []
-            ]
+                'mappingIn'             => [],
+                'mappingOut'            => [],
+                'translationsIn'        => [],
+                'translationsOut'       => [],
+                'skeletonIn'            => [],
+            ],
         ]);
         $action->setClass('App\ActionHandler\SynchronizationCollectionHandler');
         $action->setIsEnabled(true);
@@ -282,15 +310,18 @@ class InstallationService implements InstallerInterface
         $action->setListens(['commongateway.object.create', 'commongateway.object.update']);
         $action->setConditions(['==' => [
             ['var' => 'entity'],
-            $zaakID
+            $xxllncZaakID,
         ]]);
         $action->setConfiguration([
             'source'    => $source->getId()->toString(),
-            'entities' => [
+            'entities'  => [
                 'Zaak'           => $zaakID,
                 'ZaakType'       => $zaakTypeID,
-                'XxllncZaakType' => $xxllncZaakTypeID
-            ]
+                'XxllncZaakType' => $xxllncZaakTypeID,
+            ],
+            'actions' => [
+                'SyncOneZaakType' => $syncOneZaakTypeAction->getId()->toString(),
+            ],
         ]);
         $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\MapZaakHandler');
         $action->setIsEnabled(true);
@@ -304,14 +335,14 @@ class InstallationService implements InstallerInterface
         $action->setListens(['commongateway.object.create']);
         $action->setConditions(['==' => [
             ['var' => 'entity'],
-            $zaakID
+            $zaakID,
         ]]);
         $action->setConfiguration([
             'source'    => $source->getId()->toString(),
             'location'  => '/case/create',
-            'entities' => [
-                'XxllncZaakPost' => $xxllncZaakPostID
-            ]
+            'entities'  => [
+                'XxllncZaakPost' => $xxllncZaakPostID,
+            ],
 
         ]);
         $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\ZgwToXxllncHandler');
@@ -326,7 +357,7 @@ class InstallationService implements InstallerInterface
         $action->setListens(['commongateway.object.create']);
         $action->setConditions(['==' => [
             ['var' => 'entity'],
-            $xxllncZaakPostID
+            $xxllncZaakPostID,
         ]]);
         $action->setConfiguration([
             'entity'    => $xxllncZaakPostID,
@@ -334,23 +365,22 @@ class InstallationService implements InstallerInterface
             'location'  => '/case/create',
             'apiSource' => [
                 'location' => [
-                    'idField' => 'dossier.dossierId'
+                    'idField' => 'dossier.dossierId',
                 ],
-                'extend' => [],
-                'mappingIn' => [],
-                'mappingOut' => [],
-                'translationsIn' => [],
-                'translationsOut' => [],
-                'skeletonIn' => [],
-                'skeletonOut' => [],
-                'unavailablePropertiesOut' => []
-            ]
+                'extend'                   => [],
+                'mappingIn'                => [],
+                'mappingOut'               => [],
+                'translationsIn'           => [],
+                'translationsOut'          => [],
+                'skeletonIn'               => [],
+                'skeletonOut'              => [],
+                'unavailablePropertiesOut' => [],
+            ],
         ]);
         $action->setClass('App\ActionHandler\SynchronizationPushHandler');
         $action->setIsEnabled(true);
         $this->entityManager->persist($action);
         isset($this->io) && $this->io->writeln('Action: \'SyncZgwToXxllncAction\' created');
-
 
         // Translations
         $translationRepository = $this->entityManager->getRepository('App:Translation');

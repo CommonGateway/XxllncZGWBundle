@@ -2,13 +2,12 @@
 
 namespace CommonGateway\XxllncZGWBundle\ActionHandler;
 
-use CommonGateway\XxllncZGWBundle\Service\MapZaakTypeService;
-
 use App\Exception\GatewayException;
+use CommonGateway\CoreBundle\ActionHandler\ActionHandlerInterface;
+use CommonGateway\XxllncZGWBundle\Service\MapZaakTypeService;
 use Psr\Cache\CacheException;
 use Psr\Cache\InvalidArgumentException;
 use Respect\Validation\Exceptions\ComponentException;
-use CommonGateway\CoreBundle\ActionHandler\ActionHandlerInterface;
 
 class MapZaakTypeHandler implements ActionHandlerInterface
 {
