@@ -201,7 +201,7 @@ class InstallationService implements InstallerInterface
             'location'  => '/casetype',
             'apiSource' => [
                 'sourcePaginated' => true,
-                'location' => [
+                'location'        => [
                     'objects' => 'result.instance.rows',
                     'idField' => 'reference',
                 ],
@@ -285,7 +285,7 @@ class InstallationService implements InstallerInterface
             'location'  => '/case',
             'apiSource' => [
                 'sourcePaginated' => true,
-                'location' => [
+                'location'        => [
                     'objects' => 'result.instance.rows',
                     'idField' => 'reference',
                 ],
