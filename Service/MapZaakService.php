@@ -2,15 +2,15 @@
 
 namespace CommonGateway\XxllncZGWBundle\Service;
 
-use App\Entity\Entity;
 use App\Entity\Action;
-use App\Entity\ObjectEntity;
+use App\Entity\Entity;
 use App\Entity\Gateway;
+use App\Entity\ObjectEntity;
 use App\Entity\Synchronization;
-use Doctrine\ORM\EntityManagerInterface;
-use App\Service\TranslationService;
 use App\Service\ObjectEntityService;
 use App\Service\SynchronizationService;
+use App\Service\TranslationService;
+use Doctrine\ORM\EntityManagerInterface;
 
 class MapZaakService
 {
@@ -40,36 +40,35 @@ class MapZaakService
         $this->actionRepo = $this->entityManager->getRepository(Action::class);
 
         $this->mappingIn = [
-            'identificatie' => 'reference',
-            'omschrijving' => 'instance.subject',
-            'toelichting' => 'instance.subject_external',
-            'registratiedatum' => 'instance.date_of_registration',
-            'startdatum' => 'instance.date_of_registration',
-            'einddatum' => 'instance.date_of_completion',
-            'einddatumGepland' => 'instance.date_target',
-            'publicatiedatum' => 'instance.date_target',
-            'communicatiekanaal' => 'instance.channel_of_contact',
-            'vertrouwelijkheidaanduidng' => 'instance.confidentiality.mapped'
-
+            'identificatie'              => 'reference',
+            'omschrijving'               => 'instance.subject',
+            'toelichting'                => 'instance.subject_external',
+            'registratiedatum'           => 'instance.date_of_registration',
+            'startdatum'                 => 'instance.date_of_registration',
+            'einddatum'                  => 'instance.date_of_completion',
+            'einddatumGepland'           => 'instance.date_target',
+            'publicatiedatum'            => 'instance.date_target',
+            'communicatiekanaal'         => 'instance.channel_of_contact',
+            'vertrouwelijkheidaanduidng' => 'instance.confidentiality.mapped',
 
         ];
 
         $this->skeletonIn = [
             'verantwoordelijkeOrganisatie' => '070124036',
-            'betalingsindicatie' => 'geheel',
-            'betalingsindicatieWeergave' => 'Bedrag is volledig betaald',
-            'laatsteBetaalDatum' => '15-07-2022',
-            'archiefnominatie' => 'blijvend_bewaren',
-            'archiefstatus' => 'nog_te_archiveren'
+            'betalingsindicatie'           => 'geheel',
+            'betalingsindicatieWeergave'   => 'Bedrag is volledig betaald',
+            'laatsteBetaalDatum'           => '15-07-2022',
+            'archiefnominatie'             => 'blijvend_bewaren',
+            'archiefstatus'                => 'nog_te_archiveren',
         ];
     }
 
     /**
      * Maps the eigenschappen from xxllnc to zgw.
      *
-     * @param array $zaakArray This is the ZGW Zaak array.
-     * @param array  $zaakTypeArray This is the ZGW ZaakType array.
-     * @param attributes $ar This is the xxllnc attributes array that will be mapped to eigenschappen.
+     * @param array      $zaakArray     This is the ZGW Zaak array.
+     * @param array      $zaakTypeArray This is the ZGW ZaakType array.
+     * @param attributes $ar            This is the xxllnc attributes array that will be mapped to eigenschappen.
      *
      * @return array $zaakArray This is the ZGW Zaak array with the added eigenschappen.
      */
@@ -80,8 +79,8 @@ class MapZaakService
             $eigenschappen = [];
             foreach ($attributes as $attributeName => $attributeValue) {
                 $eigenschappen[] = [
-                    'naam' => $attributeName,
-                    'definitie' => $attributeName
+                    'naam'      => $attributeName,
+                    'definitie' => $attributeName,
                 ];
             }
             $zaakTypeObjectEntity->setValue('eigenschappen', $eigenschappen);
@@ -96,11 +95,11 @@ class MapZaakService
             foreach ($zaakTypeArray['eigenschappen'] as $eigenschap) {
                 if ($eigenschap['naam'] == $attributeName) {
                     $zaakArray['eigenschappen'][] = [
-                        'naam' => $attributeName,
+                        'naam'   => $attributeName,
                         'waarde' => is_array($attributeValue) ?
                             json_encode($attributeValue) :
                             strval($attributeValue),
-                        'eigenschap' => $this->objectEntityRepo->find($eigenschap['id'])
+                        'eigenschap' => $this->objectEntityRepo->find($eigenschap['id']),
                     ];
                 }
             }
@@ -109,13 +108,12 @@ class MapZaakService
         return $zaakArray;
     }
 
-
     /**
      * Maps the rollen from xxllnc to zgw.
      *
-     * @param array $zaakArray This is the ZGW Zaak array.
-     * @param array  $zaakTypeArray This is the ZGW ZaakType array.
-     * @param array $rol This is the xxllnc Rol array.
+     * @param array $zaakArray     This is the ZGW Zaak array.
+     * @param array $zaakTypeArray This is the ZGW ZaakType array.
+     * @param array $rol           This is the xxllnc Rol array.
      *
      * @return array $zaakArray This is the ZGW Zaak array with the added rollen.
      */
@@ -125,15 +123,14 @@ class MapZaakService
         foreach ($zaakTypeArray['roltypen'] as $rolType) {
             if (strtolower($rol['preview']) == strtolower($rolType['omschrijving'])) {
                 $zaakArray['rollen'][] = [
-                    'roltype'       => $this->objectEntityRepo->find($rolType['id']),
-                    'omschrijving' => $rol['preview'],
+                    'roltype'              => $this->objectEntityRepo->find($rolType['id']),
+                    'omschrijving'         => $rol['preview'],
                     'omschrijvingGeneriek' => strtolower($rol['preview']),
-                    'roltoelichting' => $rol['instance']['description'],
-                    'betrokkeneType' => 'natuurlijk_persoon'
+                    'roltoelichting'       => $rol['instance']['description'],
+                    'betrokkeneType'       => 'natuurlijk_persoon',
                 ];
             }
         }
-
 
         return $zaakArray;
     }
@@ -141,9 +138,9 @@ class MapZaakService
     /**
      * Maps the status from xxllnc to zgw.
      *
-     * @param array  $zaakArray This is the ZGW Zaak array.
-     * @param array  $zaakTypeArray This is the ZGW ZaakType array.
-     * @param array $status This is the xxllnc Status array.
+     * @param array $zaakArray     This is the ZGW Zaak array.
+     * @param array $zaakTypeArray This is the ZGW ZaakType array.
+     * @param array $status        This is the xxllnc Status array.
      *
      * @return array $zaakArray This is the ZGW Zaak array with the added status.
      */
@@ -152,17 +149,17 @@ class MapZaakService
         foreach ($zaakTypeArray['statustypen'] as $statusType) {
             if ($status['preview'] == $statusType['omschrijving']) {
                 $zaakArray['status'] = [
-                    'statustype'       => $this->objectEntityRepo->find($statusType['id']),
-                    'datumStatusGezet' => isset($status['instance']['date_modified']) ? $status['instance']['date_modified'] : '2020-04-15',
-                    'statustoelichting' => isset($status['instance']['milestone_label']) && strval($status['instance']['milestone_label'])
+                    'statustype'        => $this->objectEntityRepo->find($statusType['id']),
+                    'datumStatusGezet'  => isset($status['instance']['date_modified']) ? $status['instance']['date_modified'] : '2020-04-15',
+                    'statustoelichting' => isset($status['instance']['milestone_label']) && strval($status['instance']['milestone_label']),
                 ];
+
                 return $zaakArray;
             }
         }
 
         return $zaakArray;
     }
-
 
     /**
      * Finds or creates a ObjectEntity from the Zaak Entity.
@@ -188,9 +185,9 @@ class MapZaakService
     /**
      * Maps the eigenschappen from zgw to xxllnc.
      *
-     * @param array  $xxllncZaakArray This is the Xxllnc Zaak array.
-     * @param array  $zaakArrayObject This is the ZGW Zaak array.
-     * @param array  $zaakTypeEigenschappen These are the ZGW ZaakType eigenschappen.
+     * @param array $xxllncZaakArray       This is the Xxllnc Zaak array.
+     * @param array $zaakArrayObject       This is the ZGW Zaak array.
+     * @param array $zaakTypeEigenschappen These are the ZGW ZaakType eigenschappen.
      *
      * @return array $xxllncZaakArray This is the Xxllnc Zaak array with the added eigenschappen.
      */
@@ -201,13 +198,12 @@ class MapZaakService
             $eigenschapIds[] = $eigenschap->getValue('id');
         }
 
-
         // eigenschappen to values
         if (isset($zaakArrayObject['eigenschappen'])) {
             foreach ($zaakArrayObject['eigenschappen'] as $zaakEigenschap) {
                 if (isset($zaakEigenschap['eigenschap'])) {
                     in_array($zaakEigenschap['eigenschap']['id'], $eigenschapIds) && $xxllncZaakArray['values'][] = [
-                        $zaakEigenschap['eigenschap']['definitie'] => $zaakEigenschap['waarde']
+                        $zaakEigenschap['eigenschap']['definitie'] => $zaakEigenschap['waarde'],
                     ];
                 }
             }
@@ -219,8 +215,8 @@ class MapZaakService
     /**
      * Maps the informatieobjecten from zgw to xxllnc.
      *
-     * @param array  $xxllncZaakArray This is the Xxllnc Zaak array.
-     * @param array  $zaakTypeArray This is the ZGW Zaak array.
+     * @param array $xxllncZaakArray This is the Xxllnc Zaak array.
+     * @param array $zaakTypeArray   This is the ZGW Zaak array.
      *
      * @return array $xxllncZaakArray This is the Xxllnc Zaak array with the added eigenschappen.
      */
@@ -230,24 +226,24 @@ class MapZaakService
             foreach ($zaakArrayObject['zaakinformatieobjecten'] as $infoObject) {
                 isset($infoObject['informatieobject']) && $xxllncZaakArray['files'][] = [
                     // 'reference' => $infoObject['id'],
-                    'type' => 'metadata',
-                    'naam' => $infoObject['titel'],
+                    'type'     => 'metadata',
+                    'naam'     => $infoObject['titel'],
                     'metadata' => [
                         // 'reference' =>  null,
-                        'type' => 'metadata',
+                        'type'     => 'metadata',
                         'instance' => [
-                            'appearance' => $infoObject['informatieobject']['bestandsnaam'],
-                            'category' => null,
-                            'description' => $infoObject['informatieobject']['beschrijving'],
-                            'origin' => 'Inkomend',
-                            'origin_date' => $infoObject['informatieobject']['creatiedatum'],
+                            'appearance'    => $infoObject['informatieobject']['bestandsnaam'],
+                            'category'      => null,
+                            'description'   => $infoObject['informatieobject']['beschrijving'],
+                            'origin'        => 'Inkomend',
+                            'origin_date'   => $infoObject['informatieobject']['creatiedatum'],
                             'pronom_format' => $infoObject['informatieobject']['formaat'],
-                            'structure' => 'text',
-                            'trust_level' => $infoObject['integriteit']['waarde'] ?? 'Openbaar',
-                            'status' => 'original',
-                            'creation_date' => $infoObject['informatieobject']['creatiedatum']
-                        ]
-                    ]
+                            'structure'     => 'text',
+                            'trust_level'   => $infoObject['integriteit']['waarde'] ?? 'Openbaar',
+                            'status'        => 'original',
+                            'creation_date' => $infoObject['informatieobject']['creatiedatum'],
+                        ],
+                    ],
                 ];
             }
         }
@@ -258,8 +254,8 @@ class MapZaakService
     /**
      * Maps the rollen from zgw to xxllnc.
      *
-     * @param array  $xxllncZaakArray This is the Xxllnc Zaak array.
-     * @param array  $zaakTypeArray This is the ZGW Zaak array.
+     * @param array $xxllncZaakArray This is the Xxllnc Zaak array.
+     * @param array $zaakTypeArray   This is the ZGW Zaak array.
      *
      * @return array $xxllncZaakArray This is the Xxllnc Zaak array with the added eigenschappen.
      */
@@ -274,13 +270,13 @@ class MapZaakService
                         if ($rolTypeObject instanceof ObjectEntity && $rolTypeObject->getExternalId() !== null) {
                             $xxllncZaakArray['subjects'][] = [
                                 'subject' => [
-                                    'type' => 'subject',
-                                    'reference' => $rolTypeObject->getExternalId()
+                                    'type'      => 'subject',
+                                    'reference' => $rolTypeObject->getExternalId(),
                                 ],
-                                'role' => $rol['roltoelichting'],
-                                'magic_string_prefix' => $rol['roltoelichting'],
-                                'pip_authorized' => true,
-                                'send_auth_notification' => false
+                                'role'                   => $rol['roltoelichting'],
+                                'magic_string_prefix'    => $rol['roltoelichting'],
+                                'pip_authorized'         => true,
+                                'send_auth_notification' => false,
                             ];
                         }
                     }
@@ -328,8 +324,8 @@ class MapZaakService
         }
 
         $xxllncZaakArray = ['casetype_id' => $casetypeId];
-        $xxllncZaakArray['source'] = "behandelaar";
-        $xxllncZaakArray['confidentiality'] = "public";
+        $xxllncZaakArray['source'] = 'behandelaar';
+        $xxllncZaakArray['confidentiality'] = 'public';
 
         $xxllncZaakArray = $this->mapPostEigenschappen($xxllncZaakArray, $zaakArrayObject, $zaakTypeObject->getValue('eigenschappen'));
         $xxllncZaakArray = $this->mapPostInfoObjecten($xxllncZaakArray, $zaakArrayObject);
@@ -358,7 +354,7 @@ class MapZaakService
     }
 
     /**
-     * Gets a existing ZaakType or syncs one from the xxllnc api
+     * Gets a existing ZaakType or syncs one from the xxllnc api.
      *
      * @param array $data          Data from the handler where the xxllnc casetype is in.
      * @param array $configuration Configuration from the Action where the Zaak entity id is stored in.
@@ -372,7 +368,7 @@ class MapZaakService
         if (
             !isset($zaakTypeObjectEntity) ||
             (
-                isset($zaakTypeObjectEntity) && 
+                isset($zaakTypeObjectEntity) &&
                 !$synchronization = $this->entityManager->getRepository('App:Synchronization')->findOneBy(['object' => $zaakTypeObjectEntity->getId(), 'gateway' => $xxllncGateway])
             )
         ) {
@@ -381,7 +377,7 @@ class MapZaakService
             $synchronization->setSourceId($zaakTypeId);
             $synchronization->setEntity($xxllncZaakTypeEntity);
             $synchronization->setAction($action);
-            $synchronization->setEndpoint('/casetype/' . $zaakTypeId);
+            $synchronization->setEndpoint('/casetype/'.$zaakTypeId);
             $this->entityManager->persist($synchronization);
         }
         $synchronization = $this->synchronizationService->handleSync($synchronization, [], $action->getConfiguration());
@@ -391,7 +387,6 @@ class MapZaakService
 
         return $synchronization->getObject();
     }
-
 
     /**
      * Creates or updates a ZGW Zaak from a xxllnc casetype with the use of mapping.
@@ -408,7 +403,6 @@ class MapZaakService
         $this->configuration = $configuration;
 
         // ik heb in config nog nodig: domein url (kan via gekoppelde source), xxllncZaakTypeEntityId
-
 
         // Find ZGW Type entities by id from config
         $zaakEntity = $this->entityRepo->find($configuration['entities']['Zaak']);

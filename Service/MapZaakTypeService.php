@@ -4,10 +4,10 @@ namespace CommonGateway\XxllncZGWBundle\Service;
 
 use App\Entity\Entity;
 use App\Entity\ObjectEntity;
-use Doctrine\ORM\EntityManagerInterface;
-use App\Service\TranslationService;
 use App\Service\ObjectEntityService;
 use App\Service\SynchronizationService;
+use App\Service\TranslationService;
+use Doctrine\ORM\EntityManagerInterface;
 
 class MapZaakTypeService
 {
@@ -95,7 +95,7 @@ class MapZaakTypeService
                 if (isset($phase['route']['role']['reference'])) {
                     $rolTypeArray = [
                         'omschrijving'         => isset($phase['route']['role']['instance']['description']) ? $phase['route']['role']['instance']['description'] : null,
-                        'omschrijvingGeneriek' => isset($phase['route']['role']['instance']['name']) ? strtolower($phase['route']['role']['instance']['name']) : null
+                        'omschrijvingGeneriek' => isset($phase['route']['role']['instance']['name']) ? strtolower($phase['route']['role']['instance']['name']) : null,
                     ];
                     $rolTypeObject = new ObjectEntity($rolTypeEntity);
                     isset($phase['route']['role']['reference']) && $rolTypeObject->setExternalId($phase['route']['role']['reference']);
@@ -232,6 +232,7 @@ class MapZaakTypeService
             var_dump($this->data['preview']);
             var_dump($this->data['instance']['title']);
             var_dump('MapZaakType aborted because omschrijving not set');
+
             return ['response' => $zaakTypeObjectEntity->toArray()];
         }
 
@@ -247,13 +248,12 @@ class MapZaakTypeService
         $zaakTypeObjectEntity->setExternalId($this->data['reference']);
         $zaakTypeObjectEntity = $this->synchronizationService->setApplicationAndOrganization($zaakTypeObjectEntity);
 
-
         $value = $zaakTypeObjectEntity->getValue('omschrijving');
-
 
         $this->entityManager->persist($zaakTypeObjectEntity);
         $this->entityManager->flush();
-        var_dump('MapZaakType finished with id: ' . $zaakTypeObjectEntity->getId()->toString());
+        var_dump('MapZaakType finished with id: '.$zaakTypeObjectEntity->getId()->toString());
+
         return ['response' => $zaakTypeObjectEntity->toArray()];
     }
 }
