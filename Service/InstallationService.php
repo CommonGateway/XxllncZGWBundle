@@ -196,12 +196,12 @@ class InstallationService implements InstallerInterface
         $action->setListens(['commongateway.cronjob.trigger']);
         $action->setConditions(['==' => [1, 1]]);
         $action->setConfiguration([
-            'sourcePaginated' => true,
-            'entity'          => $xxllncZaakTypeID,
-            'source'          => $source->getId()->toString(),
-            'location'        => '/casetype',
-            'apiSource'       => [
-                'location' => [
+            'entity'    => $xxllncZaakTypeID,
+            'source'    => $source->getId()->toString(),
+            'location'  => '/casetype',
+            'apiSource' => [
+                'sourcePaginated' => true,
+                'location'        => [
                     'objects' => 'result.instance.rows',
                     'idField' => 'reference',
                 ],
@@ -216,6 +216,7 @@ class InstallationService implements InstallerInterface
                 'skeletonIn'            => [],
             ],
         ]);
+        $action->setAsync(false);
         $action->setClass('App\ActionHandler\SynchronizationCollectionHandler');
         $action->setIsEnabled(true);
         $this->entityManager->persist($action);
@@ -266,6 +267,7 @@ class InstallationService implements InstallerInterface
                 'RolType'  => $rolTypeID,
             ],
         ]);
+        $action->setAsync(true);
         $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\MapZaakTypeHandler');
         $action->setIsEnabled(true);
         $this->entityManager->persist($action);
@@ -278,12 +280,12 @@ class InstallationService implements InstallerInterface
         $action->setListens(['commongateway.cronjob.trigger']);
         $action->setConditions(['==' => [1, 1]]);
         $action->setConfiguration([
-            'sourcePaginated' => true,
-            'entity'          => $xxllncZaakID,
-            'source'          => $source->getId()->toString(),
-            'location'        => '/case',
-            'apiSource'       => [
-                'location' => [
+            'entity'    => $xxllncZaakID,
+            'source'    => $source->getId()->toString(),
+            'location'  => '/case',
+            'apiSource' => [
+                'sourcePaginated' => true,
+                'location'        => [
                     'objects' => 'result.instance.rows',
                     'idField' => 'reference',
                 ],
@@ -298,6 +300,7 @@ class InstallationService implements InstallerInterface
                 'skeletonIn'            => [],
             ],
         ]);
+        $action->setAsync(false);
         $action->setClass('App\ActionHandler\SynchronizationCollectionHandler');
         $action->setIsEnabled(true);
         $this->entityManager->persist($action);
@@ -323,6 +326,7 @@ class InstallationService implements InstallerInterface
                 'SyncOneZaakType' => $syncOneZaakTypeAction->getId()->toString(),
             ],
         ]);
+        $action->setAsync(true);
         $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\MapZaakHandler');
         $action->setIsEnabled(true);
         $this->entityManager->persist($action);
