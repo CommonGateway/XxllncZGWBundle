@@ -204,7 +204,7 @@ class MapZaakService
             foreach ($zaakArrayObject['eigenschappen'] as $zaakEigenschap) {
                 if (isset($zaakEigenschap['eigenschap'])) {
                     in_array($zaakEigenschap['eigenschap']['_self']['id'], $eigenschapIds) && $xxllncZaakArray['values'][] = [
-                        $zaakEigenschap['eigenschap']['definitie'] => $zaakEigenschap['waarde'],
+                        $zaakEigenschap['eigenschap']['definitie'] => [$zaakEigenschap['waarde']],
                     ];
                 }
             }
