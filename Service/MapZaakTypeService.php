@@ -241,7 +241,7 @@ class MapZaakTypeService
 
         $zgwZaakTypeArray = $this->mapStatusAndRolTypen($zgwZaakTypeArray, $rolTypeEntity);
         $zgwZaakTypeArray = $this->mapResultaatTypen($zgwZaakTypeArray);
-        // $zgwZaakTypeArray = $this->mapEigenschappen($zgwZaakTypeArray);
+        $zgwZaakTypeArray = $this->mapEigenschappen($zgwZaakTypeArray);
 
         $zaakTypeObjectEntity->hydrate($zgwZaakTypeArray);
 
