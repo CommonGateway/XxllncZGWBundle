@@ -96,6 +96,7 @@ class InstallationService implements InstallerInterface
         $actionRepository = $this->entityManager->getRepository('App:Action');
         $schemaRepository = $this->entityManager->getRepository('App:Entity');
         $attributeRepository = $this->entityManager->getRepository('App:Attribute');
+        $cronjobRepository = $this->entityManager->getRepository('App:Cronjob');
 
         // Get schema ID's
         $xxllncZaakPost = $schemaRepository->findOneBy(['name' => 'XxllncZaakPost']);
@@ -111,8 +112,8 @@ class InstallationService implements InstallerInterface
         $rolType = $schemaRepository->findOneBy(['name' => 'RolType']);
         $rolTypeID = $rolType ? $rolType->getId()->toString() : '';
 
-        // Cronjob
-        $cronjob = new Cronjob();
+        // Cronjob 
+        $cronjob = $cronjobRepository->findOneBy(['name' => 'Xxllnc sync']) ?? new Cronjob();
         $cronjob->setName('Xxllnc sync');
         $cronjob->setDescription('A cronjob that sets off the synchronizations for the various sources');
         $cronjob->setCrontab('*/1 * * * *');
