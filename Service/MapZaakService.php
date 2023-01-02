@@ -11,6 +11,7 @@ use App\Service\ObjectEntityService;
 use App\Service\SynchronizationService;
 use App\Service\TranslationService;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\PersistentCollection;
 
 class MapZaakService
 {
@@ -202,8 +203,8 @@ class MapZaakService
         if (isset($zaakArrayObject['eigenschappen'])) {
             foreach ($zaakArrayObject['eigenschappen'] as $zaakEigenschap) {
                 if (isset($zaakEigenschap['eigenschap'])) {
-                    in_array($zaakEigenschap['eigenschap']['id'], $eigenschapIds) && $xxllncZaakArray['values'][] = [
-                        $zaakEigenschap['eigenschap']['definitie'] => $zaakEigenschap['waarde'],
+                    in_array($zaakEigenschap['eigenschap']['_self']['id'], $eigenschapIds) && $xxllncZaakArray['values'][] = [
+                        $zaakEigenschap['eigenschap']['definitie'] => [$zaakEigenschap['waarde']],
                     ];
                 }
             }
@@ -225,7 +226,7 @@ class MapZaakService
         if (isset($zaakArrayObject['zaakinformatieobjecten'])) {
             foreach ($zaakArrayObject['zaakinformatieobjecten'] as $infoObject) {
                 isset($infoObject['informatieobject']) && $xxllncZaakArray['files'][] = [
-                    // 'reference' => $infoObject['id'],
+                    // 'reference' => $infoObject['_self']['id'],
                     'type'     => 'metadata',
                     'naam'     => $infoObject['titel'],
                     'metadata' => [
@@ -266,7 +267,7 @@ class MapZaakService
             foreach ($zaakArrayObject['rollen'] as $rol) {
                 foreach ($zaakArrayObject['zaaktype']['roltypen'] as $rolType) {
                     if ($rolType['omschrijving'] === $rol['roltoelichting']) {
-                        $rolTypeObject = $this->entityManager->find('App:ObjectEntity', $rolType['id']);
+                        $rolTypeObject = $this->entityManager->find('App:ObjectEntity', $rolType['_self']['id']);
                         if ($rolTypeObject instanceof ObjectEntity && $rolTypeObject->getExternalId() !== null) {
                             $xxllncZaakArray['subjects'][] = [
                                 'subject' => [
@@ -308,17 +309,15 @@ class MapZaakService
         }
 
         if (isset($this->data['zaaktype'])) {
-            $zaakTypeId = isset($this->data['zaaktype']['id']) ? $this->data['zaaktype']['id'] : $this->data['zaaktype'];
-            $array = explode('/', $zaakTypeId);
-            /* @todo we might want to validate against uuid and id here */
-            $zaakTypeId = end($array);
+            isset($this->data['zaaktype']['_self']['id']) && $zaakTypeId = $this->data['zaaktype']['_self']['id'];
             $zaakTypeObject = $this->entityManager->find('App:ObjectEntity', $zaakTypeId);
             $casetypeId = $zaakTypeObject->getExternalId();
         } else {
             throw new \Exception('No zaaktype set on zaak');
         }
-        if (isset($this->data['id'])) {
-            $zaakArrayObject = $this->entityManager->find('App:ObjectEntity', $this->data['id'])->toArray();
+
+        if (isset($this->data['_self']['id'])) {
+            $zaakArrayObject = $this->entityManager->find('App:ObjectEntity', $this->data['_self']['id'])->toArray();
         } else {
             throw new \Exception('No id on zaak');
         }
@@ -327,15 +326,19 @@ class MapZaakService
         $xxllncZaakArray['source'] = 'behandelaar';
         $xxllncZaakArray['confidentiality'] = 'public';
 
-        $xxllncZaakArray = $this->mapPostEigenschappen($xxllncZaakArray, $zaakArrayObject, $zaakTypeObject->getValue('eigenschappen'));
+        $eigenschappenCollection = $zaakTypeObject->getValue('eigenschappen');
+        if ($eigenschappenCollection instanceof PersistentCollection) {
+            $eigenschappenCollection = $eigenschappenCollection->toArray();
+        }
+        $xxllncZaakArray = $this->mapPostEigenschappen($xxllncZaakArray, $zaakArrayObject, $eigenschappenCollection);
         $xxllncZaakArray = $this->mapPostInfoObjecten($xxllncZaakArray, $zaakArrayObject);
         $xxllncZaakArray = $this->mapPostRollen($xxllncZaakArray, $zaakArrayObject);
 
         // DONT COMMIT @TODO remove
-        $objectEntities = $this->entityManager->getRepository('App:ObjectEntity')->findBy(['entity' => $xxllncZaakPostEntity]);
-        foreach ($objectEntities as $object) {
-            $this->entityManager->remove($object);
-        }
+        // $objectEntities = $this->entityManager->getRepository('App:ObjectEntity')->findBy(['entity' => $xxllncZaakPostEntity]);
+        // foreach ($objectEntities as $object) {
+        //     $this->entityManager->remove($object);
+        // }
 
         $xxllncZaakObjectEntity = new ObjectEntity();
         $xxllncZaakObjectEntity->setEntity($xxllncZaakPostEntity);
@@ -400,7 +403,7 @@ class MapZaakService
      */
     public function mapZaakHandler(array $data, array $configuration): array
     {
-        var_dump('MapZaakService triggered');
+        // var_dump('MapZaakService triggered');
         $this->data = $data['response'];
         $this->configuration = $configuration;
 
@@ -446,7 +449,7 @@ class MapZaakService
 
         // $zaakTypeArray = $zaakTypeObjectEntity->toArray();
 
-        // Get xxllncZaakObjectArray from this->data['id']
+        // Get xxllncZaakObjectArray from this->data['_self']['id']
         $xxllncZaakObjectEntity = $this->objectEntityRepo->find($this->data['_self']['id']);
         $xxllncZaakObjectArray = $xxllncZaakObjectEntity->toArray();
 
@@ -482,7 +485,7 @@ class MapZaakService
 
         $this->entityManager->persist($zaakObjectEntity);
         $this->entityManager->flush();
-        var_dump('ZGW Zaak created');
+        // var_dump('ZGW Zaak created');
 
         return ['response' => $zaakObjectEntity->toArray()];
     }

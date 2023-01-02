@@ -6,6 +6,7 @@ namespace CommonGateway\XxllncZGWBundle\Service;
 
 use App\Entity\Action;
 use App\Entity\CollectionEntity;
+use App\Entity\Cronjob;
 use App\Entity\DashboardCard;
 use App\Entity\Endpoint;
 use App\Entity\Gateway;
@@ -110,6 +111,17 @@ class InstallationService implements InstallerInterface
         $rolType = $schemaRepository->findOneBy(['name' => 'RolType']);
         $rolTypeID = $rolType ? $rolType->getId()->toString() : '';
 
+        // Cronjob
+        $cronjob = new Cronjob();
+        $cronjob->setName('Xxllnc sync');
+        $cronjob->setDescription('A cronjob that sets off the synchronizations for the various sources');
+        $cronjob->setCrontab('*/1 * * * *');
+        $cronjob->setThrows(['xxllnc.cronjob.trigger']);
+        $cronjob->setData([]);
+        $cronjob->setIsEnabled(true);
+        $this->entityManager->persist($cronjob);
+        isset($this->io) && $this->io->writeln('Cronjob: \'Xxllnc sync\' created');
+
         // Sources
         // Xxllnc v1 api
         if ($source = $sourceRepository->findOneBy(['name' => 'zaaksysteem'])) {
@@ -193,7 +205,7 @@ class InstallationService implements InstallerInterface
         $action = $actionRepository->findOneBy(['name' => 'SyncZaakTypeAction']) ?? new Action();
         $action->setName('SyncZaakTypeAction');
         $action->setDescription('This is a synchronization action from the xxllnc v2 to the gateway zgw ztc zaaktypen.');
-        $action->setListens(['commongateway.cronjob.trigger']);
+        $action->setListens(['xxllnc.cronjob.trigger']);
         $action->setConditions(['==' => [1, 1]]);
         $action->setConfiguration([
             'entity'    => $xxllncZaakTypeID,
@@ -232,7 +244,8 @@ class InstallationService implements InstallerInterface
             'source'    => $source->getId()->toString(),
             'location'  => '/casetype',
             'apiSource' => [
-                'location' => [
+                'sourcePaginated' => true,
+                'location'        => [
                     'object'  => 'result',
                     'idField' => 'reference',
                 ],
@@ -277,7 +290,7 @@ class InstallationService implements InstallerInterface
         $action = $actionRepository->findOneBy(['name' => 'SyncZakenCollectionAction']) ?? new Action();
         $action->setName('SyncZakenCollectionAction');
         $action->setDescription('This is a synchronization action from the xxllnc v2 to the gateway zrc zaken.');
-        $action->setListens(['commongateway.cronjob.trigger']);
+        $action->setListens(['xxllnc.cronjob.trigger']);
         $action->setConditions(['==' => [1, 1]]);
         $action->setConfiguration([
             'entity'    => $xxllncZaakID,
