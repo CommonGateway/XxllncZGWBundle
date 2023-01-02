@@ -111,7 +111,7 @@ class InstallationService implements InstallerInterface
         $rolType = $schemaRepository->findOneBy(['name' => 'RolType']);
         $rolTypeID = $rolType ? $rolType->getId()->toString() : '';
 
-        // Cronjob 
+        // Cronjob
         $cronjob = new Cronjob();
         $cronjob->setName('Xxllnc sync');
         $cronjob->setDescription('A cronjob that sets off the synchronizations for the various sources');
@@ -121,7 +121,6 @@ class InstallationService implements InstallerInterface
         $cronjob->setIsEnabled(true);
         $this->entityManager->persist($cronjob);
         isset($this->io) && $this->io->writeln('Cronjob: \'Xxllnc sync\' created');
-
 
         // Sources
         // Xxllnc v1 api
@@ -246,7 +245,7 @@ class InstallationService implements InstallerInterface
             'location'  => '/casetype',
             'apiSource' => [
                 'sourcePaginated' => true,
-                'location' => [
+                'location'        => [
                     'object'  => 'result',
                     'idField' => 'reference',
                 ],
