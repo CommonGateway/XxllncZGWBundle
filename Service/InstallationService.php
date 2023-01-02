@@ -361,7 +361,7 @@ class InstallationService implements InstallerInterface
             'entities'  => [
                 'XxllncZaakPost' => $xxllncZaakPostID,
             ],
-
+            'apiSource' => ['unavailablePropertiesOut' => ['_self']]
         ]);
         $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\ZgwToXxllncHandler');
         $action->setIsEnabled(true);
