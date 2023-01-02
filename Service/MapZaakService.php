@@ -335,10 +335,10 @@ class MapZaakService
         $xxllncZaakArray = $this->mapPostRollen($xxllncZaakArray, $zaakArrayObject);
 
         // DONT COMMIT @TODO remove
-        $objectEntities = $this->entityManager->getRepository('App:ObjectEntity')->findBy(['entity' => $xxllncZaakPostEntity]);
-        foreach ($objectEntities as $object) {
-            $this->entityManager->remove($object);
-        }
+        // $objectEntities = $this->entityManager->getRepository('App:ObjectEntity')->findBy(['entity' => $xxllncZaakPostEntity]);
+        // foreach ($objectEntities as $object) {
+        //     $this->entityManager->remove($object);
+        // }
 
         $xxllncZaakObjectEntity = new ObjectEntity();
         $xxllncZaakObjectEntity->setEntity($xxllncZaakPostEntity);
@@ -402,7 +402,7 @@ class MapZaakService
      */
     public function mapZaakHandler(array $data, array $configuration): array
     {
-        var_dump('MapZaakService triggered');
+        // var_dump('MapZaakService triggered');
         $this->data = $data['response'];
         $this->configuration = $configuration;
 
@@ -484,7 +484,7 @@ class MapZaakService
 
         $this->entityManager->persist($zaakObjectEntity);
         $this->entityManager->flush();
-        var_dump('ZGW Zaak created');
+        // var_dump('ZGW Zaak created');
 
         return ['response' => $zaakObjectEntity->toArray()];
     }

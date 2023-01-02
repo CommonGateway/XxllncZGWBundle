@@ -200,8 +200,7 @@ class MapZaakTypeService
      */
     public function mapZaakTypeHandler(array $data, array $configuration): array
     {
-//        die;
-        var_dump('MapZaakType triggered');
+        // var_dump('MapZaakType triggered');
         $this->data = $data['response'];
         $this->configuration = $configuration;
 
@@ -217,21 +216,21 @@ class MapZaakTypeService
         }
 
         $totalObjectsWithCertianExternalId = count($this->entityManager->getRepository('App:ObjectEntity')->findBy(['externalId' => $this->data['reference'], 'entity' => $zaakTypeEntity]));
-        var_dump('ExternalID', $this->data['reference']);
-        var_dump($totalObjectsWithCertianExternalId);
+        // var_dump('ExternalID', $this->data['reference']);
+        // var_dump($totalObjectsWithCertianExternalId);
 
-        if ($this->data['reference'] == '196c5c90-deff-48f4-bb7f-e092ddf1d829') {
-            var_dump('SPECIFIK ZAAKTYPE CREATED');
-        }
+        // if ($this->data['reference'] == '196c5c90-deff-48f4-bb7f-e092ddf1d829') {
+        //     var_dump('SPECIFIK ZAAKTYPE CREATED');
+        // }
 
         $zaakTypeObjectEntity = $this->getZaakTypeObjectEntity($zaakTypeEntity);
 
         // Map and set default values from xxllnc casetype to zgw zaaktype
         $zgwZaakTypeArray = $this->translationService->dotHydrator(isset($skeletonIn) ? array_merge($this->data, $this->skeletonIn) : $this->data, $this->data, $this->mappingIn);
         if (!isset($zgwZaakTypeArray['omschrijving']) || empty($zgwZaakTypeArray['omschrijving'])) {
-            var_dump($this->data['preview']);
-            var_dump($this->data['instance']['title']);
-            var_dump('MapZaakType aborted because omschrijving not set');
+            // var_dump($this->data['preview']);
+            // var_dump($this->data['instance']['title']);
+            // var_dump('MapZaakType aborted because omschrijving not set');
 
             return ['response' => $zaakTypeObjectEntity->toArray()];
         }
@@ -248,11 +247,9 @@ class MapZaakTypeService
         $zaakTypeObjectEntity->setExternalId($this->data['reference']);
         $zaakTypeObjectEntity = $this->synchronizationService->setApplicationAndOrganization($zaakTypeObjectEntity);
 
-        $value = $zaakTypeObjectEntity->getValue('omschrijving');
-
         $this->entityManager->persist($zaakTypeObjectEntity);
         $this->entityManager->flush();
-        var_dump('MapZaakType finished with id: '.$zaakTypeObjectEntity->getId()->toString());
+        // var_dump('MapZaakType finished with id: '.$zaakTypeObjectEntity->getId()->toString());
 
         return ['response' => $zaakTypeObjectEntity->toArray()];
     }
