@@ -360,8 +360,7 @@ class InstallationService implements InstallerInterface
             'location'  => '/case/create',
             'entities'  => [
                 'XxllncZaakPost' => $xxllncZaakPostID,
-            ],
-            'apiSource' => ['unavailablePropertiesOut' => ['_self']]
+            ]
         ]);
         $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\ZgwToXxllncHandler');
         $action->setIsEnabled(true);
@@ -392,7 +391,7 @@ class InstallationService implements InstallerInterface
                 'translationsOut'          => [],
                 'skeletonIn'               => [],
                 'skeletonOut'              => [],
-                'unavailablePropertiesOut' => [],
+                'unavailablePropertiesOut' => ['_self']
             ],
         ]);
         $action->setClass('App\ActionHandler\SynchronizationPushHandler');
