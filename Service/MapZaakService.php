@@ -370,7 +370,8 @@ class MapZaakService
 
         if (
             !isset($zaakTypeObjectEntity) ||
-            (isset($zaakTypeObjectEntity) &&
+            (
+                isset($zaakTypeObjectEntity) &&
                 !$synchronization = $this->entityManager->getRepository('App:Synchronization')->findOneBy(['object' => $zaakTypeObjectEntity->getId(), 'gateway' => $xxllncGateway])
             )
         ) {
@@ -379,7 +380,7 @@ class MapZaakService
             $synchronization->setSourceId($zaakTypeId);
             $synchronization->setEntity($xxllncZaakTypeEntity);
             $synchronization->setAction($action);
-            $synchronization->setEndpoint('/casetype/' . $zaakTypeId);
+            $synchronization->setEndpoint('/casetype/'.$zaakTypeId);
             $this->entityManager->persist($synchronization);
             $synchronization = $this->synchronizationService->handleSync($synchronization, [], $action->getConfiguration());
 

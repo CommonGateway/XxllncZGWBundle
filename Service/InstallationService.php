@@ -96,6 +96,7 @@ class InstallationService implements InstallerInterface
         $actionRepository = $this->entityManager->getRepository('App:Action');
         $schemaRepository = $this->entityManager->getRepository('App:Entity');
         $attributeRepository = $this->entityManager->getRepository('App:Attribute');
+        $cronjobRepository = $this->entityManager->getRepository('App:Cronjob');
 
         // Get schema ID's
         $xxllncZaakPost = $schemaRepository->findOneBy(['name' => 'XxllncZaakPost']);
@@ -112,7 +113,7 @@ class InstallationService implements InstallerInterface
         $rolTypeID = $rolType ? $rolType->getId()->toString() : '';
 
         // Cronjob 
-        $cronjob = new Cronjob();
+        $cronjob = $cronjobRepository->findOneBy(['name' => 'Xxllnc sync']) ?? new Cronjob();
         $cronjob->setName('Xxllnc sync');
         $cronjob->setDescription('A cronjob that sets off the synchronizations for the various sources');
         $cronjob->setCrontab('*/1 * * * *');
@@ -121,7 +122,6 @@ class InstallationService implements InstallerInterface
         $cronjob->setIsEnabled(true);
         $this->entityManager->persist($cronjob);
         isset($this->io) && $this->io->writeln('Cronjob: \'Xxllnc sync\' created');
-
 
         // Sources
         // Xxllnc v1 api
@@ -246,7 +246,7 @@ class InstallationService implements InstallerInterface
             'location'  => '/casetype',
             'apiSource' => [
                 'sourcePaginated' => true,
-                'location' => [
+                'location'        => [
                     'object'  => 'result',
                     'idField' => 'reference',
                 ],
@@ -361,7 +361,7 @@ class InstallationService implements InstallerInterface
             'entities'  => [
                 'XxllncZaakPost' => $xxllncZaakPostID,
             ],
-
+            'apiSource' => ['unavailablePropertiesOut' => ['_self']]
         ]);
         $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\ZgwToXxllncHandler');
         $action->setIsEnabled(true);
