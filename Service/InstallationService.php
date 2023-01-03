@@ -391,7 +391,7 @@ class InstallationService implements InstallerInterface
                 'translationsOut'          => [],
                 'skeletonIn'               => [],
                 'skeletonOut'              => [],
-                'unavailablePropertiesOut' => ['_self']
+                'unavailablePropertiesOut' => ['_self', 'requestor._self']
             ],
         ]);
         $action->setClass('App\ActionHandler\SynchronizationPushHandler');
