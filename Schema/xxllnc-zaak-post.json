@@ -14,6 +14,20 @@
         "source": {
             "type": "string"
         },
+        "requestor": {
+            "type": "object",
+            "items": {
+                "type": "string",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "values": {
             "type": "array",
             "items": {
