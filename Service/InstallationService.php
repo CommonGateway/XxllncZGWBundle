@@ -112,7 +112,7 @@ class InstallationService implements InstallerInterface
         $rolType = $schemaRepository->findOneBy(['name' => 'RolType']);
         $rolTypeID = $rolType ? $rolType->getId()->toString() : '';
 
-        // Cronjob 
+        // Cronjob
         $cronjob = $cronjobRepository->findOneBy(['name' => 'Xxllnc sync']) ?? new Cronjob();
         $cronjob->setName('Xxllnc sync');
         $cronjob->setDescription('A cronjob that sets off the synchronizations for the various sources');
@@ -360,7 +360,7 @@ class InstallationService implements InstallerInterface
             'location'  => '/case/create',
             'entities'  => [
                 'XxllncZaakPost' => $xxllncZaakPostID,
-            ]
+            ],
         ]);
         $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\ZgwToXxllncHandler');
         $action->setIsEnabled(true);
@@ -391,7 +391,7 @@ class InstallationService implements InstallerInterface
                 'translationsOut'          => [],
                 'skeletonIn'               => [],
                 'skeletonOut'              => [],
-                'unavailablePropertiesOut' => ['_self', 'requestor._self']
+                'unavailablePropertiesOut' => ['_self', 'requestor._self'],
             ],
         ]);
         $action->setClass('App\ActionHandler\SynchronizationPushHandler');

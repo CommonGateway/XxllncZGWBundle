@@ -335,9 +335,8 @@ class MapZaakService
         if (isset($zaakArrayObject)) {
             $zaakArrayObject = $zaakArrayObject->toArray();
         } else {
-            throw new \Exception('ZGW Zaak not found with id: ' . $this->data['_self']['id']);
+            throw new \Exception('ZGW Zaak not found with id: '.$this->data['_self']['id']);
         }
-
 
         if (isset($zaakArrayObject['verantwoordelijkeOrganisatie'])) {
             $xxllncZaakArray['requestor'] = ['id' => '922904418', 'type' => 'person'];
@@ -387,7 +386,8 @@ class MapZaakService
 
         if (
             !isset($zaakTypeObjectEntity) ||
-            (isset($zaakTypeObjectEntity) &&
+            (
+                isset($zaakTypeObjectEntity) &&
                 !$synchronization = $this->entityManager->getRepository('App:Synchronization')->findOneBy(['object' => $zaakTypeObjectEntity->getId(), 'gateway' => $xxllncGateway])
             )
         ) {
