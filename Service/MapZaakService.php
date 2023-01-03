@@ -196,7 +196,7 @@ class MapZaakService
     {
         $eigenschapIds = [];
         foreach ($zaakTypeEigenschappen as $eigenschap) {
-            $eigenschapIds[] = $eigenschap->getValue('id');
+            $eigenschapIds[] = $eigenschap->getId()->toString();
         }
 
         // eigenschappen to values
@@ -263,11 +263,20 @@ class MapZaakService
     private function mapPostRollen(array $xxllncZaakArray, array $zaakArrayObject): array
     {
         // rollen to subjects
+        // var_dump(1);
+        // var_dump(isset($zaakArrayObject['rollen']) && isset($zaakArrayObject['zaaktype']['roltypen']));
         if (isset($zaakArrayObject['rollen']) && isset($zaakArrayObject['zaaktype']['roltypen'])) {
             foreach ($zaakArrayObject['rollen'] as $rol) {
                 foreach ($zaakArrayObject['zaaktype']['roltypen'] as $rolType) {
+                    // var_dump(2);
+                    // var_dump($rolType['omschrijving'] === $rol['roltoelichting']);
+                    // var_dump($rolType['omschrijving']);
+                    // var_dump($rol['roltoelichting']);
                     if ($rolType['omschrijving'] === $rol['roltoelichting']) {
                         $rolTypeObject = $this->entityManager->find('App:ObjectEntity', $rolType['_self']['id']);
+                        // var_dump(3);
+                        // var_dump($rolTypeObject->getId()->toString());
+                        // var_dump($rolTypeObject instanceof ObjectEntity && $rolTypeObject->getExternalId() !== null);
                         if ($rolTypeObject instanceof ObjectEntity && $rolTypeObject->getExternalId() !== null) {
                             $xxllncZaakArray['subjects'][] = [
                                 'subject' => [
@@ -301,6 +310,7 @@ class MapZaakService
         // var_dump('mapZgwToZaakHandler triggered');
         $this->data = $data['response'];
         $this->configuration = $configuration;
+        $xxllncZaakArray = [];
 
         isset($this->configuration['entities']['XxllncZaakPost']) && $xxllncZaakPostEntity = $this->entityRepo->find($this->configuration['entities']['XxllncZaakPost']);
 
@@ -317,12 +327,25 @@ class MapZaakService
         }
 
         if (isset($this->data['_self']['id'])) {
-            $zaakArrayObject = $this->entityManager->find('App:ObjectEntity', $this->data['_self']['id'])->toArray();
+            $zaakArrayObject = $this->entityManager->find('App:ObjectEntity', $this->data['_self']['id']);
         } else {
             throw new \Exception('No id on zaak');
         }
 
-        $xxllncZaakArray = ['casetype_id' => $casetypeId];
+        if (isset($zaakArrayObject)) {
+            $zaakArrayObject = $zaakArrayObject->toArray();
+        } else {
+            throw new \Exception('ZGW Zaak not found with id: ' . $this->data['_self']['id']);
+        }
+
+
+        if (isset($zaakArrayObject['verantwoordelijkeOrganisatie'])) {
+            $xxllncZaakArray['requestor'] = ['id' => '922904418', 'type' => 'person'];
+        } else {
+            throw new \Exception('verantwoordelijkeOrganisatie is not set');
+        }
+
+        $xxllncZaakArray['casetype_id'] = $casetypeId;
         $xxllncZaakArray['source'] = 'behandelaar';
         $xxllncZaakArray['confidentiality'] = 'public';
 
@@ -333,12 +356,6 @@ class MapZaakService
         $xxllncZaakArray = $this->mapPostEigenschappen($xxllncZaakArray, $zaakArrayObject, $eigenschappenCollection);
         $xxllncZaakArray = $this->mapPostInfoObjecten($xxllncZaakArray, $zaakArrayObject);
         $xxllncZaakArray = $this->mapPostRollen($xxllncZaakArray, $zaakArrayObject);
-
-        // DONT COMMIT @TODO remove
-        // $objectEntities = $this->entityManager->getRepository('App:ObjectEntity')->findBy(['entity' => $xxllncZaakPostEntity]);
-        // foreach ($objectEntities as $object) {
-        //     $this->entityManager->remove($object);
-        // }
 
         $xxllncZaakObjectEntity = new ObjectEntity();
         $xxllncZaakObjectEntity->setEntity($xxllncZaakPostEntity);
@@ -370,8 +387,7 @@ class MapZaakService
 
         if (
             !isset($zaakTypeObjectEntity) ||
-            (
-                isset($zaakTypeObjectEntity) &&
+            (isset($zaakTypeObjectEntity) &&
                 !$synchronization = $this->entityManager->getRepository('App:Synchronization')->findOneBy(['object' => $zaakTypeObjectEntity->getId(), 'gateway' => $xxllncGateway])
             )
         ) {
