@@ -138,24 +138,24 @@ class MapZaakTypeService
         return $zaakTypeArray;
     }
 
-    /**
-     * Maps the eigenschappen from xxllnc to zgw.
-     *
-     * @param array $zaakTypeArray This is the ZGW ZaakType array.
-     *
-     * @return array $zaakTypeArray This is the ZGW ZaakType array with the added eigenschappen.
-     */
-    private function mapEigenschappen(array $zaakTypeArray): array
-    {
-        // // Manually map properties to eigenschappen
-        $zaakTypeArray['eigenschappen'] = [];
-        $propertyIgnoreList = ['lead_time_legal', 'lead_time_service', 'designation_of_confidentiality', 'extension', 'publication', 'supervisor_relation', 'suspension'];
-        foreach ($this->data['instance']['properties'] as $propertyName => $propertyValue) {
-            !in_array($propertyName, $propertyIgnoreList) && $zaakTypeArray['eigenschappen'][] = ['naam' => $propertyName, 'definitie' => $propertyName];
-        }
+    // /**
+    //  * Maps the eigenschappen from xxllnc to zgw.
+    //  *
+    //  * @param array $zaakTypeArray This is the ZGW ZaakType array.
+    //  *
+    //  * @return array $zaakTypeArray This is the ZGW ZaakType array with the added eigenschappen.
+    //  */
+    // private function mapEigenschappen(array $zaakTypeArray): array
+    // {
+    //     // // Manually map properties to eigenschappen
+    //     $zaakTypeArray['eigenschappen'] = [];
+    //     $propertyIgnoreList = ['lead_time_legal', 'lead_time_service', 'designation_of_confidentiality', 'extension', 'publication', 'supervisor_relation', 'suspension'];
+    //     foreach ($this->data['instance']['properties'] as $propertyName => $propertyValue) {
+    //         !in_array($propertyName, $propertyIgnoreList) && $zaakTypeArray['eigenschappen'][] = ['naam' => $propertyName, 'definitie' => $propertyName];
+    //     }
 
-        return $zaakTypeArray;
-    }
+    //     return $zaakTypeArray;
+    // }
 
     /**
      * Finds or creates a ObjectEntity from the ZaakType Entity.
@@ -240,7 +240,8 @@ class MapZaakTypeService
 
         $zgwZaakTypeArray = $this->mapStatusAndRolTypen($zgwZaakTypeArray, $rolTypeEntity);
         $zgwZaakTypeArray = $this->mapResultaatTypen($zgwZaakTypeArray);
-        $zgwZaakTypeArray = $this->mapEigenschappen($zgwZaakTypeArray);
+        // old code
+        // $zgwZaakTypeArray = $this->mapEigenschappen($zgwZaakTypeArray);
 
         $zaakTypeObjectEntity->hydrate($zgwZaakTypeArray);
 
