@@ -207,6 +207,7 @@ class MapZaakTypeService
         // Find ZGW Type entities by id from config
         $zaakTypeEntity = $this->entityRepo->find($configuration['entities']['ZaakType']);
         $rolTypeEntity = $this->entityRepo->find($configuration['entities']['RolType']);
+        $catalogusObjectEntity = $this->objectEntityRepo->find($configuration['objects']['Catalogus']);
 
         if (!isset($zaakTypeEntity)) {
             throw new \Exception('ZaakType entity could not be found, check MapZaakTypeHandler Action config');
@@ -214,24 +215,15 @@ class MapZaakTypeService
         if (!isset($rolTypeEntity)) {
             throw new \Exception('RolType entity could not be found, check MapZaakTypeHandler Action config');
         }
-
-        $totalObjectsWithCertianExternalId = count($this->entityManager->getRepository('App:ObjectEntity')->findBy(['externalId' => $this->data['reference'], 'entity' => $zaakTypeEntity]));
-        // var_dump('ExternalID', $this->data['reference']);
-        // var_dump($totalObjectsWithCertianExternalId);
-
-        // if ($this->data['reference'] == '196c5c90-deff-48f4-bb7f-e092ddf1d829') {
-        //     var_dump('SPECIFIK ZAAKTYPE CREATED');
-        // }
+        if (!isset($catalogusObjectEntity)) {
+            throw new \Exception('Catalogus object could not be found, check MapZaakTypeHandler Action config');
+        }
 
         $zaakTypeObjectEntity = $this->getZaakTypeObjectEntity($zaakTypeEntity);
 
         // Map and set default values from xxllnc casetype to zgw zaaktype
         $zgwZaakTypeArray = $this->translationService->dotHydrator(isset($skeletonIn) ? array_merge($this->data, $this->skeletonIn) : $this->data, $this->data, $this->mappingIn);
         if (!isset($zgwZaakTypeArray['omschrijving']) || empty($zgwZaakTypeArray['omschrijving'])) {
-            // var_dump($this->data['preview']);
-            // var_dump($this->data['instance']['title']);
-            // var_dump('MapZaakType aborted because omschrijving not set');
-
             return ['response' => $zaakTypeObjectEntity->toArray()];
         }
 
@@ -243,12 +235,21 @@ class MapZaakTypeService
         // old code
         // $zgwZaakTypeArray = $this->mapEigenschappen($zgwZaakTypeArray);
 
+        $zgwZaakTypeArray['catalogus'] = $catalogusObjectEntity->getId()->toString();
+
         $zaakTypeObjectEntity->hydrate($zgwZaakTypeArray);
 
         $zaakTypeObjectEntity->setExternalId($this->data['reference']);
         $zaakTypeObjectEntity = $this->synchronizationService->setApplicationAndOrganization($zaakTypeObjectEntity);
 
         $this->entityManager->persist($zaakTypeObjectEntity);
+
+        // Update catalogus with new zaaktype
+        $linkedZaakTypen = $catalogusObjectEntity->getValue('zaaktypen') ?? [];
+        $catalogusObjectEntity->setValue('zaaktypen', array_merge($linkedZaakTypen, $zaakTypeObjectEntity->getId()->toString()));
+
+        $this->entityManager->persist($catalogusObjectEntity);
+
         $this->entityManager->flush();
         // var_dump('MapZaakType finished with id: '.$zaakTypeObjectEntity->getId()->toString());
 
