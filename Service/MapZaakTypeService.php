@@ -234,9 +234,9 @@ class MapZaakTypeService
 
         // Update catalogus with new zaaktype
         $linkedZaakTypen = $catalogusObjectEntity->getValue('zaaktypen')->toArray() ?? [];
-        
+
         $catalogusObjectEntity->setValue('zaaktypen', array_merge($linkedZaakTypen, [$zaakTypeObjectEntity->getId()->toString()]));
-        
+
         $this->entityManager->persist($catalogusObjectEntity);
 
         $this->entityManager->flush();
