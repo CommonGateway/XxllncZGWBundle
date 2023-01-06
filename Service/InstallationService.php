@@ -6,17 +6,17 @@ namespace CommonGateway\XxllncZGWBundle\Service;
 
 use App\Entity\Action;
 use App\Entity\CollectionEntity;
-use App\Entity\ObjectEntity;
 use App\Entity\Cronjob;
 use App\Entity\DashboardCard;
-use App\Entity\Entity;
 use App\Entity\Endpoint;
+use App\Entity\Entity;
 use App\Entity\Gateway;
+use App\Entity\ObjectEntity;
 use App\Entity\Translation;
 use CommonGateway\CoreBundle\Installer\InstallerInterface;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 use Exception;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class InstallationService implements InstallerInterface
 {
@@ -64,7 +64,7 @@ class InstallationService implements InstallerInterface
         $objectsThatShouldHaveCards = [];
 
         foreach ($objectsThatShouldHaveCards as $object) {
-            (isset($this->io) ? $this->io->writeln('Looking for a dashboard card for: ' . $object) : '');
+            (isset($this->io) ? $this->io->writeln('Looking for a dashboard card for: '.$object) : '');
             $entity = $this->entityManager->getRepository('App:Entity')->findOneBy(['reference' => $object]);
             if (
                 !$dashboardCard = $this->entityManager->getRepository('App:DashboardCard')->findOneBy(['entityId' => $entity->getId()])
@@ -81,7 +81,7 @@ class InstallationService implements InstallerInterface
         $objectsThatShouldHaveEndpoints = [];
 
         foreach ($objectsThatShouldHaveEndpoints as $object) {
-            (isset($this->io) ? $this->io->writeln('Looking for a endpoint for: ' . $object) : '');
+            (isset($this->io) ? $this->io->writeln('Looking for a endpoint for: '.$object) : '');
             $entity = $this->entityManager->getRepository('App:Entity')->findOneBy(['reference' => $object]);
 
             if (
@@ -281,7 +281,7 @@ class InstallationService implements InstallerInterface
             $catalogusObject = new ObjectEntity($catalogusSchema);
             $catalogusObject->hydrate([
                 'contactpersoonBeheerNaam' => 'Conduction',
-                'domein' => 'http://localhost'
+                'domein'                   => 'http://localhost',
             ]);
             $this->entityManager->persist($catalogusObject);
             isset($this->io) && $this->io->writeln('ObjectEntity: \'Catalogus\' created');
@@ -304,7 +304,7 @@ class InstallationService implements InstallerInterface
                 'ZaakType' => $zaakTypeID,
                 'RolType'  => $rolTypeID,
             ],
-            'objects' => ['Catalogus' => $catalogusObject->getId()->toString()]
+            'objects' => ['Catalogus' => $catalogusObject->getId()->toString()],
         ]);
         $action->setAsync(true);
         $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\MapZaakTypeHandler');
