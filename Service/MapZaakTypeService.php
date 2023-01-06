@@ -169,20 +169,8 @@ class MapZaakTypeService
         // Find already existing zgwZaakType by $this->data['reference']
         $zaakTypeObjectEntity = $this->objectEntityRepo->findOneBy(['externalId' => $this->data['reference'], 'entity' => $zaakTypeEntity]);
 
-        var_dump($zaakTypeObjectEntity ? true : false);
-
-        if ($this->data['reference'] == '196c5c90-deff-48f4-bb7f-e092ddf1d829') {
-            // var_dump('ZAAKTYPE CREATED FROM MELDING INDIENEN');
-            // var_dump('ZAAKTYPE CREATED FROM MELDING INDIENEN');
-            // var_dump('ZAAKTYPE CREATED FROM MELDING INDIENEN');
-            // var_dump('ZAAKTYPE CREATED FROM MELDING INDIENEN');
-            // var_dump('ZAAKTYPE CREATED FROM MELDING INDIENEN');
-            // var_dump('ZAAKTYPE CREATED FROM MELDING INDIENEN');
-        }
-
         // Create new empty ObjectEntity if no ObjectEntity has been found
         if (!$zaakTypeObjectEntity instanceof ObjectEntity) {
-            var_dump('creating new');
             $zaakTypeObjectEntity = new ObjectEntity();
             $zaakTypeObjectEntity->setEntity($zaakTypeEntity);
         }
@@ -245,9 +233,10 @@ class MapZaakTypeService
         $this->entityManager->persist($zaakTypeObjectEntity);
 
         // Update catalogus with new zaaktype
-        $linkedZaakTypen = $catalogusObjectEntity->getValue('zaaktypen') ?? [];
-        $catalogusObjectEntity->setValue('zaaktypen', array_merge($linkedZaakTypen, $zaakTypeObjectEntity->getId()->toString()));
-
+        $linkedZaakTypen = $catalogusObjectEntity->getValue('zaaktypen')->toArray() ?? [];
+        
+        $catalogusObjectEntity->setValue('zaaktypen', array_merge($linkedZaakTypen, [$zaakTypeObjectEntity->getId()->toString()]));
+        
         $this->entityManager->persist($catalogusObjectEntity);
 
         $this->entityManager->flush();
