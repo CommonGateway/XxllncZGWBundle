@@ -303,39 +303,61 @@ class MapZaakService
      *
      * @return array $this->data Data which we entered the function with
      */
-    public function zgwToXxllncHandler(array $data, array $configuration): array
+    public function mapUpdateZaak(array $data, array $configuration): array
     {
-        // var_dump('mapZgwToZaakHandler triggered');
         $this->data = $data['response'];
         $this->configuration = $configuration;
-        $xxllncZaakArray = [];
 
         isset($this->configuration['entities']['XxllncZaakPost']) && $xxllncZaakPostEntity = $this->entityRepo->find($this->configuration['entities']['XxllncZaakPost']);
-
+        
         if (!isset($xxllncZaakPostEntity)) {
             throw new \Exception('Xxllnc zaak entity not found, check ZgwToXxllncHandler config');
         }
 
-        if (isset($this->data['zaaktype'])) {
-            isset($this->data['zaaktype']['_self']['id']) && $zaakTypeId = $this->data['zaaktype']['_self']['id'];
-            $zaakTypeObject = $this->entityManager->find('App:ObjectEntity', $zaakTypeId);
-            $casetypeId = $zaakTypeObject->getExternalId();
-        } else {
-            throw new \Exception('No zaaktype set on zaak');
+        if (!isset($this->data['zaak'])) {
+            throw new \Exception('Zaak not set on given object');
         }
 
-        if (isset($this->data['_self']['id'])) {
-            $zaakArrayObject = $this->entityManager->find('App:ObjectEntity', $this->data['_self']['id']);
+        if (isset($this->data['zaak']['zaaktype'])) {
+            isset($this->data['zaak']['zaaktype']['_self']['id']) && $zaakTypeId = $this->data['zaak']['zaaktype']['_self']['id'];
+            $zaakTypeObject = $this->entityManager->find('App:ObjectEntity', $zaakTypeId);
+            $casetypeId = $zaakTypeObject->getExternalId();
+            // Return here cause if the zaaktype is created through this gateway, we cant sync it to xxllnc because it doesn't exist there
+            if (!isset($casetypeId)) {
+                return $this->data;
+            }
+        } else {
+            throw new \Exception('No zaaktype found on zaak');
+        }
+
+        if (isset($this->data['zaak']['_self']['id'])) {
+            $zaakObject = $this->entityManager->find('App:ObjectEntity', $this->data['_self']['id']);
+            if (!$zaakObject instanceof ObjectEntity) {
+                throw new \Exception('Zaak object not found with id:' . $this->data['zaak']['_self']['id']);
+            }
         } else {
             throw new \Exception('No id on zaak');
         }
 
-        if (isset($zaakArrayObject)) {
-            $zaakArrayObject = $zaakArrayObject->toArray();
-        } else {
-            throw new \Exception('ZGW Zaak not found with id: '.$this->data['_self']['id']);
-        }
+        $zaakArray = $zaakObject->toArray();
 
+        $xxllncZaakArray = $this->mapZGWToXxllncZaak($casetypeId, $zaakTypeObject, $zaakArray, $xxllncZaakPostEntity);
+
+        return ['resppose' => $xxllncZaakArray];
+    }
+
+    /**
+     * Maps zgw zaak to xxllnc case.
+     *
+     * @param string       $caseTypeId           CaseTypeID as in xxllnc.
+     * @param ObjectEntity $zaakTypeObject       ZGW ZaakType object 
+     * @param array        $zaakArrayObject      ZGW Zaak object as array
+     * @param Entity       $xxllncZaakPostEntity The xxllnc create/update case object
+     *
+     * @return array $this->data Data which we entered the function with
+     */
+    public function mapZGWToXxllncZaak(string $casetypeId, ObjectEntity $zaakTypeObject, array $zaakArrayObject, Entity $xxllncZaakPostEntity)
+    {
         if (isset($zaakArrayObject['verantwoordelijkeOrganisatie'])) {
             $xxllncZaakArray['requestor'] = ['id' => '922904418', 'type' => 'person'];
         } else {
@@ -367,7 +389,57 @@ class MapZaakService
 
         $this->objectEntityService->dispatchEvent('commongateway.object.create', ['entity' => $xxllncZaakPostEntity->getId()->toString(), 'response' => $xxllncZaakArrayObject]);
 
-        return $this->data;
+        return $xxllncZaakArrayObject;
+    }
+
+    /**
+     * Creates or updates a ZGW Zaak from a xxllnc casetype with the use of mapping.
+     *
+     * @param array $data          Data from the handler where the xxllnc casetype is in.
+     * @param array $configuration Configuration from the Action where the Zaak entity id is stored in.
+     *
+     * @return array $this->data Data which we entered the function with
+     */
+    public function zgwToXxllncHandler(array $data, array $configuration): array
+    {
+        // var_dump('mapZgwToZaakHandler triggered');
+        $this->data = $data['response'];
+        $this->configuration = $configuration;
+        $xxllncZaakArray = [];
+
+        isset($this->configuration['entities']['XxllncZaakPost']) && $xxllncZaakPostEntity = $this->entityRepo->find($this->configuration['entities']['XxllncZaakPost']);
+
+        if (!isset($xxllncZaakPostEntity)) {
+            throw new \Exception('Xxllnc zaak entity not found, check ZgwToXxllncHandler config');
+        }
+
+        if (isset($this->data['zaaktype'])) {
+            isset($this->data['zaaktype']['_self']['id']) && $zaakTypeId = $this->data['zaaktype']['_self']['id'];
+            $zaakTypeObject = $this->entityManager->find('App:ObjectEntity', $zaakTypeId);
+            $casetypeId = $zaakTypeObject->getExternalId();
+            // Return here cause if the zaaktype is created through this gateway, we cant sync it to xxllnc because it doesn't exist there
+            if (!isset($casetypeId)) {
+                return $this->data;
+            }
+        } else {
+            throw new \Exception('No zaaktype set on zaak');
+        }
+
+        if (isset($this->data['_self']['id'])) {
+            $zaakArrayObject = $this->entityManager->find('App:ObjectEntity', $this->data['_self']['id']);
+        } else {
+            throw new \Exception('No id on zaak');
+        }
+
+        if (isset($zaakArrayObject)) {
+            $zaakArrayObject = $zaakArrayObject->toArray();
+        } else {
+            throw new \Exception('ZGW Zaak not found with id: ' . $this->data['_self']['id']);
+        }
+
+        $xxllncZaakArrayObject = $this->mapZGWToXxllncZaak($casetypeId, $zaakTypeObject, $zaakArrayObject, $xxllncZaakPostEntity);
+
+        return ['response' => $xxllncZaakArrayObject];
     }
 
     /**
@@ -384,8 +456,7 @@ class MapZaakService
 
         if (
             !isset($zaakTypeObjectEntity) ||
-            (
-                isset($zaakTypeObjectEntity) &&
+            (isset($zaakTypeObjectEntity) &&
                 !$synchronization = $this->entityManager->getRepository('App:Synchronization')->findOneBy(['object' => $zaakTypeObjectEntity->getId(), 'gateway' => $xxllncGateway])
             )
         ) {
@@ -394,7 +465,7 @@ class MapZaakService
             $synchronization->setSourceId($zaakTypeId);
             $synchronization->setEntity($xxllncZaakTypeEntity);
             $synchronization->setAction($action);
-            $synchronization->setEndpoint('/casetype/'.$zaakTypeId);
+            $synchronization->setEndpoint('/casetype/' . $zaakTypeId);
             $this->entityManager->persist($synchronization);
             $synchronization = $this->synchronizationService->handleSync($synchronization, [], $action->getConfiguration());
 
