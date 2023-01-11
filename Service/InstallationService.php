@@ -9,10 +9,13 @@ use App\Entity\CollectionEntity;
 use App\Entity\Cronjob;
 use App\Entity\DashboardCard;
 use App\Entity\Endpoint;
+use App\Entity\Entity;
 use App\Entity\Gateway;
+use App\Entity\ObjectEntity;
 use App\Entity\Translation;
 use CommonGateway\CoreBundle\Installer\InstallerInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class InstallationService implements InstallerInterface
@@ -202,6 +205,7 @@ class InstallationService implements InstallerInterface
         // isset($this->io) && $this->io->writeln('CollectionEntity: \'Documenten\' created');
 
         // Actions
+
         // SyncZaakTypeAction
         $action = $actionRepository->findOneBy(['name' => 'SyncZaakTypeAction']) ?? new Action();
         $action->setName('SyncZaakTypeAction');
@@ -266,6 +270,26 @@ class InstallationService implements InstallerInterface
         $this->entityManager->persist($syncOneZaakTypeAction);
         isset($this->io) && $this->io->writeln('Action: \'SyncOneZaakTypeAction\' created');
 
+        // Create Catalogus
+        $catalogusSchema = $this->entityManager->getRepository('App:Entity')->findOneBy(['name' => 'Catalogus']);
+        if (!$catalogusSchema instanceof Entity) {
+            throw new Exception('ZGW not correctly installed, no Catalogus schema found');
+        }
+
+        $catalogusObjecten = $this->entityManager->getRepository('App:ObjectEntity')->findBy(['entity' => $catalogusSchema]);
+        if (count($catalogusObjecten) < 1) {
+            $catalogusObject = new ObjectEntity($catalogusSchema);
+            $catalogusObject->hydrate([
+                'contactpersoonBeheerNaam' => 'Conduction',
+                'domein'                   => 'http://localhost',
+            ]);
+            $this->entityManager->persist($catalogusObject);
+            isset($this->io) && $this->io->writeln('ObjectEntity: \'Catalogus\' created');
+        } else {
+            $catalogusObject = $catalogusObjecten[0];
+            isset($this->io) && $this->io->writeln('ObjectEntity: \'Catalogus\' found');
+        }
+
         // MapZaakTypeAction
         $action = $actionRepository->findOneBy(['name' => 'MapZaakTypeAction']) ?? new Action();
         $action->setName('MapZaakTypeAction');
@@ -280,6 +304,7 @@ class InstallationService implements InstallerInterface
                 'ZaakType' => $zaakTypeID,
                 'RolType'  => $rolTypeID,
             ],
+            'objects' => ['Catalogus' => $catalogusObject->getId()->toString()],
         ]);
         $action->setAsync(true);
         $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\MapZaakTypeHandler');
@@ -345,6 +370,48 @@ class InstallationService implements InstallerInterface
         $action->setIsEnabled(true);
         $this->entityManager->persist($action);
         isset($this->io) && $this->io->writeln('Action: \'MapZaakAction\' created');
+
+        // // EigenschapToXxllncAction
+        // $action = $actionRepository->findOneBy(['name' => 'EigenschapToXxllncAction']) ?? new Action();
+        // $action->setName('EigenschapToXxllncAction');
+        // $action->setDescription('This is a mapping action from gateway zrc eigenschap to xxllnc v1.  ');
+        // $action->setListens(['commongateway.object.create']);
+        // $action->setConditions(['==' => [
+        //     ['var' => 'entity'],
+        //     $zaakEigenschapID,
+        // ]]);
+        // $action->setConfiguration([
+        //     'source'    => $source->getId()->toString(),
+        //     'location'  => '/case/create',
+        //     'entities'  => [
+        //         'updateXxllncZaakID' => $updateXxllncZaakID,
+        //     ],
+        // ]);
+        // $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\EigenschapToXxllncHandler');
+        // $action->setIsEnabled(true);
+        // $this->entityManager->persist($action);
+        // isset($this->io) && $this->io->writeln('Action: \'EigenschapToXxllncAction\' created');
+
+        // // EigenschapToXxllncAction
+        // $action = $actionRepository->findOneBy(['name' => 'EigenschapToXxllncAction']) ?? new Action();
+        // $action->setName('EigenschapToXxllncAction');
+        // $action->setDescription('This is a mapping action from gateway zrc eigenschap to xxllnc v1.  ');
+        // $action->setListens(['commongateway.object.create']);
+        // $action->setConditions(['==' => [
+        //     ['var' => 'entity'],
+        //     $zaakEigenschapID,
+        // ]]);
+        // $action->setConfiguration([
+        //     'source'    => $source->getId()->toString(),
+        //     'location'  => '/case/create',
+        //     'entities'  => [
+        //         'updateXxllncZaakID' => $updateXxllncZaakID,
+        //     ],
+        // ]);
+        // $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\EigenschapToXxllncHandler');
+        // $action->setIsEnabled(true);
+        // $this->entityManager->persist($action);
+        // isset($this->io) && $this->io->writeln('Action: \'EigenschapToXxllncAction\' created');
 
         // ZgwToXxllncAction
         $action = $actionRepository->findOneBy(['name' => 'ZgwToXxllncAction']) ?? new Action();
