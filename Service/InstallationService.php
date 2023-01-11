@@ -6,17 +6,17 @@ namespace CommonGateway\XxllncZGWBundle\Service;
 
 use App\Entity\Action;
 use App\Entity\CollectionEntity;
+use App\Entity\ObjectEntity;
 use App\Entity\Cronjob;
 use App\Entity\DashboardCard;
-use App\Entity\Endpoint;
 use App\Entity\Entity;
+use App\Entity\Endpoint;
 use App\Entity\Gateway;
-use App\Entity\ObjectEntity;
 use App\Entity\Translation;
 use CommonGateway\CoreBundle\Installer\InstallerInterface;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Exception;
 
 class InstallationService implements InstallerInterface
 {
@@ -64,7 +64,7 @@ class InstallationService implements InstallerInterface
         $objectsThatShouldHaveCards = [];
 
         foreach ($objectsThatShouldHaveCards as $object) {
-            (isset($this->io) ? $this->io->writeln('Looking for a dashboard card for: '.$object) : '');
+            (isset($this->io) ? $this->io->writeln('Looking for a dashboard card for: ' . $object) : '');
             $entity = $this->entityManager->getRepository('App:Entity')->findOneBy(['reference' => $object]);
             if (
                 !$dashboardCard = $this->entityManager->getRepository('App:DashboardCard')->findOneBy(['entityId' => $entity->getId()])
@@ -81,7 +81,7 @@ class InstallationService implements InstallerInterface
         $objectsThatShouldHaveEndpoints = [];
 
         foreach ($objectsThatShouldHaveEndpoints as $object) {
-            (isset($this->io) ? $this->io->writeln('Looking for a endpoint for: '.$object) : '');
+            (isset($this->io) ? $this->io->writeln('Looking for a endpoint for: ' . $object) : '');
             $entity = $this->entityManager->getRepository('App:Entity')->findOneBy(['reference' => $object]);
 
             if (
@@ -114,6 +114,8 @@ class InstallationService implements InstallerInterface
         $zaakTypeID = $zaakType ? $zaakType->getId()->toString() : '';
         $rolType = $schemaRepository->findOneBy(['name' => 'RolType']);
         $rolTypeID = $rolType ? $rolType->getId()->toString() : '';
+        $zaakEigenschap = $schemaRepository->findOneBy(['name' => 'ZaakEigenschap']);
+        $zaakEigenschapID = $zaakEigenschap ? $zaakEigenschap->getId()->toString() : '';
 
         // Cronjob
         $cronjob = $cronjobRepository->findOneBy(['name' => 'Xxllnc sync']) ?? new Cronjob();
@@ -281,7 +283,7 @@ class InstallationService implements InstallerInterface
             $catalogusObject = new ObjectEntity($catalogusSchema);
             $catalogusObject->hydrate([
                 'contactpersoonBeheerNaam' => 'Conduction',
-                'domein'                   => 'http://localhost',
+                'domein' => 'http://localhost'
             ]);
             $this->entityManager->persist($catalogusObject);
             isset($this->io) && $this->io->writeln('ObjectEntity: \'Catalogus\' created');
@@ -304,7 +306,7 @@ class InstallationService implements InstallerInterface
                 'ZaakType' => $zaakTypeID,
                 'RolType'  => $rolTypeID,
             ],
-            'objects' => ['Catalogus' => $catalogusObject->getId()->toString()],
+            'objects' => ['Catalogus' => $catalogusObject->getId()->toString()]
         ]);
         $action->setAsync(true);
         $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\MapZaakTypeHandler');
@@ -371,47 +373,56 @@ class InstallationService implements InstallerInterface
         $this->entityManager->persist($action);
         isset($this->io) && $this->io->writeln('Action: \'MapZaakAction\' created');
 
-        // // EigenschapToXxllncAction
-        // $action = $actionRepository->findOneBy(['name' => 'EigenschapToXxllncAction']) ?? new Action();
-        // $action->setName('EigenschapToXxllncAction');
-        // $action->setDescription('This is a mapping action from gateway zrc eigenschap to xxllnc v1.  ');
-        // $action->setListens(['commongateway.object.create']);
-        // $action->setConditions(['==' => [
-        //     ['var' => 'entity'],
-        //     $zaakEigenschapID,
-        // ]]);
-        // $action->setConfiguration([
-        //     'source'    => $source->getId()->toString(),
-        //     'location'  => '/case/create',
-        //     'entities'  => [
-        //         'updateXxllncZaakID' => $updateXxllncZaakID,
-        //     ],
-        // ]);
-        // $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\EigenschapToXxllncHandler');
-        // $action->setIsEnabled(true);
-        // $this->entityManager->persist($action);
-        // isset($this->io) && $this->io->writeln('Action: \'EigenschapToXxllncAction\' created');
+        // MapUpdateZaakAction
+        $action = $actionRepository->findOneBy(['name' => 'MapUpdateZaak']) ?? new Action();
+        $action->setName('MapUpdateZaakAction');
+        $action->setDescription('Update xxllnc zaak with updated zgw zaak');
+        $action->setListens(['commongateway.object.create']);
+        $action->setThrows(['xxllnc.case.updated']);
+        $action->setConditions(['==' => [1, 1]]);
+        $action->setConfiguration([
+            'source'    => $source->getId()->toString(),
+            'location'  => '/case/{id}/update',
+            'entities'  => [
+                'XxllncZaakPost' => $xxllncZaakPostID,
+            ],
+        ]);
+        $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\MapUpdateZaakHandler');
+        $action->setIsEnabled(true);
+        $this->entityManager->persist($action);
+        isset($this->io) && $this->io->writeln('Action: \'MapUpdateZaakAction\' created');
 
-        // // EigenschapToXxllncAction
-        // $action = $actionRepository->findOneBy(['name' => 'EigenschapToXxllncAction']) ?? new Action();
-        // $action->setName('EigenschapToXxllncAction');
-        // $action->setDescription('This is a mapping action from gateway zrc eigenschap to xxllnc v1.  ');
-        // $action->setListens(['commongateway.object.create']);
-        // $action->setConditions(['==' => [
-        //     ['var' => 'entity'],
-        //     $zaakEigenschapID,
-        // ]]);
-        // $action->setConfiguration([
-        //     'source'    => $source->getId()->toString(),
-        //     'location'  => '/case/create',
-        //     'entities'  => [
-        //         'updateXxllncZaakID' => $updateXxllncZaakID,
-        //     ],
-        // ]);
-        // $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\EigenschapToXxllncHandler');
-        // $action->setIsEnabled(true);
-        // $this->entityManager->persist($action);
-        // isset($this->io) && $this->io->writeln('Action: \'EigenschapToXxllncAction\' created');
+        // SyncUpdateZaakAction
+        $action = $actionRepository->findOneBy(['name' => 'SyncUpdateZaakAction']) ?? new Action();
+        $action->setName('SyncUpdateZaakAction');
+        $action->setDescription('This is a synchronization update action from gateway zrc zaken to xxllnc v1.');
+        $action->setListens(['xxllnc.case.updated']);
+        $action->setConditions(['==' => [
+            ['var' => 'entity'],
+            $xxllncZaakPostID,
+        ]]);
+        $action->setConfiguration([
+            'entity'    => $xxllncZaakPostID,
+            'source'    => $source->getId()->toString(),
+            'location'  => '/case/{id}/update',
+            'apiSource' => [
+                'location' => [
+                    'idField' => 'dossier.dossierId',
+                ],
+                'extend'                   => [],
+                'mappingIn'                => [],
+                'mappingOut'               => [],
+                'translationsIn'           => [],
+                'translationsOut'          => [],
+                'skeletonIn'               => [],
+                'skeletonOut'              => [],
+                'unavailablePropertiesOut' => ['_self', 'requestor', 'casetype_id', 'source', 'open', 'route', 'contact_details', 'confidentiality', 'number'],
+            ],
+        ]);
+        $action->setClass('App\ActionHandler\SynchronizationPushHandler');
+        $action->setIsEnabled(true);
+        $this->entityManager->persist($action);
+        isset($this->io) && $this->io->writeln('Action: \'SyncZgwToXxllncAction\' created');
 
         // ZgwToXxllncAction
         $action = $actionRepository->findOneBy(['name' => 'ZgwToXxllncAction']) ?? new Action();
