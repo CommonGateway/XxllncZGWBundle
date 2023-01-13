@@ -192,6 +192,11 @@ class MapZaakTypeService
         $this->data = $data['response'];
         $this->configuration = $configuration;
 
+        // This can speed up test sync for local development
+        // if ($this->data['reference'] !== '28ee7737-a3d8-4c5d-8760-c23554630248') {
+        //     return $this->data;
+        // }
+
         // Find ZGW Type entities by id from config
         $zaakTypeEntity = $this->entityRepo->find($configuration['entities']['ZaakType']);
         $rolTypeEntity = $this->entityRepo->find($configuration['entities']['RolType']);
