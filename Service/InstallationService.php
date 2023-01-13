@@ -374,10 +374,10 @@ class InstallationService implements InstallerInterface
         isset($this->io) && $this->io->writeln('Action: \'MapZaakAction\' created');
 
         // MapUpdateZaakAction
-        $action = $actionRepository->findOneBy(['name' => 'MapUpdateZaak']) ?? new Action();
+        $action = $actionRepository->findOneBy(['name' => 'MapUpdateZaakAction']) ?? new Action();
         $action->setName('MapUpdateZaakAction');
         $action->setDescription('Update xxllnc zaak with updated zgw zaak');
-        $action->setListens(['commongateway.object.create']);
+        $action->setListens(['zrc.zaakEigenschap.updated']);
         $action->setThrows(['xxllnc.case.updated']);
         $action->setConditions(['==' => [1, 1]]);
         $action->setConfiguration([
@@ -404,7 +404,8 @@ class InstallationService implements InstallerInterface
         $action->setConfiguration([
             'entity'    => $xxllncZaakPostID,
             'source'    => $source->getId()->toString(),
-            'location'  => '/case/{id}/update',
+            'location'  => '{{ "/case/"~id~"/update" }}',
+            'replaceTwigLocation' => 'objectEntityData',
             'apiSource' => [
                 'location' => [
                     'idField' => 'dossier.dossierId',
@@ -416,7 +417,7 @@ class InstallationService implements InstallerInterface
                 'translationsOut'          => [],
                 'skeletonIn'               => [],
                 'skeletonOut'              => [],
-                'unavailablePropertiesOut' => ['_self', 'requestor', 'casetype_id', 'source', 'open', 'route', 'contact_details', 'confidentiality', 'number'],
+                'unavailablePropertiesOut' => ['_self', 'requestor', 'casetype_id', 'source', 'open', 'route', 'contact_details', 'confidentiality', 'number', 'zgwZaak'],
             ],
         ]);
         $action->setClass('App\ActionHandler\SynchronizationPushHandler');
@@ -469,7 +470,7 @@ class InstallationService implements InstallerInterface
                 'translationsOut'          => [],
                 'skeletonIn'               => [],
                 'skeletonOut'              => [],
-                'unavailablePropertiesOut' => ['_self', 'requestor._self'],
+                'unavailablePropertiesOut' => ['_self', 'requestor._self', 'zgwZaak'],
             ],
         ]);
         $action->setClass('App\ActionHandler\SynchronizationPushHandler');
