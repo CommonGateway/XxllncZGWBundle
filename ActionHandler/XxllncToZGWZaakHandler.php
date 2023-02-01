@@ -4,16 +4,16 @@ namespace CommonGateway\XxllncZGWBundle\ActionHandler;
 
 use App\Exception\GatewayException;
 use CommonGateway\CoreBundle\ActionHandler\ActionHandlerInterface;
-use CommonGateway\XxllncZGWBundle\Service\MapZaakService;
+use CommonGateway\XxllncZGWBundle\Service\XxllncToZGWZaakService;
 use Psr\Cache\CacheException;
 use Psr\Cache\InvalidArgumentException;
 use Respect\Validation\Exceptions\ComponentException;
 
-class MapZaakHandler implements ActionHandlerInterface
+class XxllncToZGWZaakHandler implements ActionHandlerInterface
 {
     private mapZaakService $mapZaakService;
 
-    public function __construct(MapZaakService $mapZaakService)
+    public function __construct(XxllncToZGWZaakService $mapZaakService)
     {
         $this->mapZaakService = $mapZaakService;
     }
@@ -28,7 +28,7 @@ class MapZaakHandler implements ActionHandlerInterface
         return [
             '$id'         => 'https://example.com/person.schema.json',
             '$schema'     => 'https://json-schema.org/draft/2020-12/schema',
-            'title'       => 'MapZaakAction',
+            'title'       => 'XxllncToZGWZaakAction',
             'description' => 'This handler customly maps xxllnc case to zgw zaak',
             'required'    => ['zaakEntityId'],
             'properties'  => [

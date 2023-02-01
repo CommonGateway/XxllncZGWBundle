@@ -13,7 +13,7 @@ use App\Service\TranslationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\PersistentCollection;
 
-class MapZaakService
+class XxllncToZGWZaakService
 {
     private EntityManagerInterface $entityManager;
     private TranslationService $translationService;
@@ -513,7 +513,7 @@ class MapZaakService
      */
     public function mapZaakHandler(array $data, array $configuration): array
     {
-        // var_dump('MapZaakService triggered');
+        // var_dump('XxllncToZGWZaakService triggered');
         $this->data = $data['response'];
         $this->configuration = $configuration;
 

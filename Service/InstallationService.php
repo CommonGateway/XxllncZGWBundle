@@ -292,9 +292,9 @@ class InstallationService implements InstallerInterface
             isset($this->io) && $this->io->writeln('ObjectEntity: \'Catalogus\' found');
         }
 
-        // MapZaakTypeAction
-        $action = $actionRepository->findOneBy(['name' => 'MapZaakTypeAction']) ?? new Action();
-        $action->setName('MapZaakTypeAction');
+        // XxllncToZGWZaakTypeAction
+        $action = $actionRepository->findOneBy(['name' => 'XxllncToZGWZaakTypeAction']) ?? new Action();
+        $action->setName('XxllncToZGWZaakTypeAction');
         $action->setDescription('This is a action to map xxllnc casetype to zgw casetype.');
         $action->setListens(['commongateway.object.create', 'commongateway.object.update']);
         $action->setConditions(['==' => [
@@ -309,10 +309,10 @@ class InstallationService implements InstallerInterface
             'objects' => ['Catalogus' => $catalogusObject->getId()->toString()]
         ]);
         $action->setAsync(true);
-        $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\MapZaakTypeHandler');
+        $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\XxllncToZGWZaakTypeHandler');
         $action->setIsEnabled(true);
         $this->entityManager->persist($action);
-        isset($this->io) && $this->io->writeln('Action: \'MapZaakTypeAction\' created');
+        isset($this->io) && $this->io->writeln('Action: \'XxllncToZGWZaakTypeAction\' created');
 
         // SyncZakenCollectionAction
         $action = $actionRepository->findOneBy(['name' => 'SyncZakenCollectionAction']) ?? new Action();
@@ -347,9 +347,9 @@ class InstallationService implements InstallerInterface
         $this->entityManager->persist($action);
         isset($this->io) && $this->io->writeln('Action: \'SyncZakenCollectionAction\' created');
 
-        // MapZaakAction
-        $action = $actionRepository->findOneBy(['name' => 'MapZaakAction']) ?? new Action();
-        $action->setName('MapZaakAction');
+        // XxllncToZGWZaakAction
+        $action = $actionRepository->findOneBy(['name' => 'XxllncToZGWZaakAction']) ?? new Action();
+        $action->setName('XxllncToZGWZaakAction');
         $action->setDescription('This is a action to map xxllnc case to zgw zaak. ');
         $action->setListens(['commongateway.object.create', 'commongateway.object.update']);
         $action->setConditions(['==' => [
@@ -368,10 +368,10 @@ class InstallationService implements InstallerInterface
             ],
         ]);
         $action->setAsync(true);
-        $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\MapZaakHandler');
+        $action->setClass('CommonGateway\XxllncZGWBundle\ActionHandler\XxllncToZGWZaakHandler');
         $action->setIsEnabled(true);
         $this->entityManager->persist($action);
-        isset($this->io) && $this->io->writeln('Action: \'MapZaakAction\' created');
+        isset($this->io) && $this->io->writeln('Action: \'XxllncToZGWZaakAction\' created');
 
         // MapUpdateZaakAction
         $action = $actionRepository->findOneBy(['name' => 'MapUpdateZaakAction']) ?? new Action();

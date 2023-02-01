@@ -9,7 +9,7 @@ use App\Service\SynchronizationService;
 use App\Service\TranslationService;
 use Doctrine\ORM\EntityManagerInterface;
 
-class MapZaakTypeService
+class XxllncToZGWZaakTypeService
 {
     private EntityManagerInterface $entityManager;
     private TranslationService $translationService;
@@ -188,7 +188,7 @@ class MapZaakTypeService
      */
     public function mapZaakTypeHandler(array $data, array $configuration): array
     {
-        // var_dump('MapZaakType triggered');
+        // var_dump('XxllncToZGWZaakType triggered');
         $this->data = $data['response'];
         $this->configuration = $configuration;
 
@@ -203,13 +203,13 @@ class MapZaakTypeService
         $catalogusObjectEntity = $this->objectEntityRepo->find($configuration['objects']['Catalogus']);
 
         if (!isset($zaakTypeEntity)) {
-            throw new \Exception('ZaakType entity could not be found, check MapZaakTypeHandler Action config');
+            throw new \Exception('ZaakType entity could not be found, check XxllncToZGWZaakTypeHandler Action config');
         }
         if (!isset($rolTypeEntity)) {
-            throw new \Exception('RolType entity could not be found, check MapZaakTypeHandler Action config');
+            throw new \Exception('RolType entity could not be found, check XxllncToZGWZaakTypeHandler Action config');
         }
         if (!isset($catalogusObjectEntity)) {
-            throw new \Exception('Catalogus object could not be found, check MapZaakTypeHandler Action config');
+            throw new \Exception('Catalogus object could not be found, check XxllncToZGWZaakTypeHandler Action config');
         }
 
         $zaakTypeObjectEntity = $this->getZaakTypeObjectEntity($zaakTypeEntity);
@@ -245,7 +245,7 @@ class MapZaakTypeService
         $this->entityManager->persist($catalogusObjectEntity);
 
         $this->entityManager->flush();
-        // var_dump('MapZaakType finished with id: '.$zaakTypeObjectEntity->getId()->toString());
+        // var_dump('XxllncToZGWZaakType finished with id: '.$zaakTypeObjectEntity->getId()->toString());
 
         return ['response' => $zaakTypeObjectEntity->toArray()];
     }
