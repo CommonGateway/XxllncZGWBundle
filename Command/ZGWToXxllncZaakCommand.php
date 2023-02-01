@@ -12,7 +12,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * Command to execute the FindOrganizationThroughRepositoriesService.
  */
-class XxllncToZGWZaakTypeCommand extends Command
+class ZGWToXxllncZaakCommand extends Command
 {
     protected static $defaultName = 'xxllnc:zgwToXxllncZaakService:execute';
     private ZGWToXxllncZaakService  $zgwToXxllncZaakService;
