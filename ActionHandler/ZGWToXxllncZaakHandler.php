@@ -4,18 +4,18 @@ namespace CommonGateway\XxllncZGWBundle\ActionHandler;
 
 use App\Exception\GatewayException;
 use CommonGateway\CoreBundle\ActionHandler\ActionHandlerInterface;
-use CommonGateway\XxllncZGWBundle\Service\XxllncToZGWZaakService;
+use CommonGateway\XxllncZGWBundle\Service\ZGWToXxllncZaakService;
 use Psr\Cache\CacheException;
 use Psr\Cache\InvalidArgumentException;
 use Respect\Validation\Exceptions\ComponentException;
 
-class ZgwToXxllncHandler implements ActionHandlerInterface
+class ZGWToXxllncZaakHandler implements ActionHandlerInterface
 {
-    private XxllncToZGWZaakService $mapZaakService;
+    private ZGWToXxllncZaakService $zgwToXxllncZaakService;
 
-    public function __construct(XxllncToZGWZaakService $mapZaakService)
+    public function __construct(ZGWToXxllncZaakService $zgwToXxllncZaakService)
     {
-        $this->mapZaakService = $mapZaakService;
+        $this->zgwToXxllncZaakService = $zgwToXxllncZaakService;
     }
 
     /**
@@ -60,6 +60,6 @@ class ZgwToXxllncHandler implements ActionHandlerInterface
      */
     public function run(array $data, array $configuration): array
     {
-        return $this->mapZaakService->zgwToXxllncHandler($data, $configuration);
+        return $this->zgwToXxllncZaakService->zgwToXxllncZaakHandler($data, $configuration);
     }
 }
