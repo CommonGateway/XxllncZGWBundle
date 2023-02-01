@@ -8,6 +8,7 @@ use App\Service\ObjectEntityService;
 use App\Service\SynchronizationService;
 use App\Service\TranslationService;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class XxllncToZGWZaakTypeService
 {
@@ -15,6 +16,7 @@ class XxllncToZGWZaakTypeService
     private TranslationService $translationService;
     private ObjectEntityService $objectEntityService;
     private SynchronizationService $synchronizationService;
+    private SymfonyStyle $io;
     private array $configuration;
     private array $data;
 
@@ -59,6 +61,20 @@ class XxllncToZGWZaakTypeService
             'handelingBehandelaar' => 'Hoofd beveiliging',
             'aanleiding'           => 'Er is een afspraak gemaakt met een (niet) natuurlijk persoon',
         ];
+    }
+
+    /**
+     * Set symfony style in order to output to the console.
+     *
+     * @param SymfonyStyle $io
+     *
+     * @return self
+     */
+    public function setStyle(SymfonyStyle $io): self
+    {
+        $this->io = $io;
+
+        return $this;
     }
 
     /**
@@ -181,12 +197,12 @@ class XxllncToZGWZaakTypeService
     /**
      * Creates or updates a ZGW ZaakType from a xxllnc casetype with the use of mapping.
      *
-     * @param array $data          Data from the handler where the xxllnc casetype is in.
-     * @param array $configuration Configuration from the Action where the ZaakType entity id is stored in.
+     * @param ?array $data          Data from the handler where the xxllnc casetype is in.
+     * @param ?array $configuration Configuration from the Action where the ZaakType entity id is stored in.
      *
      * @return array $this->data Data which we entered the function with
      */
-    public function mapZaakTypeHandler(array $data, array $configuration): array
+    public function xxllncToZGWZaakTypeHandler(?array $data = [], ?array $configuration = []): array
     {
         // var_dump('XxllncToZGWZaakType triggered');
         $this->data = $data['response'];

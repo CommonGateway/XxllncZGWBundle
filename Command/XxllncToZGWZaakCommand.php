@@ -35,9 +35,9 @@ class XxllncToZGWZaakCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $this->xxllncToZGWZaakService->setStyle($io);
 
-        // if (!$this->xxllncToZGWZaakService->xxllncToZGWZaakHandler()) {
-        //     return Command::FAILURE;
-        // }
+        if (!$this->xxllncToZGWZaakService->xxllncToZGWZaakHandler()) {
+            return Command::FAILURE;
+        }
 
         return Command::SUCCESS;
     }

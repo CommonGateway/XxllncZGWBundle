@@ -12,6 +12,7 @@ use App\Service\SynchronizationService;
 use App\Service\TranslationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\PersistentCollection;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class XxllncToZGWZaakService
 {
@@ -19,6 +20,7 @@ class XxllncToZGWZaakService
     private TranslationService $translationService;
     private ObjectEntityService $objectEntityService;
     private SynchronizationService $synchronizationService;
+    private SymfonyStyle $io;
     private array $configuration;
     private array $data;
 
@@ -62,6 +64,20 @@ class XxllncToZGWZaakService
             'archiefnominatie'             => 'blijvend_bewaren',
             'archiefstatus'                => 'nog_te_archiveren',
         ];
+    }
+
+    /**
+     * Set symfony style in order to output to the console.
+     *
+     * @param SymfonyStyle $io
+     *
+     * @return self
+     */
+    public function setStyle(SymfonyStyle $io): self
+    {
+        $this->io = $io;
+
+        return $this;
     }
 
     /**
@@ -468,10 +484,7 @@ class XxllncToZGWZaakService
     }
 
     /**
-     * Gets a existing ZaakType or syncs one from the xxllnc api.
-     *
-     * @param array $data          Data from the handler where the xxllnc casetype is in.
-     * @param array $configuration Configuration from the Action where the Zaak entity id is stored in.
+     * Gets a existing ZaakType or syncs one from the xxllnc api
      *
      * @return array $this->data Data which we entered the function with
      */
@@ -504,14 +517,14 @@ class XxllncToZGWZaakService
     }
 
     /**
-     * Creates or updates a ZGW Zaak from a xxllnc casetype with the use of mapping.
+     * Creates or updates a ZGW Zaak from a xxllnc case with the use of mapping.
      *
-     * @param array $data          Data from the handler where the xxllnc casetype is in.
-     * @param array $configuration Configuration from the Action where the Zaak entity id is stored in.
+     * @param ?array $data          Data from the handler where the xxllnc case is in.
+     * @param ?array $configuration Configuration from the Action where the Zaak entity id is stored in.
      *
      * @return array $this->data Data which we entered the function with
      */
-    public function mapZaakHandler(array $data, array $configuration): array
+    public function xxllncToZGWZaakHandler(?array $data = [], ?array $configuration = []): array
     {
         // var_dump('XxllncToZGWZaakService triggered');
         $this->data = $data['response'];

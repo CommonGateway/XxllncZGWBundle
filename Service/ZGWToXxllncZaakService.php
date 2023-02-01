@@ -210,12 +210,12 @@ class ZGWToXxllncZaakService
     /**
      * Creates or updates a ZGW Zaak from a xxllnc casetype with the use of mapping.
      *
-     * @param array $data          Data from the handler where the xxllnc casetype is in.
-     * @param array $configuration Configuration from the Action where the Zaak entity id is stored in.
+     * @param ?array $data          Data from the handler where the xxllnc casetype is in.
+     * @param ?array $configuration Configuration from the Action where the Zaak entity id is stored in.
      *
      * @return array $this->data Data which we entered the function with
      */
-    public function zgwToXxllncZaakHandler(array $data, array $configuration): array
+    public function zgwToXxllncZaakHandler(?array $data = [], ?array $configuration = []): array
     {
         // var_dump('mapZgwToZaakHandler triggered');
         $this->data = $data['response'];

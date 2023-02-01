@@ -11,11 +11,11 @@ use Respect\Validation\Exceptions\ComponentException;
 
 class XxllncToZGWZaakHandler implements ActionHandlerInterface
 {
-    private mapZaakService $mapZaakService;
+    private XxllncToZGWZaakService $xxllncToZGWZaakService;
 
-    public function __construct(XxllncToZGWZaakService $mapZaakService)
+    public function __construct(XxllncToZGWZaakService $xxllncToZGWZaakService)
     {
-        $this->mapZaakService = $mapZaakService;
+        $this->xxllncToZGWZaakService = $xxllncToZGWZaakService;
     }
 
     /**
@@ -56,6 +56,6 @@ class XxllncToZGWZaakHandler implements ActionHandlerInterface
      */
     public function run(array $data, array $configuration): array
     {
-        return $this->mapZaakService->mapZaakHandler($data, $configuration);
+        return $this->xxllncToZGWZaakService->xxllncToZGWZaakHandler($data, $configuration);
     }
 }
