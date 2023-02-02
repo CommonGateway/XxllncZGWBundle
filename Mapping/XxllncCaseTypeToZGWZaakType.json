@@ -1,5 +1,5 @@
 {
-    "title": "XxllncZaakToZGWZaakType",
+    "title": "XxllncCaseTypeToZGWZaakType",
     "$id": "https://development.zaaksysteem.nl/api/v1/casetype",
     "$schema": "https://json-schema.org/draft/2020-12/mapping",
     "version": "0.0.1",
