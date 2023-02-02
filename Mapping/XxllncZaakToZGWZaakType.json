@@ -1,0 +1,24 @@
+{
+    "title": "XxllncZaakToZGWZaakType",
+    "$id": "https://development.zaaksysteem.nl/api/v1/casetype",
+    "$schema": "https://json-schema.org/draft/2020-12/mapping",
+    "version": "0.0.1",
+    "passTrough": false,
+    "mapping": {
+        "identificatie": "instance.legacy.zaaktype_id|string",
+        "onderwerp": "instance.title",
+        "indicatieInternOfExtern": "instance.trigger",
+        "doorlooptijd": "instance.properties.lead_time_legal.weken",
+        "servicenorm": "instance.properties.lead_time_service.weken",
+        "vertrouwelijkheidaanduiding": "instance.properties.designation_of_confidentiality",
+        "verlengingMogelijk": "instance.properties.extension",
+        "trefwoorden": "instance.subject_types",
+        "publicatieIndicatie": "instance.properties.publication|bool",
+        "verantwoordingsrelatie": "instance.properties.supervisor_relation|array",
+        "omschrijving": "instance.title",
+        "opschortingEnAanhoudingMogelijk": "instance.properties.suspension|bool"
+    },
+    "unset": {},
+    "cast": {}
+  }
+  
