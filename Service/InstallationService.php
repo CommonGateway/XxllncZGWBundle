@@ -8,6 +8,8 @@ use App\Entity\Action;
 use App\Entity\Cronjob;
 use App\Entity\DashboardCard;
 use App\Entity\Endpoint;
+use App\Entity\ObjectEntity;
+use App\Entity\Entity;
 use App\Entity\Gateway as Source;
 use App\Entity\Translation;
 use CommonGateway\CoreBundle\Installer\InstallerInterface;
@@ -247,7 +249,7 @@ class InstallationService implements InstallerInterface
         $xxllncZaakPostID = $xxllncZaakPost ? $xxllncZaakPost->getId()->toString() : '';
         $xxllncZaak = $this->schemaRepository->findOneBy(['name' => 'XxllncZaak']);
         $xxllncZaakID = $xxllncZaak ? $xxllncZaak->getId()->toString() : '';
-        $xxllncZaakType = $schemaRepository->findOneBy(['name' => 'XxllncZaakType']);
+        $xxllncZaakType = $this->schemaRepository->findOneBy(['name' => 'XxllncZaakType']);
         $xxllncZaakTypeID = $xxllncZaakType ? $xxllncZaakType->getId()->toString() : '';
         $zaak = $this->schemaRepository->findOneBy(['name' => 'Zaak']);
         $zaakID = $zaak ? $zaak->getId()->toString() : '';
@@ -271,18 +273,39 @@ class InstallationService implements InstallerInterface
 
         // Sources
         // Xxllnc v1 api
-        if ($source = $this->sourceRepository->findOneBy(['name' => 'zaaksysteem'])) {
+        if ($source = $this->sourceRepository->findOneBy(['location' => 'https://development.zaaksysteem.nl/api/v1'])) {
             $newSource = false;
         } else {
             $newSource = true;
             $source = new Source();
         }
-        $source->setName('zaaksysteem');
+        $source->setName('Xxllnc zaaksysteem v1');
         $source->setAuth('apikey');
+        $source->setAuthorizationHeader('API-KEY');
         $source->setLocation('https://development.zaaksysteem.nl/api/v1');
         $newSource && $source->setIsEnabled(false);
         $this->entityManager->persist($source);
         isset($this->io) && $this->io->writeln('Gateway: \'zaaksysteem\' created');
+
+        // Create Catalogus
+        $catalogusSchema = $this->entityManager->getRepository('App:Entity')->findOneBy(['name' => 'Catalogus']);
+        if (!$catalogusSchema instanceof Entity) {
+            isset($this->io) && $this->io->error('ZGW not correctly installed, no Catalogus schema found');
+        }
+
+        $catalogusObjecten = $this->entityManager->getRepository('App:ObjectEntity')->findBy(['entity' => $catalogusSchema]);
+        if (count($catalogusObjecten) < 1) {
+            $catalogusObject = new ObjectEntity($catalogusSchema);
+            $catalogusObject->hydrate([
+                'contactpersoonBeheerNaam' => 'Conduction',
+                'domein' => 'http://localhost'
+            ]);
+            $this->entityManager->persist($catalogusObject);
+            isset($this->io) && $this->io->writeln('ObjectEntity: \'Catalogus\' created');
+        } else {
+            $catalogusObject = $catalogusObjecten[0];
+            isset($this->io) && $this->io->writeln('ObjectEntity: \'Catalogus\' found');
+        }
 
         // Actions
         // $this->createActionsOld(); // disabled cus old
