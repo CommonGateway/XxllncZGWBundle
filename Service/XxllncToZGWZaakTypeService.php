@@ -61,15 +61,16 @@ class XxllncToZGWZaakTypeService
         $this->sourceRepo = $this->entityManager->getRepository(Source::class);
         // $this->mappingRepo = $this->entityManager->getRepository(Mapping::class);
 
-        $this->skeletonIn = [
-            'handelingInitiator'   => 'indienen',
-            'beginGeldigheid'      => '1970-01-01',
-            'versieDatum'          => '1970-01-01',
-            'doel'                 => 'Overzicht hebben van de bezoekers die aanwezig zijn',
-            'versiedatum'          => '1970-01-01',
-            'handelingBehandelaar' => 'Hoofd beveiliging',
-            'aanleiding'           => 'Er is een afspraak gemaakt met een (niet) natuurlijk persoon',
-        ];
+        // @TODO new way to do this?
+        // $this->skeletonIn = [
+        //     'handelingInitiator'   => 'indienen',
+        //     'beginGeldigheid'      => '1970-01-01',
+        //     'versieDatum'          => '1970-01-01',
+        //     'doel'                 => 'Overzicht hebben van de bezoekers die aanwezig zijn',
+        //     'versiedatum'          => '1970-01-01',
+        //     'handelingBehandelaar' => 'Hoofd beveiliging',
+        //     'aanleiding'           => 'Er is een afspraak gemaakt met een (niet) natuurlijk persoon',
+        // ];
     }
 
     /**
@@ -84,6 +85,28 @@ class XxllncToZGWZaakTypeService
         $this->io = $io;
 
         return $this;
+    }
+
+    /**
+     * Fetches a xxllnc casetype and maps it to a zgw zaaktype
+     *
+     * @param string $caseTypeId This is the xxllnc casetype id
+     *
+     * @return Object|null $zaakTypeObject Fetched and mapped ZGW ZaakType
+     */
+    public function getZaakType(string $caseTypeID) 
+    {
+        try {
+            $response = $this->callService->call($this->xxllncAPI, "/casetype/$caseTypeID");
+            $caseType = $this->callService->decodeResponse($this->xxllncAPI, $response);
+        } catch (Exception $e) {
+            isset($this->io) && $this->io->error("Failed to fetch casetype: $caseTypeID, message:  {$e->getMessage()}");
+
+            return null;
+        }
+
+        return $this->caseTypeToZaakType($caseType);
+
     }
 
     /**
@@ -231,6 +254,8 @@ class XxllncToZGWZaakTypeService
 
         // Find or create synchronization object
         $synchronization = $this->synchronizationService->findSyncBySource($this->xxllncAPI, $this->zaakTypeSchema, $caseType['reference']);
+
+        // @TODO should the syncservice handle this?
         if (!$zaakTypeObject = $synchronization->getObject()) {
             $zaakTypeObject = new ObjectEntity($this->zaakTypeSchema);
             $this->entityManager->persist($zaakTypeObject);
@@ -253,9 +278,10 @@ class XxllncToZGWZaakTypeService
         $this->catalogusObject->setValue('zaaktypen', array_merge($linkedZaakTypen, [$zaakTypeID]));
         $this->entityManager->persist($this->catalogusObject);
 
+        // @TODO test mapping
         // $synchronization->setMapping($this->caseTypeMapping);
         // $synchronization = $this->synchronizationService->synchronize($synchronization, $zaakTypeObject->toArray());
-        
+
         $synchronization = $this->synchronizationService->handleSync($synchronization, $zaakTypeObject->toArray());
         isset($this->io) && $this->io->success("Created/updated zaaktype: $zaakTypeID");
 
