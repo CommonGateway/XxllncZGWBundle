@@ -63,15 +63,15 @@ class XxllncToZGWZaakTypeService
         $this->mappingRepo = $this->entityManager->getRepository(Mapping::class);
 
         // @TODO new way to do this?
-        // $this->skeletonIn = [
-        //     'handelingInitiator'   => 'indienen',
-        //     'beginGeldigheid'      => '1970-01-01',
-        //     'versieDatum'          => '1970-01-01',
-        //     'doel'                 => 'Overzicht hebben van de bezoekers die aanwezig zijn',
-        //     'versiedatum'          => '1970-01-01',
-        //     'handelingBehandelaar' => 'Hoofd beveiliging',
-        //     'aanleiding'           => 'Er is een afspraak gemaakt met een (niet) natuurlijk persoon',
-        // ];
+        $this->skeletonIn = [
+            'handelingInitiator'   => 'indienen',
+            'beginGeldigheid'      => '1970-01-01',
+            'versieDatum'          => '1970-01-01',
+            'doel'                 => 'Overzicht hebben van de bezoekers die aanwezig zijn',
+            'versiedatum'          => '1970-01-01',
+            'handelingBehandelaar' => 'Hoofd beveiliging',
+            'aanleiding'           => 'Er is een afspraak gemaakt met een (niet) natuurlijk persoon',
+        ];
     }// end _construct
 
     /**
@@ -263,6 +263,24 @@ class XxllncToZGWZaakTypeService
     }// end getRequiredGatewayObjects
 
     /**
+     * Sets default values.
+     * 
+     * @param array $zaakTypeArray
+     * 
+     * @return array $zaakTypeArray
+     */
+    private function setDefaultValues($zaakTypeArray) 
+    {
+        foreach($this->skeletonIn as $key => $data) {
+            if (!isset($zaakTypeArray[$key])) {
+                $zaakTypeArray[$key] = $data;
+            }
+        }
+
+        return $zaakTypeArray;
+    }// end setDefaultValues
+
+    /**
      * Creates or updates a casetype to zaaktype.
      * 
      * @param array $caseType CaseType from the Xxllnc API
@@ -290,13 +308,15 @@ class XxllncToZGWZaakTypeService
         $synchronization = $this->synchronizationService->synchronize($synchronization, $caseType);
         $zaakTypeObject = $synchronization->getObject();
         $zaakTypeArray = $zaakTypeObject->toArray();
+        $zaakTypeArray = $this->setDefaultValues($zaakTypeArray);
+
 
         // Manually set array properties (cant map with twig)
         $zaakTypeArray['verantwoordingsrelatie'] = [$caseType['instance']['properties']['supervisor_relation']] ?? null;
         $zaakTypeArray['trefwoorden'] = $caseType['instance']['subject_types'] ?? null;
 
         // Manually map subobjects
-        isset($this->io) && $this->io->info("Mapping casetype: {$caseType['reference']}");
+        isset($this->io) && $this->io->info("Mapping casetype with sourceId: {$caseType['reference']}");
         $zaakTypeArray = $this->mapStatusAndRolTypen($caseType, $zaakTypeArray);
         $zaakTypeArray = $this->mapResultaatTypen($caseType, $zaakTypeArray);
         $zaakTypeArray['catalogus'] = $this->catalogusObject->getId()->toString();
@@ -357,8 +377,8 @@ class XxllncToZGWZaakTypeService
                 $flushCount = $flushCount + 1;
             }
 
-            // Flush every 50
-            if ($flushCount == 50) {
+            // Flush every 20
+            if ($flushCount == 20) {
                 $this->entityManager->flush();
                 $flushCount = 0;
             }
