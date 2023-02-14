@@ -2,16 +2,12 @@
 
 namespace CommonGateway\XxllncZGWBundle\Service;
 
-use App\Entity\Action;
 use App\Entity\Entity as Schema;
 use App\Entity\Gateway as Source;
 use App\Entity\ObjectEntity;
 use App\Entity\Synchronization;
-use App\Service\ObjectEntityService;
 use App\Service\SynchronizationService;
-use App\Service\TranslationService;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\PersistentCollection;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Doctrine\Persistence\ObjectRepository;
 use CommonGateway\CoreBundle\Service\CallService;
@@ -22,8 +18,6 @@ use App\Entity\Mapping;
 class XxllncToZGWZaakService
 {
     private EntityManagerInterface $entityManager;
-    private TranslationService $translationService;
-    private ObjectEntityService $objectEntityService;
     private SynchronizationService $synchronizationService;
     private SymfonyStyle $io;
     private CallService $callService;
@@ -49,15 +43,11 @@ class XxllncToZGWZaakService
      */
     public function __construct(
         EntityManagerInterface $entityManager,
-        TranslationService $translationService,
-        ObjectEntityService $objectEntityService,
         SynchronizationService $synchronizationService,
         CallService $callService,
         XxllncToZGWZaakTypeService $xxllncToZGWZaakTypeService
     ) {
         $this->entityManager = $entityManager;
-        $this->translationService = $translationService;
-        $this->objectEntityService = $objectEntityService;
         $this->synchronizationService = $synchronizationService;
         $this->callService = $callService;
         $this->xxllncToZGWZaakTypeService = $xxllncToZGWZaakTypeService;
@@ -69,7 +59,6 @@ class XxllncToZGWZaakService
         $this->synchronizationRepo = $this->entityManager->getRepository(Synchronization::class);
         $this->mappingRepo = $this->entityManager->getRepository(Mapping::class);
 
-        // @TODO new way to do this?
         $this->skeletonIn = [
             'verantwoordelijkeOrganisatie' => '070124036',
             'betalingsindicatie'           => 'geheel',
@@ -228,7 +217,6 @@ class XxllncToZGWZaakService
     {
         // Get xxllnc source
         if (!isset($this->xxllncAPI) && !$this->xxllncAPI = $this->sourceRepo->findOneBy(['location' => 'https://development.zaaksysteem.nl/api/v1'])) {
-            // @TODO Monolog ?
             isset($this->io) && $this->io->error('Could not find Source: Xxllnc API');
 
             return false;
@@ -236,7 +224,6 @@ class XxllncToZGWZaakService
 
         // Get ZaakType schema
         if (!isset($this->zaakTypeSchema) && !$this->zaakTypeSchema = $this->schemaRepo->findOneBy(['name' => 'ZaakType'])) {
-            // @TODO Monolog ?
             isset($this->io) && $this->io->error('Could not find Schema: ZaakType');
 
             return false;
@@ -244,7 +231,6 @@ class XxllncToZGWZaakService
 
         // Get Zaak schema
         if (!isset($this->zaakSchema) && !$this->zaakSchema = $this->schemaRepo->findOneBy(['name' => 'Zaak'])) {
-            // @TODO Monolog ?
             isset($this->io) && $this->io->error('Could not find Schema: Zaak');
 
             return false;
