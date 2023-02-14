@@ -247,14 +247,20 @@ class ZGWToXxllncZaakService
             $method = 'PUT';
             $endpoint = "/case/{$synchronization->getSourceId()}/update";
             $logMessage = "Updating case: {$synchronization->getSourceId()} to xxllnc";
+            $unsetProperties = ['_self', 'requestor', 'casetype_id', 'source', 'open', 'route', 'contact_details', 'confidentiality', 'number', 'zgwZaak'];
         } else {
             $method = 'POST';
             $endpoint = '/case/create';
             $logMessage = 'Posting new case to xxllnc';
+            $unsetProperties = ['_self', 'requestor._self', 'zgwZaak'];
         }// end if
 
-        // @TODO unset unwanted properties etc
+        // unset unwanted properties
+        foreach ($unsetProperties as $property) {
+            unset($caseArray[$property]);
+        }
         
+        // Send the POST/PUT request to xxllnc
         try {
             isset($this->io) && $this->io->info($logMessage);
             $response = $this->callService->call($this->xxllncAPI, $endpoint, $method, ['body' => $caseArray]);
