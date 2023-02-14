@@ -4,9 +4,7 @@ namespace CommonGateway\XxllncZGWBundle\Service;
 
 use App\Entity\Entity as Schema;
 use App\Entity\ObjectEntity;
-use App\Service\ObjectEntityService;
 use App\Service\SynchronizationService;
-use App\Service\TranslationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use CommonGateway\CoreBundle\Service\CallService;
@@ -14,14 +12,11 @@ use Doctrine\Persistence\ObjectRepository;
 use App\Entity\Gateway as Source;
 use Exception;
 use App\Entity\Mapping;
-use Symfony\Bridge\Twig\NodeVisitor\Scope;
 
 class XxllncToZGWZaakTypeService
 {
     private EntityManagerInterface $entityManager;
     private CallService $callService;
-    private TranslationService $translationService;
-    private ObjectEntityService $objectEntityService;
     private SynchronizationService $synchronizationService;
     private SymfonyStyle $io;
     private array $configuration;
@@ -46,14 +41,10 @@ class XxllncToZGWZaakTypeService
      */
     public function __construct(
         EntityManagerInterface $entityManager,
-        TranslationService $translationService,
-        ObjectEntityService $objectEntityService,
         SynchronizationService $synchronizationService,
         CallService $callService
     ) {
         $this->entityManager = $entityManager;
-        $this->translationService = $translationService;
-        $this->objectEntityService = $objectEntityService;
         $this->synchronizationService = $synchronizationService;
         $this->callService = $callService;
 
@@ -62,7 +53,6 @@ class XxllncToZGWZaakTypeService
         $this->sourceRepo = $this->entityManager->getRepository(Source::class);
         $this->mappingRepo = $this->entityManager->getRepository(Mapping::class);
 
-        // @TODO new way to do this?
         $this->skeletonIn = [
             'handelingInitiator'   => 'indienen',
             'beginGeldigheid'      => '1970-01-01',
@@ -202,7 +192,6 @@ class XxllncToZGWZaakTypeService
     {
         // Get xxllnc source
         if (!isset($this->xxllncAPI) && !$this->xxllncAPI = $this->sourceRepo->findOneBy(['location' => 'https://development.zaaksysteem.nl/api/v1'])) {
-            // @TODO Monolog ?
             isset($this->io) && $this->io->error('Could not find Source: Xxllnc API');
 
             return false;
@@ -218,7 +207,6 @@ class XxllncToZGWZaakTypeService
     {
         // Get ZaakType schema
         if (!isset($this->zaakTypeSchema) && !$this->zaakTypeSchema = $this->schemaRepo->findOneBy(['name' => 'ZaakType'])) {
-            // @TODO Monolog ?
             isset($this->io) && $this->io->error('Could not find Schema: ZaakType');
 
             return false;
@@ -238,7 +226,6 @@ class XxllncToZGWZaakTypeService
 
         // Get ZaakType schema
         if (!isset($this->rolTypeSchema) && !$this->rolTypeSchema = $this->schemaRepo->findOneBy(['name' => 'RolType'])) {
-            // @TODO Monolog ?
             isset($this->io) && $this->io->error('Could not find Schema: RolType');
 
             return false;
@@ -247,7 +234,6 @@ class XxllncToZGWZaakTypeService
         // Get Catalogus object
         $catalogusSchema = $this->schemaRepo->findOneBy(['reference' => 'https://vng.opencatalogi.nl/schemas/ztc.catalogus.schema.json']);
         if (!$catalogusSchema || (!isset($this->catalogusObject) && !$this->catalogusObject = $this->objectRepo->findOneBy(['entity' => $catalogusSchema]))) {
-            // @TODO Monolog ?
             isset($this->io) && $this->io->error('Could not find schema: https://vng.opencatalogi.nl/schemas/ztc.catalogus.schema.json or a catalogus object');
 
             return false;
