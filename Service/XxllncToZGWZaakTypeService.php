@@ -8,10 +8,10 @@ use App\Service\SynchronizationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use CommonGateway\CoreBundle\Service\CallService;
-use Doctrine\Persistence\ObjectRepository;
 use App\Entity\Gateway as Source;
 use Exception;
 use App\Entity\Mapping;
+use Doctrine\Persistence\ObjectRepository;
 
 class XxllncToZGWZaakTypeService
 {
@@ -22,10 +22,10 @@ class XxllncToZGWZaakTypeService
     private array $configuration;
     private array $data;
 
-    private ObjectRepository $objectRepo;
-    private ObjectRepository $schemaRepo;
-    private ObjectRepository $sourceRepo;
-    private ObjectRepository $mappingRepo;
+    private ?ObjectRepository $objectRepo;
+    private ?ObjectRepository $schemaRepo;
+    private ?ObjectRepository $sourceRepo;
+    private ?ObjectRepository $mappingRepo;
 
     private ?Source $xxllncAPI;
     private ?Schema $zaakTypeSchema;
@@ -89,15 +89,15 @@ class XxllncToZGWZaakTypeService
     {
         $this->getXxllncAPI();
         
-        try {
+        // try {
             isset($this->io) && $this->io->info("Fetching casetype: $caseTypeID");
-            $response = $this->callService->call($this->xxllncAPI, "/casetype/$caseTypeID");
+            $response = $this->callService->call($this->xxllncAPI, "/casetype/$caseTypeID",'GET', [], false, false);
             $caseType = $this->callService->decodeResponse($this->xxllncAPI, $response);
-        } catch (Exception $e) {
-            isset($this->io) && $this->io->error("Failed to fetch casetype: $caseTypeID, message:  {$e->getMessage()}");
+        // } catch (Exception $e) {
+            // isset($this->io) && $this->io->error("Failed to fetch casetype: $caseTypeID, message:  {$e->getMessage()}");
 
-            return null;
-        }
+            // return null;
+        // }
 
         return $this->caseTypeToZaakType($caseType);
 
@@ -114,6 +114,7 @@ class XxllncToZGWZaakTypeService
     private function mapStatusAndRolTypen(array $caseType, array $zaakTypeArray): array
     {
         $zaakTypeArray['roltypen'] = [];
+        $preventDuplicatedRolTypen = [];
 
         // Manually map phases to statustypen
         if (isset($caseType['instance']['phases'])) {
@@ -135,16 +136,21 @@ class XxllncToZGWZaakTypeService
                 }
 
                 // Map role to roltype
-                if (isset($phase['route']['role']['reference'])) {
+                if (isset($phase['route']['role']['reference']) && isset($phase['route']['role']['instance']['name']) && 
+                    !in_array(strtolower($phase['route']['role']['instance']['name']), $preventDuplicatedRolTypen)) 
+                {
                     $rolTypeArray = [
                         'omschrijving'         => isset($phase['route']['role']['instance']['description']) ? $phase['route']['role']['instance']['description'] : null,
                         'omschrijvingGeneriek' => isset($phase['route']['role']['instance']['name']) ? strtolower($phase['route']['role']['instance']['name']) : null,
                     ];
-                    $rolTypeObject = new ObjectEntity($this->rolTypeSchema);
-                    isset($phase['route']['role']['reference']) && $rolTypeObject->setExternalId($phase['route']['role']['reference']);
+                    isset($phase['route']['role']['instance']['name']) && $preventDuplicatedRolTypen[] = strtolower($phase['route']['role']['instance']['name']);
+
+                    // Find or create new roltype object
+                    $rolTypeObject = $this->objectRepo->findOneBy(['externalId' => $phase['route']['role']['reference']]) ?? new ObjectEntity($this->rolTypeSchema);
+                    $rolTypeObject->setExternalId($phase['route']['role']['reference']); // use external id so we can find this object when sending case to xxllnc
                     $rolTypeObject->hydrate($rolTypeArray);
                     $this->entityManager->persist($rolTypeObject);
-                    $zaakTypeArray['roltypen'][] = $rolTypeObject->toArray();
+                    $zaakTypeArray['roltypen'][] = $rolTypeObject;
                 }
 
                 $zaakTypeArray['statustypen'][] = $statusTypeArray;
@@ -291,6 +297,7 @@ class XxllncToZGWZaakTypeService
         // Get or create sync and map object
         $synchronization = $this->synchronizationService->findSyncBySource($this->xxllncAPI, $this->zaakTypeSchema, $caseType['reference']);
         $synchronization->setMapping($this->caseTypeMapping);
+        isset($this->io) && $this->io->info("Mapping casetype with sourceId: {$caseType['reference']}");
         $synchronization = $this->synchronizationService->synchronize($synchronization, $caseType);
         $zaakTypeObject = $synchronization->getObject();
         $zaakTypeArray = $zaakTypeObject->toArray();
@@ -302,7 +309,6 @@ class XxllncToZGWZaakTypeService
         $zaakTypeArray['trefwoorden'] = $caseType['instance']['subject_types'] ?? null;
 
         // Manually map subobjects
-        isset($this->io) && $this->io->info("Mapping casetype with sourceId: {$caseType['reference']}");
         $zaakTypeArray = $this->mapStatusAndRolTypen($caseType, $zaakTypeArray);
         $zaakTypeArray = $this->mapResultaatTypen($caseType, $zaakTypeArray);
         $zaakTypeArray['catalogus'] = $this->catalogusObject->getId()->toString();
@@ -346,7 +352,7 @@ class XxllncToZGWZaakTypeService
         // Fetch the xxllnc casetypes
         isset($this->io) && $this->io->info('Fetching xxllnc casetypes');
         try {
-            $xxllncCaseTypes = $this->callService->getAllResults($this->xxllncAPI, '/casetype');
+            $xxllncCaseTypes = $this->callService->getAllResults($this->xxllncAPI, '/casetype', [], 'result.instance.rows');
         } catch (Exception $e) {
             isset($this->io) && $this->io->error("Failed to fetch: {$e->getMessage()}");
 

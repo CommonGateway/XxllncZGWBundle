@@ -349,7 +349,7 @@ class XxllncToZGWZaakService
         // Fetch the xxllnc cases
         isset($this->io) && $this->io->info('Fetching xxllnc cases');
         try {
-            $xxllncCases = $this->callService->getAllResults($this->xxllncAPI, '/case');
+            $xxllncCases = $this->callService->getAllResults($this->xxllncAPI, '/case', [], 'result.instance.rows');
         } catch (Exception $e) {
             isset($this->io) && $this->io->error("Failed to fetch: {$e->getMessage()}");
 
