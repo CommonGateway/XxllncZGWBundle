@@ -17,6 +17,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Doctrine\Persistence\ObjectRepository;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Exception;
 
 class InstallationService implements InstallerInterface
 {
@@ -31,10 +32,14 @@ class InstallationService implements InstallerInterface
     private ObjectRepository $cronjobRepository;
     private ObjectRepository $translationRepository;
 
+    public const OBJECTS_THAT_SHOULD_HAVE_CARDS = [
+        'https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json'
+    ];
+
     public const ACTION_HANDLERS = [
-        'CommonGateway\XxllncZGWBundle\ActionHandler\XxllncToZGWZaakHandler',
-        'CommonGateway\XxllncZGWBundle\ActionHandler\XxllncToZGWZaakTypeHandler',
-        'CommonGateway\XxllncZGWBundle\ActionHandler\ZGWToXxllncZaakHandler'
+        ['name' => 'XxllncToZGWZaak', 'actionHandler' => 'CommonGateway\XxllncZGWBundle\ActionHandler\XxllncToZGWZaakHandler', 'listens' => ['xxllnc.cronjob.trigger']],
+        ['name' => 'XxllncToZGWZaakType', 'actionHandler' => 'CommonGateway\XxllncZGWBundle\ActionHandler\XxllncToZGWZaakTypeHandler', 'listens' => ['xxllnc.cronjob.trigger']],
+        ['name' => 'ZGWZaakToXxllnc', 'actionHandler' => 'CommonGateway\XxllncZGWBundle\ActionHandler\ZGWToXxllncZaakHandler', 'listens' => ['zgw.zaak.saved']]
     ];
 
     public function __construct(EntityManagerInterface $entityManager, ContainerInterface $container)
@@ -79,78 +84,145 @@ class InstallationService implements InstallerInterface
         // Do some cleanup
     }
 
+    /**
+     * This function creates default configuration for the action
+     *
+     * @param $actionHandler The actionHandler for witch the default configuration is set
+     * @return array
+     */
     public function addActionConfiguration($actionHandler): array
     {
         $defaultConfig = [];
-
-        // What if there are no properties?
-        if (!isset($actionHandler->getConfiguration()['properties'])) {
-            return $defaultConfig;
-        }
-
         foreach ($actionHandler->getConfiguration()['properties'] as $key => $value) {
+
             switch ($value['type']) {
                 case 'string':
                 case 'array':
-                    $defaultConfig[$key] = $value['example'];
+                    if (isset($value['example'])) {
+                        $defaultConfig[$key] = $value['example'];
+                    }
                     break;
                 case 'object':
                     break;
                 case 'uuid':
-                    if (key_exists('$ref', $value)) {
-                        if ($entity = $this->schemaRepository->findOneBy(['reference'=> $value['$ref']])) {
-                            $defaultConfig[$key] = $entity->getId()->toString();
+                    if (isset($value['$ref'])) {
+                        try {
+                            $entity = $this->entityManager->getRepository('App:Entity')->findOneBy(['reference' => $value['$ref']]);
+                        } catch (Exception $exception) {
+                            throw new Exception("No entity found with reference {$value['$ref']}");
                         }
+                        $defaultConfig[$key] = $entity->getId()->toString();
                     }
                     break;
                 default:
-                    return $defaultConfig;
+                    // throw error
             }
         }
-
         return $defaultConfig;
     }
 
     /**
-     * This function creates actions for all the actionHandlers in OpenCatalogi.
+     * Decides wether or not an array is associative.
+     *
+     * @param array $array The array to check
+     *
+     * @return bool Wether or not the array is associative
+     */
+    private function isAssociative(array $array)
+    {
+        if ([] === $array) {
+            return false;
+        }
+
+        return array_keys($array) !== range(0, count($array) - 1);
+    }
+
+    /**
+     * @param array $defaultConfig
+     * @param array $overrides
+     * @return array
+     * @throws Exception
+     */
+    public function overrideConfig(array $defaultConfig, array $overrides): array
+    {
+        foreach($overrides as $key => $override) {
+            if(is_array($override) && $this->isAssociative($override)) {
+                $defaultConfig[$key] = $this->overrideConfig(isset($defaultConfig[$key]) ? $defaultConfig[$key] : [], $override);
+            } elseif($key == 'entity') {
+                $entity = $this->entityManager->getRepository('App:Entity')->findOneBy(['reference' => $override]);
+                if(!$entity) {
+                    throw new Exception("No entity found with reference {$override}");
+                }
+                $defaultConfig[$key] = $entity->getId()->toString();
+            } elseif($key == 'source') {
+                $source = $this->entityManager->getRepository('App:Gateway')->findOneBy(['name' => $override]);
+                if(!$source) {
+                    throw new Exception("No source found with name {$override}");
+                }
+                $defaultConfig[$key] = $source->getId()->toString();
+            } else {
+                $defaultConfig[$key] = $override;
+            }
+        }
+        return $defaultConfig;
+    }
+
+    public function replaceRefById(array $conditions): array
+    {
+        if($conditions['=='][0]['var'] == 'entity') {
+            try {
+                $conditions['=='][1] = $this->entityManager->getRepository('App:Entity')->findOneBy(['reference' => $conditions['=='][1]]);
+            } catch (Exception $exception) {
+                throw new Exception("No entity found with reference {$conditions['=='][1]}");
+            }
+        }
+        return $conditions;
+    }
+    
+    /**
+     * This function creates actions for all the actionHandlers in Kiss
      *
      * @return void
+     * @throws Exception
      */
     public function addActions(): void
     {
-        isset($this->io) && $this->io->info('Looking for actions');
+        $actionHandlers = $this::ACTION_HANDLERS;
+        isset($this->io) && $this->io->writeln(['','<info>Looking for actions</info>']);
 
-        foreach ($this::ACTION_HANDLERS as $handler) {
-            $actionHandler = $this->container->get($handler);
+        foreach ($actionHandlers as $handler) {
+            $actionHandler = $this->container->get($handler['actionHandler']);
 
-            if ($this->actionRepository->findOneBy(['class' => get_class($actionHandler)])) {
-                isset($this->io) && $this->io->info(['Action found for '.$handler]);
+            if (array_key_exists('name', $handler)) {
+                if ($this->entityManager->getRepository('App:Action')->findOneBy(['name'=> $handler['name']])) {
+                    (isset($this->io)?$this->io->writeln(['Action found with name '.$handler['name']]):'');
+                    continue;
+                }
+            } elseif ($this->entityManager->getRepository('App:Action')->findOneBy(['class'=> get_class($actionHandler)])) {
+                (isset($this->io)?$this->io->writeln(['Action found for '.$handler['actionHandler']]):'');
                 continue;
             }
 
-            if (!$schema = $actionHandler->getConfiguration()) {
+            if (!$actionHandler->getConfiguration()) {
                 continue;
             }
 
             $defaultConfig = $this->addActionConfiguration($actionHandler);
+            isset($handler['config']) && $defaultConfig = $this->overrideConfig($defaultConfig, $handler['config']);
+
             $action = new Action($actionHandler);
+            array_key_exists('name', $handler) ? $action->setName($handler['name']) : '';
+            $action->setListens($handler['listens'] ?? ['kiss.default.listens']);
+            $action->setConfiguration($defaultConfig);
+            $action->setConditions($handler['conditions'] ?? ['==' => [1, 1]]);
+
+            $this->entityManager->persist($action);
+            (isset($this->io)?$this->io->writeln(['Created Action '.$action->getName().' with Handler: '.$handler['actionHandler']]):'');
         }
     }
 
-    private function updateAttributes(?Entity $xxllncZaak, ?Entity $xxllncZaakType, ?Entity $xxllncZaakPost)
+    private function updateAttributes(?Entity $xxllncZaakPost)
     {
-        if ($xxllncZaakInstance = $this->attributeRepository->findOneBy(['entity' => $xxllncZaak, 'name' => 'instance'])) {
-            $xxllncZaakInstance->setObject(null);
-            $xxllncZaakInstance->setMultiple(false);
-            $xxllncZaakInstance->setType('array');
-            $this->entityManager->persist($xxllncZaakInstance);
-        }
-        if ($xxllncZaakTypeInstance = $this->attributeRepository->findOneBy(['entity' => $xxllncZaakType, 'name' => 'instance'])) {
-            $xxllncZaakTypeInstance->setObject(null);
-            $xxllncZaakTypeInstance->setMultiple(false);
-            $xxllncZaakTypeInstance->setType('array');
-            $this->entityManager->persist($xxllncZaakTypeInstance);
-        }
         if ($xxllncZaakPostFiles = $this->attributeRepository->findOneBy(['entity' => $xxllncZaakPost, 'name' => 'files'])) {
             $xxllncZaakPostFiles->setObject(null);
             $xxllncZaakPostFiles->setMultiple(false);
@@ -161,6 +233,7 @@ class InstallationService implements InstallerInterface
 
     private function createTranslations()
     {
+        isset($this->io) && $this->io->writeln(['','<info>Looking for translations</info>']);
         $trans = $this->translationRepository->findOneBy(['translateFrom' => 'Nee', 'translationTable' => 'caseTypeTable1']) ?? new Translation();
         $trans->setTranslationTable('caseTypeTable1');
         $trans->setTranslateFrom('Nee');
@@ -202,91 +275,9 @@ class InstallationService implements InstallerInterface
         isset($this->io) && $this->io->writeln('Translation created');
     }
 
-    private function createActions()
+    private function createCatalogus()
     {
-    }
-
-    public function checkDataConsistency()
-    {
-
-        // Lets create some genneric dashboard cards
-        $objectsThatShouldHaveCards = [];
-
-        foreach ($objectsThatShouldHaveCards as $object) {
-            (isset($this->io) ? $this->io->writeln('Looking for a dashboard card for: ' . $object) : '');
-            $entity = $this->entityManager->getRepository('App:Entity')->findOneBy(['reference' => $object]);
-            if (
-                !$dashboardCard = $this->entityManager->getRepository('App:DashboardCard')->findOneBy(['entityId' => $entity->getId()])
-            ) {
-                $dashboardCard = new DashboardCard($entity);
-                $this->entityManager->persist($dashboardCard);
-                (isset($this->io) ? $this->io->writeln('Dashboard card created') : '');
-                continue;
-            }
-            (isset($this->io) ? $this->io->writeln('Dashboard card found') : '');
-        }
-
-        // Let create some endpoints
-        $objectsThatShouldHaveEndpoints = [];
-
-        foreach ($objectsThatShouldHaveEndpoints as $object) {
-            (isset($this->io) ? $this->io->writeln('Looking for a endpoint for: ' . $object) : '');
-            $entity = $this->entityManager->getRepository('App:Entity')->findOneBy(['reference' => $object]);
-
-            if (
-                count($entity->getEndpoints()) == 0
-            ) {
-                $endpoint = new Endpoint($entity);
-                $this->entityManager->persist($endpoint);
-                (isset($this->io) ? $this->io->writeln('Endpoint created') : '');
-                continue;
-            }
-            (isset($this->io) ? $this->io->writeln('Endpoint found') : '');
-        }
-
-        // Get schema ID's
-        $xxllncZaakPost = $this->schemaRepository->findOneBy(['name' => 'XxllncZaakPost']);
-        $xxllncZaakPostID = $xxllncZaakPost ? $xxllncZaakPost->getId()->toString() : '';
-        $xxllncZaak = $this->schemaRepository->findOneBy(['name' => 'XxllncZaak']);
-        $xxllncZaakID = $xxllncZaak ? $xxllncZaak->getId()->toString() : '';
-        $xxllncZaakType = $this->schemaRepository->findOneBy(['name' => 'XxllncZaakType']);
-        $xxllncZaakTypeID = $xxllncZaakType ? $xxllncZaakType->getId()->toString() : '';
-        $zaak = $this->schemaRepository->findOneBy(['name' => 'Zaak']);
-        $zaakID = $zaak ? $zaak->getId()->toString() : '';
-        $zaakType = $this->schemaRepository->findOneBy(['name' => 'ZaakType']);
-        $zaakTypeID = $zaakType ? $zaakType->getId()->toString() : '';
-        $rolType = $this->schemaRepository->findOneBy(['name' => 'RolType']);
-        $rolTypeID = $rolType ? $rolType->getId()->toString() : '';
-        $zaakEigenschap = $this->schemaRepository->findOneBy(['name' => 'ZaakEigenschap']);
-        $zaakEigenschapID = $zaakEigenschap ? $zaakEigenschap->getId()->toString() : '';
-
-        // Cronjob
-        $cronjob = $this->cronjobRepository->findOneBy(['name' => 'Xxllnc sync']) ?? new Cronjob();
-        $cronjob->setName('Xxllnc sync');
-        $cronjob->setDescription('A cronjob that sets off the synchronizations for the various sources');
-        $cronjob->setCrontab('*/1 * * * *');
-        $cronjob->setThrows(['xxllnc.cronjob.trigger']);
-        $cronjob->setData([]);
-        $cronjob->setIsEnabled(true);
-        $this->entityManager->persist($cronjob);
-        isset($this->io) && $this->io->writeln('Cronjob: \'Xxllnc sync\' created');
-
-        // Sources
-        // Xxllnc v1 api
-        if ($source = $this->sourceRepository->findOneBy(['location' => 'https://development.zaaksysteem.nl/api/v1'])) {
-            $newSource = false;
-        } else {
-            $newSource = true;
-            $source = new Source();
-        }
-        $source->setName('Xxllnc zaaksysteem v1');
-        $source->setAuth('apikey');
-        $source->setAuthorizationHeader('API-KEY');
-        $source->setLocation('https://development.zaaksysteem.nl/api/v1');
-        $newSource && $source->setIsEnabled(false);
-        $this->entityManager->persist($source);
-        isset($this->io) && $this->io->writeln('Gateway: \'zaaksysteem\' created');
-
+        isset($this->io) && $this->io->writeln(['','<info>Creating catalogus</info>']);
         // Create Catalogus
         $catalogusSchema = $this->entityManager->getRepository('App:Entity')->findOneBy(['name' => 'Catalogus']);
         if (!$catalogusSchema instanceof Entity) {
@@ -306,20 +297,138 @@ class InstallationService implements InstallerInterface
             $catalogusObject = $catalogusObjecten[0];
             isset($this->io) && $this->io->writeln('ObjectEntity: \'Catalogus\' found');
         }
+    }
+
+    /**
+     * Creates dashboard cards for the given schemas.
+     *
+     * @return void
+     */
+    public function createDashboardCards(): void
+    {
+        // Lets create some generic dashboard cards
+        foreach ($this::OBJECTS_THAT_SHOULD_HAVE_CARDS as $object) {
+            isset($this->io) && $this->io->writeln('Looking for a dashboard card for: ' . $object);
+            $entity = $this->entityManager->getRepository('App:Entity')->findOneBy(['reference' => $object]);
+            if (
+                isset($entity) && !$dashboardCard = $this->entityManager->getRepository('App:DashboardCard')->findOneBy(['entityId' => $entity->getId()])
+            ) {
+                $dashboardCard = new DashboardCard($entity);
+                $this->entityManager->persist($dashboardCard);
+                (isset($this->io) ? $this->io->writeln('Dashboard card created') : '');
+                continue;
+            }
+            (isset($this->io) ? $this->io->writeln('Dashboard card found') : '');
+        }
+    }
+
+
+    /**
+     * Creates cronjobs for xxllnc.
+     *
+     * @return void
+     */
+    public function createCronjobs(): void
+    {
+        isset($this->io) && $this->io->writeln(['', '<info>Looking for cronjobs</info>']);
+        // We only need 1 cronjob so lets set that 
+        $cronjob = $this->cronjobRepository->findOneBy(['name' => 'Xxllnc sync']) ?? new Cronjob();
+        $cronjob->setName('Xxllnc sync');
+        $cronjob->setDescription('A cronjob that sets off the synchronizations for the various sources');
+        $cronjob->setCrontab('*/1 * * * *');
+        $cronjob->setThrows(['xxllnc.cronjob.trigger']);
+        $cronjob->setData([]);
+        $cronjob->setIsEnabled(true);
+        $this->entityManager->persist($cronjob);
+        isset($this->io) && $this->io->writeln('Cronjob: \'Xxllnc sync\' created');
+
+        (isset($this->io) ? $this->io->writeln(['', 'Created/updated a cronjob for ' . $cronjob->getName()]) : '');
+    }
+
+    
+    /**
+     * Creates the xxllnc api source.
+     *
+     * @return void
+     */
+    private function createSource(): void
+    {
+        isset($this->io) && $this->io->writeln(['','<info>Creating xxllnc source</info>']);
+        // Xxllnc v1 api
+        if ($source = $this->sourceRepository->findOneBy(['location' => 'https://development.zaaksysteem.nl/api/v1'])) {
+            $newSource = false;
+        } else {
+            $newSource = true;
+            $source = new Source();
+        }
+        $source->setName('Xxllnc zaaksysteem v1');
+        $source->setAuth('apikey');
+        $source->setAuthorizationHeader('API-KEY');
+        $source->setLocation('https://development.zaaksysteem.nl/api/v1');
+        $newSource && $source->setIsEnabled(false);
+        $this->entityManager->persist($source);
+        isset($this->io) && $this->io->writeln('Gateway: \'zaaksysteem\' created');
+    }
+
+    private function updateZGWZaakEndpoint()
+    {
+        isset($this->io) && $this->io->writeln(['','<info>Updating zgw zaak endpoint</info>']);
+        $endpoint = $this->entityManager->getRepository(Endpoint::class)->findOneBy(['name' => 'Zaak']);
+        $endpoint->setThrows(['zgw.zaak.saved']);
+        $this->entityManager->persist($endpoint);
+    }
+
+    private function isZGWBundleInstalled()
+
+    {
+        $ZGWZaak = $this->schemaRepository->findOneBy(['reference' => 'https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json']);
+        if (!$ZGWZaak) {
+            isset($this->io) && $this->io->error('ZGWBundle not installed, please make sure that bundle is installed before this one');
+
+            return false;
+        }
+        isset($this->io) && $this->io->info('ZGWBundle is installed, continueing..');
+
+        return true;
+
+    }
+
+    public function checkDataConsistency()
+    {
+        // Return if zgw is not installed
+        if ($this->isZGWBundleInstalled() == false) {
+            return;
+        }
+
+        // Lets create some generic dashboard cards
+        $this->createDashboardCards();
+
+        // create cronjobs
+        $this->createCronjobs();
+
+        // Get schema ID's
+        $xxllncZaakPost = $this->schemaRepository->findOneBy(['name' => 'XxllncZaakPost']);
+
+        // Sources
+        $this->createSource();
+
+        // A default zgw catalogus
+        $this->createCatalogus();
 
         // Actions
+        $this->addActions();
         // $this->createActionsOld(); // disabled cus old
-        $this->createActions();
 
         // Translations
         $this->createTranslations();
 
         // Update attributes
-        $this->updateAttributes($xxllncZaakPost, $xxllncZaakType, $xxllncZaakPost);
+        $this->updateAttributes($xxllncZaakPost);
+
+        // Update zgw zaak endpoint to throw event that gets the zaak to xxllnc
+        $this->updateZGWZaakEndpoint($xxllncZaakPost);
 
         $this->entityManager->flush();
-
-        // Lets see if there is a generic search endpoint
     }
 
     // private function createActionsOld()
