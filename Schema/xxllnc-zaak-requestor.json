@@ -1,0 +1,15 @@
+{
+    "$id": "https://common-gateway.nl/xxllnc-zaak-requestor.schema.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "version": "0.1",
+    "title": "XxllncZaakRequestor",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string"
+        },
+        "type": {
+            "type": "string"
+        }
+    }
+}
