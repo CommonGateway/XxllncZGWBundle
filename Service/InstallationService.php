@@ -212,7 +212,7 @@ class InstallationService implements InstallerInterface
 
             $action = new Action($actionHandler);
             array_key_exists('name', $handler) ? $action->setName($handler['name']) : '';
-            $action->setListens($handler['listens'] ?? ['kiss.default.listens']);
+            $action->setListens($handler['listens'] ?? ['xxllnc.default.listens']);
             $action->setConfiguration($defaultConfig);
             $action->setConditions($handler['conditions'] ?? ['==' => [1, 1]]);
 
