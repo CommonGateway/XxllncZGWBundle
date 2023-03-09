@@ -59,54 +59,63 @@ class ZGWToXxllncZaakService
 
     public function updateZaakWithEigenschapHandler(?array $data = [], ?array $configuration = [])
     {
+        isset($this->io) && $this->io->success('updateZaakWithEigenschapHandler triggered');
+        var_dump('updateZaakWithEigenschapHandler triggered');
         $this->configuration = $configuration;
-        // $caseId = explode('/', $data['response']['zaak']);
-        // $caseId = end($caseId);
-        // $zaakObject = $this->entityManager->find(ObjectEntity::class, $caseId);
-        // $zaakObjectArray = $zaakObject->toArray();
-        // $zaakTypeObject = $this->entityManager->find(ObjectEntity::class, $zaakObjectArray['zaaktype']['_self']['id']);
-        // $caseTypeId = $zaakTypeObject->getSynchronizations()[0]->getSourceId() ?? null;
-        // $this->mapZGWToXxllncZaak($caseTypeId, $zaakTypeObject, $zaakObjectArray);
 
-        isset($this->io) && $this->io->success('zgwToXxllncZaak triggered');
+        $caseId = explode('/', $data['response']['zaak']);
+        $caseId = end($caseId);
+        $zaakObject = $this->entityManager->find(ObjectEntity::class, $caseId);
+        $zaakObjectArray = $zaakObject->toArray();
 
         $this->getRequiredGatewayObjects();
 
-        if (!isset($this->data['zaaktype'])) {
+
+        if (!isset($zaakObjectArray['zaaktype'])) {
             // throw new \Exception('No zaaktype set on zaak');
+        var_dump('test1 ');
 
-            return ['response' => []];
+            return ['response' => $data];
         }
+        
 
-        if (!isset($this->data['embedded']['zaaktype']['_self']['id'])) {
+        if (!isset($zaakObjectArray['zaaktype']['_self']['id'])) {
             // throw new Exception('ZaakType id not found on Zaak object');
+        var_dump('test2 ');
 
-            return ['response' => []];
+            return ['response' => $data];
         }
-        $zaakTypeId = $this->data['embedded']['zaaktype']['_self']['id'];
-        $zaakTypeObject = $this->entityManager->find('App:ObjectEntity', $zaakTypeId);
+
+        $zaakTypeId = $zaakObjectArray['zaaktype']['_self']['id'];
+        $zaakTypeObject = $this->entityManager->find(ObjectEntity::class, $zaakTypeId);
         $casetypeId = $zaakTypeObject->getSynchronizations()[0]->getSourceId() ?? null;
         // Return here cause if the zaaktype is created through this gateway, we cant sync it to xxllnc because it doesn't exist there
         if (!isset($casetypeId)) {
-            return $this->data;
+            var_dump('test3 ');
+    
+            return ['response' => $data];
         }
 
-        if (!isset($this->data['_self']['id'])) {
+        if (!isset($zaakObjectArray['_self']['id'])) {
             // throw new \Exception('No id on zaak'); // meaning it didnt properly save in the gateway
+            var_dump('test4 ');
 
-            return ['response' => []];
+            return ['response' => $data];
         }
 
-        $zaakArrayObject = $this->entityManager->find('App:ObjectEntity', $this->data['_self']['id']);
+        $zaakArrayObject = $this->entityManager->find('App:ObjectEntity', $zaakObjectArray['_self']['id']);
 
         if (!isset($zaakArrayObject)) {
             // throw new \Exception('ZGW Zaak not found with id: ' . $this->data['_self']['id']);
+            var_dump('test5 ');
 
-            return ['response' => []];
+            return ['response' => $data];
         }
         $zaakArrayObject = $zaakArrayObject->toArray();
 
         $xxllncZaakArrayObject = $this->mapZGWToXxllncZaak($casetypeId, $zaakTypeObject, $zaakArrayObject);
+
+        return ['response' => $data];
     }
 
     /**
@@ -124,10 +133,12 @@ class ZGWToXxllncZaakService
         foreach ($zaakTypeEigenschappen as $eigenschap) {
             $eigenschapIds[] = $eigenschap->getId()->toString();
         }
+        dump($eigenschapIds);
 
         // eigenschappen to values
         if (isset($zaakArrayObject['eigenschappen'])) {
             foreach ($zaakArrayObject['eigenschappen'] as $zaakEigenschap) {
+                dump($zaakEigenschap['eigenschap']['_self']['id']);
                 if (isset($zaakEigenschap['eigenschap']) && in_array($zaakEigenschap['eigenschap']['_self']['id'], $eigenschapIds)) {
                     $xxllncZaakArray['values'][$zaakEigenschap['eigenschap']['definitie']] = [$zaakEigenschap['waarde']];
                 }
@@ -316,6 +327,7 @@ class ZGWToXxllncZaakService
         }
 
         // Send the POST/PUT request to xxllnc
+        dump($caseArray);
         try {
             isset($this->io) && $this->io->info($logMessage);
             $response = $this->callService->call($this->xxllncAPI, $endpoint, $method, ['form_params' => $caseArray]);
@@ -364,12 +376,19 @@ class ZGWToXxllncZaakService
         $zgwZaakAttribute = $this->entityManager->getRepository(Attribute::class)->findOneBy(['entity' => $this->xxllncZaakSchema, 'name' => 'zgwZaak']);
         if (!$zgwZaakAttribute) {
             // throw new Exception('No zgwZaak attribute found');
+            var_dump('test6 ');
 
             return;
         }
 
         // Find or create case object
-        $caseObject = $this->entityManager->getRepository(Value::class)->findOneBy(['stringValue' => $zaakArrayObject['_self']['id'], 'attribute' => $zgwZaakAttribute]) ?? new ObjectEntity($this->xxllncZaakSchema);
+        $caseValue = $this->entityManager->getRepository(Value::class)->findOneBy(['stringValue' => $zaakArrayObject['_self']['id'], 'attribute' => $zgwZaakAttribute]);
+        if ($caseValue instanceof Value) {
+            $caseObject = $caseValue->getObjectEntity();
+        } else {
+            $caseObject = new ObjectEntity($this->xxllncZaakSchema);
+        }
+
         if ($caseObject->getSynchronizations()) {
             $synchronization = $caseObject->getSynchronizations()[0];
         }
@@ -387,6 +406,7 @@ class ZGWToXxllncZaakService
         }
 
         $synchronization->setSourceId($sourceId);
+        $synchronization->setSource($this->xxllncAPI);
         $synchronization->setObject($caseObject);
 
         $this->entityManager->persist($synchronization);
