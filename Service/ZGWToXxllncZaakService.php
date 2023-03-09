@@ -2,18 +2,18 @@
 
 namespace CommonGateway\XxllncZGWBundle\Service;
 
+use App\Entity\Attribute;
 use App\Entity\Entity as Schema;
+use App\Entity\Gateway as Source;
 use App\Entity\ObjectEntity;
 use App\Entity\Synchronization;
+use App\Entity\Value;
+use CommonGateway\CoreBundle\Service\CallService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\PersistentCollection;
-use Symfony\Component\Console\Style\SymfonyStyle;
 use Doctrine\Persistence\ObjectRepository;
-use CommonGateway\CoreBundle\Service\CallService;
-use App\Entity\Gateway as Source;
 use Exception;
-use App\Entity\Attribute;
-use App\Entity\Value;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ZGWToXxllncZaakService
 {
@@ -68,18 +68,16 @@ class ZGWToXxllncZaakService
         // $caseTypeId = $zaakTypeObject->getSynchronizations()[0]->getSourceId() ?? null;
         // $this->mapZGWToXxllncZaak($caseTypeId, $zaakTypeObject, $zaakObjectArray);
 
-        
         isset($this->io) && $this->io->success('zgwToXxllncZaak triggered');
 
         $this->getRequiredGatewayObjects();
-
 
         if (!isset($this->data['zaaktype'])) {
             // throw new \Exception('No zaaktype set on zaak');
 
             return ['response' => []];
         }
-        
+
         if (!isset($this->data['embedded']['zaaktype']['_self']['id'])) {
             // throw new Exception('ZaakType id not found on Zaak object');
 
@@ -213,8 +211,6 @@ class ZGWToXxllncZaakService
         return $xxllncZaakArray;
     }// end mapPostRollen
 
-    
-
     // /**
     //  * Creates or updates a ZGW Zaak from a xxllnc casetype with the use of mapping.
     //  *
@@ -292,7 +288,7 @@ class ZGWToXxllncZaakService
      * Saves case to xxllnc by POST or PUT request.
      *
      * @param string           $caseArray       Case object.
-     * @param ?Synchronization $synchronization Earlier created synchronization object. 
+     * @param ?Synchronization $synchronization Earlier created synchronization object.
      *
      * @return bool True if succesfully saved to xxllnc
      */
@@ -318,7 +314,7 @@ class ZGWToXxllncZaakService
         if (isset($caseArray['requestor']['_self'])) {
             unset($caseArray['requestor']['_self']);
         }
-        
+
         // Send the POST/PUT request to xxllnc
         try {
             isset($this->io) && $this->io->info($logMessage);
@@ -331,15 +327,14 @@ class ZGWToXxllncZaakService
             return false;
         }// end try catch
 
-
         return $id ?? false;
     }// end sendCaseToXxllnc
 
     /**
      * Maps zgw zaak to xxllnc case.
      *
-     * @param string       $caseTypeId           CaseTypeID as in xxllnc.
-     * @param ObjectEntity $zaakTypeObject       ZGW ZaakType object 
+     * @param string       $caseTypeId     CaseTypeID as in xxllnc.
+     * @param ObjectEntity $zaakTypeObject ZGW ZaakType object
      *
      * @return array $this->data Data which we entered the function with
      */
@@ -348,7 +343,7 @@ class ZGWToXxllncZaakService
         if (!isset($zaakArrayObject['verantwoordelijkeOrganisatie'])) {
             throw new \Exception('verantwoordelijkeOrganisatie is not set');
         }
-        
+
         // Base values
         $caseArray['zgwZaak'] = $zaakArrayObject['_self']['id'];
         $caseArray['casetype_id'] = $casetypeId;
@@ -400,25 +395,23 @@ class ZGWToXxllncZaakService
         return $caseArray;
     }// end mapZGWToXxllncZaak
 
-    
-
     /**
      * Makes sure this action has all the gateway objects it needs.
-     * 
+     *
      * @return bool false if some object couldn't be fetched
      */
     private function getRequiredGatewayObjects(): bool
     {
         // Get ZaakType schema
         if (!isset($this->xxllncZaakSchema) && !$this->xxllncZaakSchema = $this->schemaRepo->findOneBy(['reference' => 'https://common-gateway.nl/xxllnc-zaak-post.schema.json'])) {
-           isset($this->io) && $this->io->error('Could not find Schema: https://common-gateway.nl/xxllnc-zaak-post.schema.json');
+            isset($this->io) && $this->io->error('Could not find Schema: https://common-gateway.nl/xxllnc-zaak-post.schema.json');
 
             return false;
         }
 
         // Get xxllnc source
         if (!isset($this->xxllncAPI) && !$this->xxllncAPI = $this->sourceRepo->findOneBy(['location' => 'https://development.zaaksysteem.nl/api/v1'])) {
-           isset($this->io) && $this->io->error('Could not find Source: Xxllnc API');
+            isset($this->io) && $this->io->error('Could not find Source: Xxllnc API');
 
             return false;
         }
@@ -445,13 +438,12 @@ class ZGWToXxllncZaakService
 
         $this->getRequiredGatewayObjects();
 
-
         if (!isset($this->data['zaaktype'])) {
             // throw new \Exception('No zaaktype set on zaak');
 
             return ['response' => []];
         }
-        
+
         if (!isset($this->data['embedded']['zaaktype']['_self']['id'])) {
             // throw new Exception('ZaakType id not found on Zaak object');
 

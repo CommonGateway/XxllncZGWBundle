@@ -8,16 +8,16 @@ use App\Entity\Action;
 use App\Entity\Cronjob;
 use App\Entity\DashboardCard;
 use App\Entity\Endpoint;
-use App\Entity\ObjectEntity;
 use App\Entity\Entity;
 use App\Entity\Gateway as Source;
+use App\Entity\ObjectEntity;
 use App\Entity\Translation;
 use CommonGateway\CoreBundle\Installer\InstallerInterface;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 use Doctrine\Persistence\ObjectRepository;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Exception;
+use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class InstallationService implements InstallerInterface
 {
@@ -33,13 +33,13 @@ class InstallationService implements InstallerInterface
     private ObjectRepository $translationRepository;
 
     public const OBJECTS_THAT_SHOULD_HAVE_CARDS = [
-        'https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json'
+        'https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json',
     ];
 
     public const ACTION_HANDLERS = [
         ['name' => 'XxllncToZGWZaak', 'actionHandler' => 'CommonGateway\XxllncZGWBundle\ActionHandler\XxllncToZGWZaakHandler', 'listens' => ['xxllnc.cronjob.trigger']],
         ['name' => 'XxllncToZGWZaakType', 'actionHandler' => 'CommonGateway\XxllncZGWBundle\ActionHandler\XxllncToZGWZaakTypeHandler', 'listens' => ['xxllnc.cronjob.trigger']],
-        ['name' => 'ZGWZaakToXxllnc', 'actionHandler' => 'CommonGateway\XxllncZGWBundle\ActionHandler\ZGWToXxllncZaakHandler', 'listens' => ['zgw.zaak.saved']]
+        ['name' => 'ZGWZaakToXxllnc', 'actionHandler' => 'CommonGateway\XxllncZGWBundle\ActionHandler\ZGWToXxllncZaakHandler', 'listens' => ['zgw.zaak.saved']],
     ];
 
     public function __construct(EntityManagerInterface $entityManager, ContainerInterface $container)
@@ -85,16 +85,16 @@ class InstallationService implements InstallerInterface
     }
 
     /**
-     * This function creates default configuration for the action
+     * This function creates default configuration for the action.
      *
      * @param $actionHandler The actionHandler for witch the default configuration is set
+     *
      * @return array
      */
     public function addActionConfiguration($actionHandler): array
     {
         $defaultConfig = [];
         foreach ($actionHandler->getConfiguration()['properties'] as $key => $value) {
-
             switch ($value['type']) {
                 case 'string':
                 case 'array':
@@ -118,6 +118,7 @@ class InstallationService implements InstallerInterface
                     // throw error
             }
         }
+
         return $defaultConfig;
     }
 
@@ -140,23 +141,25 @@ class InstallationService implements InstallerInterface
     /**
      * @param array $defaultConfig
      * @param array $overrides
-     * @return array
+     *
      * @throws Exception
+     *
+     * @return array
      */
     public function overrideConfig(array $defaultConfig, array $overrides): array
     {
-        foreach($overrides as $key => $override) {
-            if(is_array($override) && $this->isAssociative($override)) {
+        foreach ($overrides as $key => $override) {
+            if (is_array($override) && $this->isAssociative($override)) {
                 $defaultConfig[$key] = $this->overrideConfig(isset($defaultConfig[$key]) ? $defaultConfig[$key] : [], $override);
-            } elseif($key == 'entity') {
+            } elseif ($key == 'entity') {
                 $entity = $this->entityManager->getRepository('App:Entity')->findOneBy(['reference' => $override]);
-                if(!$entity) {
+                if (!$entity) {
                     throw new Exception("No entity found with reference {$override}");
                 }
                 $defaultConfig[$key] = $entity->getId()->toString();
-            } elseif($key == 'source') {
+            } elseif ($key == 'source') {
                 $source = $this->entityManager->getRepository('App:Gateway')->findOneBy(['name' => $override]);
-                if(!$source) {
+                if (!$source) {
                     throw new Exception("No source found with name {$override}");
                 }
                 $defaultConfig[$key] = $source->getId()->toString();
@@ -164,42 +167,45 @@ class InstallationService implements InstallerInterface
                 $defaultConfig[$key] = $override;
             }
         }
+
         return $defaultConfig;
     }
 
     public function replaceRefById(array $conditions): array
     {
-        if($conditions['=='][0]['var'] == 'entity') {
+        if ($conditions['=='][0]['var'] == 'entity') {
             try {
                 $conditions['=='][1] = $this->entityManager->getRepository('App:Entity')->findOneBy(['reference' => $conditions['=='][1]]);
             } catch (Exception $exception) {
                 throw new Exception("No entity found with reference {$conditions['=='][1]}");
             }
         }
+
         return $conditions;
     }
-    
+
     /**
-     * This function creates actions for all the actionHandlers in Kiss
+     * This function creates actions for all the actionHandlers in Kiss.
+     *
+     * @throws Exception
      *
      * @return void
-     * @throws Exception
      */
     public function addActions(): void
     {
         $actionHandlers = $this::ACTION_HANDLERS;
-        isset($this->io) && $this->io->writeln(['','<info>Looking for actions</info>']);
+        isset($this->io) && $this->io->writeln(['', '<info>Looking for actions</info>']);
 
         foreach ($actionHandlers as $handler) {
             $actionHandler = $this->container->get($handler['actionHandler']);
 
             if (array_key_exists('name', $handler)) {
                 if ($this->entityManager->getRepository('App:Action')->findOneBy(['name'=> $handler['name']])) {
-                    (isset($this->io)?$this->io->writeln(['Action found with name '.$handler['name']]):'');
+                    (isset($this->io) ? $this->io->writeln(['Action found with name '.$handler['name']]) : '');
                     continue;
                 }
             } elseif ($this->entityManager->getRepository('App:Action')->findOneBy(['class'=> get_class($actionHandler)])) {
-                (isset($this->io)?$this->io->writeln(['Action found for '.$handler['actionHandler']]):'');
+                (isset($this->io) ? $this->io->writeln(['Action found for '.$handler['actionHandler']]) : '');
                 continue;
             }
 
@@ -217,7 +223,7 @@ class InstallationService implements InstallerInterface
             $action->setConditions($handler['conditions'] ?? ['==' => [1, 1]]);
 
             $this->entityManager->persist($action);
-            (isset($this->io)?$this->io->writeln(['Created Action '.$action->getName().' with Handler: '.$handler['actionHandler']]):'');
+            (isset($this->io) ? $this->io->writeln(['Created Action '.$action->getName().' with Handler: '.$handler['actionHandler']]) : '');
         }
     }
 
@@ -233,7 +239,7 @@ class InstallationService implements InstallerInterface
 
     private function createTranslations()
     {
-        isset($this->io) && $this->io->writeln(['','<info>Looking for translations</info>']);
+        isset($this->io) && $this->io->writeln(['', '<info>Looking for translations</info>']);
         $trans = $this->translationRepository->findOneBy(['translateFrom' => 'Nee', 'translationTable' => 'caseTypeTable1']) ?? new Translation();
         $trans->setTranslationTable('caseTypeTable1');
         $trans->setTranslateFrom('Nee');
@@ -277,7 +283,7 @@ class InstallationService implements InstallerInterface
 
     private function createCatalogus()
     {
-        isset($this->io) && $this->io->writeln(['','<info>Creating catalogus</info>']);
+        isset($this->io) && $this->io->writeln(['', '<info>Creating catalogus</info>']);
         // Create Catalogus
         $catalogusSchema = $this->entityManager->getRepository('App:Entity')->findOneBy(['name' => 'Catalogus']);
         if (!$catalogusSchema instanceof Entity) {
@@ -289,7 +295,7 @@ class InstallationService implements InstallerInterface
             $catalogusObject = new ObjectEntity($catalogusSchema);
             $catalogusObject->hydrate([
                 'contactpersoonBeheerNaam' => 'Conduction',
-                'domein' => 'http://localhost'
+                'domein'                   => 'http://localhost',
             ]);
             $this->entityManager->persist($catalogusObject);
             isset($this->io) && $this->io->writeln('ObjectEntity: \'Catalogus\' created');
@@ -308,7 +314,7 @@ class InstallationService implements InstallerInterface
     {
         // Lets create some generic dashboard cards
         foreach ($this::OBJECTS_THAT_SHOULD_HAVE_CARDS as $object) {
-            isset($this->io) && $this->io->writeln('Looking for a dashboard card for: ' . $object);
+            isset($this->io) && $this->io->writeln('Looking for a dashboard card for: '.$object);
             $entity = $this->entityManager->getRepository('App:Entity')->findOneBy(['reference' => $object]);
             if (
                 isset($entity) && !$dashboardCard = $this->entityManager->getRepository('App:DashboardCard')->findOneBy(['entityId' => $entity->getId()])
@@ -322,7 +328,6 @@ class InstallationService implements InstallerInterface
         }
     }
 
-
     /**
      * Creates cronjobs for xxllnc.
      *
@@ -331,7 +336,7 @@ class InstallationService implements InstallerInterface
     public function createCronjobs(): void
     {
         isset($this->io) && $this->io->writeln(['', '<info>Looking for cronjobs</info>']);
-        // We only need 1 cronjob so lets set that 
+        // We only need 1 cronjob so lets set that
         $cronjob = $this->cronjobRepository->findOneBy(['name' => 'Xxllnc sync']) ?? new Cronjob();
         $cronjob->setName('Xxllnc sync');
         $cronjob->setDescription('A cronjob that sets off the synchronizations for the various sources');
@@ -342,10 +347,9 @@ class InstallationService implements InstallerInterface
         $this->entityManager->persist($cronjob);
         isset($this->io) && $this->io->writeln('Cronjob: \'Xxllnc sync\' created');
 
-        (isset($this->io) ? $this->io->writeln(['', 'Created/updated a cronjob for ' . $cronjob->getName()]) : '');
+        (isset($this->io) ? $this->io->writeln(['', 'Created/updated a cronjob for '.$cronjob->getName()]) : '');
     }
 
-    
     /**
      * Creates the xxllnc api source.
      *
@@ -353,7 +357,7 @@ class InstallationService implements InstallerInterface
      */
     private function createSource(): void
     {
-        isset($this->io) && $this->io->writeln(['','<info>Creating xxllnc source</info>']);
+        isset($this->io) && $this->io->writeln(['', '<info>Creating xxllnc source</info>']);
         // Xxllnc v1 api
         if ($source = $this->sourceRepository->findOneBy(['location' => 'https://development.zaaksysteem.nl/api/v1'])) {
             $newSource = false;
@@ -372,14 +376,13 @@ class InstallationService implements InstallerInterface
 
     private function updateZGWZaakEndpoint()
     {
-        isset($this->io) && $this->io->writeln(['','<info>Updating zgw zaak endpoint</info>']);
+        isset($this->io) && $this->io->writeln(['', '<info>Updating zgw zaak endpoint</info>']);
         $endpoint = $this->entityManager->getRepository(Endpoint::class)->findOneBy(['name' => 'Zaak']);
         $endpoint->setThrows(['zgw.zaak.saved']);
         $this->entityManager->persist($endpoint);
     }
 
     private function isZGWBundleInstalled()
-
     {
         $ZGWZaak = $this->schemaRepository->findOneBy(['reference' => 'https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json']);
         if (!$ZGWZaak) {
@@ -390,7 +393,6 @@ class InstallationService implements InstallerInterface
         isset($this->io) && $this->io->info('ZGWBundle is installed, continueing..');
 
         return true;
-
     }
 
     public function checkDataConsistency()
