@@ -4,16 +4,15 @@ namespace CommonGateway\XxllncZGWBundle\Service;
 
 use App\Entity\Entity as Schema;
 use App\Entity\Gateway as Source;
+use App\Entity\Mapping;
 use App\Entity\ObjectEntity;
 use App\Entity\Synchronization;
 use App\Service\SynchronizationService;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
-use Doctrine\Persistence\ObjectRepository;
 use CommonGateway\CoreBundle\Service\CallService;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ObjectRepository;
 use Exception;
-use CommonGateway\XxllncZGWBundle\Service\XxllncToZGWZaakTypeService;
-use App\Entity\Mapping;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class XxllncToZGWZaakService
 {
@@ -35,7 +34,7 @@ class XxllncToZGWZaakService
     private ?Schema $zaakTypeSchema;
     private ?Schema $zaakSchema;
     private ?Mapping $caseMapping;
-        
+
     private array $skeletonIn;
 
     /**
@@ -51,7 +50,6 @@ class XxllncToZGWZaakService
         $this->synchronizationService = $synchronizationService;
         $this->callService = $callService;
         $this->xxllncToZGWZaakTypeService = $xxllncToZGWZaakTypeService;
-
 
         $this->objectRepo = $this->entityManager->getRepository(ObjectEntity::class);
         $this->schemaRepo = $this->entityManager->getRepository(Schema::class);
@@ -182,9 +180,9 @@ class XxllncToZGWZaakService
     } // end mapStatus
 
     /**
-     * Gets a existing ZaakType or syncs one from the xxllnc api
-     * 
-     * @var string $caseTypeId xxllnc casetype
+     * Gets a existing ZaakType or syncs one from the xxllnc api.
+     *
+     * @var string xxllnc casetype
      *
      * @return ObjectEntity|null $zaakType object or null
      */
@@ -194,6 +192,7 @@ class XxllncToZGWZaakService
         $zaakTypeSync = $this->synchronizationService->findSyncBySource($this->xxllncAPI, $this->zaakTypeSchema, $caseTypeId);
         if ($zaakTypeSync && $zaakTypeSync->getObject()) {
             isset($this->io) && $this->io->info("Found a existing zaaktype with sourceId: $caseTypeId and gateway id: {$zaakTypeSync->getObject()->getId()->toString()}");
+
             return $zaakTypeSync->getObject();
         }
 
@@ -210,7 +209,7 @@ class XxllncToZGWZaakService
 
     /**
      * Makes sure this action has all the gateway objects it needs.
-     * 
+     *
      * @return bool false if some object couldn't be fetched
      */
     private function getRequiredGatewayObjects(): bool
@@ -244,17 +243,17 @@ class XxllncToZGWZaakService
 
         return true;
     } // end getRequiredGatewayObjects
-    
+
     /**
      * Sets default values.
-     * 
+     *
      * @param array $zaakArray
-     * 
+     *
      * @return array $zaakArray
      */
-    private function setDefaultValues($zaakArray) 
+    private function setDefaultValues($zaakArray)
     {
-        foreach($this->skeletonIn as $key => $data) {
+        foreach ($this->skeletonIn as $key => $data) {
             if (!isset($zaakArray[$key])) {
                 $zaakArray[$key] = $data;
             }
@@ -265,7 +264,7 @@ class XxllncToZGWZaakService
 
     /**
      * Creates or updates a case to zaak.
-     * 
+     *
      * @param array $case Case from the Xxllnc API
      *
      * @return void|null
@@ -274,14 +273,14 @@ class XxllncToZGWZaakService
     {
         // If no id found return null
         if (!isset($case['reference'])) {
-            isset($this->io) && $this->io->error("Case has no id (reference)");
+            isset($this->io) && $this->io->error('Case has no id (reference)');
 
             return null;
         }
 
         // If no casetype found return null
         if (!isset($case['instance']['casetype']['reference'])) {
-            isset($this->io) && $this->io->error("Case has no casetype");
+            isset($this->io) && $this->io->error('Case has no casetype');
 
             return null;
         }
@@ -348,6 +347,7 @@ class XxllncToZGWZaakService
 
         // Fetch the xxllnc cases
         isset($this->io) && $this->io->info('Fetching xxllnc cases');
+
         try {
             $xxllncCases = $this->callService->getAllResults($this->xxllncAPI, '/case', [], 'result.instance.rows');
         } catch (Exception $e) {

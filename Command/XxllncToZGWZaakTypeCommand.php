@@ -3,13 +3,12 @@
 namespace CommonGateway\XxllncZGWBundle\Command;
 
 use CommonGateway\XxllncZGWBundle\Service\XxllncToZGWZaakTypeService;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Ramsey\Uuid\Uuid;
-use Symfony\Component\Console\Input\InputArgument;
 
 /**
  * Command to execute the FindOrganizationThroughRepositoriesService.
@@ -44,7 +43,7 @@ class XxllncToZGWZaakTypeCommand extends Command
             if (!$this->xxllncToZGWZaakTypeService->getZaakType($id)) {
                 return Command::FAILURE;
             }
-            
+
             return Command::SUCCESS;
         }
 

@@ -3,15 +3,15 @@
 namespace CommonGateway\XxllncZGWBundle\Service;
 
 use App\Entity\Entity as Schema;
+use App\Entity\Gateway as Source;
+use App\Entity\Mapping;
 use App\Entity\ObjectEntity;
 use App\Service\SynchronizationService;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 use CommonGateway\CoreBundle\Service\CallService;
-use App\Entity\Gateway as Source;
-use Exception;
-use App\Entity\Mapping;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectRepository;
+use Exception;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class XxllncToZGWZaakTypeService
 {
@@ -79,34 +79,33 @@ class XxllncToZGWZaakTypeService
     }// end setStyle
 
     /**
-     * Fetches a xxllnc casetype and maps it to a zgw zaaktype
+     * Fetches a xxllnc casetype and maps it to a zgw zaaktype.
      *
      * @param string $caseTypeId This is the xxllnc casetype id
      *
-     * @return Object|null $zaakTypeObject Fetched and mapped ZGW ZaakType
+     * @return object|null $zaakTypeObject Fetched and mapped ZGW ZaakType
      */
-    public function getZaakType(string $caseTypeID) 
+    public function getZaakType(string $caseTypeID)
     {
         $this->getXxllncAPI();
-        
-        // try {
-            isset($this->io) && $this->io->info("Fetching casetype: $caseTypeID");
-            $response = $this->callService->call($this->xxllncAPI, "/casetype/$caseTypeID",'GET', [], false, false);
-            $caseType = $this->callService->decodeResponse($this->xxllncAPI, $response);
-        // } catch (Exception $e) {
-            // isset($this->io) && $this->io->error("Failed to fetch casetype: $caseTypeID, message:  {$e->getMessage()}");
 
-            // return null;
+        // try {
+        isset($this->io) && $this->io->info("Fetching casetype: $caseTypeID");
+        $response = $this->callService->call($this->xxllncAPI, "/casetype/$caseTypeID", 'GET', [], false, false);
+        $caseType = $this->callService->decodeResponse($this->xxllncAPI, $response);
+        // } catch (Exception $e) {
+        // isset($this->io) && $this->io->error("Failed to fetch casetype: $caseTypeID, message:  {$e->getMessage()}");
+
+        // return null;
         // }
 
         return $this->caseTypeToZaakType($caseType);
-
     }// end getZaakType
 
     /**
      * Maps the statusTypen and rolTypen from xxllnc to zgw.
      *
-     * @param array $caseType This is the xxllcn casetype array.
+     * @param array $caseType      This is the xxllcn casetype array.
      * @param array $zaakTypeArray This is the ZGW ZaakType array.
      *
      * @return array $zaakTypeArray This is the ZGW ZaakType array with the added statustypen.
@@ -136,9 +135,8 @@ class XxllncToZGWZaakTypeService
                 }
 
                 // Map role to roltype
-                if (isset($phase['route']['role']['reference']) && isset($phase['route']['role']['instance']['name']) && 
-                    !in_array(strtolower($phase['route']['role']['instance']['name']), $preventDuplicatedRolTypen)) 
-                {
+                if (isset($phase['route']['role']['reference']) && isset($phase['route']['role']['instance']['name']) &&
+                    !in_array(strtolower($phase['route']['role']['instance']['name']), $preventDuplicatedRolTypen)) {
                     $rolTypeArray = [
                         'omschrijving'         => isset($phase['route']['role']['instance']['description']) ? $phase['route']['role']['instance']['description'] : null,
                         'omschrijvingGeneriek' => isset($phase['route']['role']['instance']['name']) ? strtolower($phase['route']['role']['instance']['name']) : null,
@@ -163,7 +161,7 @@ class XxllncToZGWZaakTypeService
     /**
      * Maps the resultaatTypen from xxllnc to zgw.
      *
-     * @param array $caseType This is the xxllnc casetype.
+     * @param array $caseType      This is the xxllnc casetype.
      * @param array $zaakTypeArray This is the ZGW ZaakType array.
      *
      * @return array $zaakTypeArray This is the ZGW ZaakType array with the added resultaattypen.
@@ -188,10 +186,9 @@ class XxllncToZGWZaakTypeService
         return $zaakTypeArray;
     }// end mapResultaatTypen
 
-
     /**
-     * Makes sure this action has the xxllnc api source
-     * 
+     * Makes sure this action has the xxllnc api source.
+     *
      * @return bool|null false if some object couldn't be fetched
      */
     private function getXxllncAPI()
@@ -205,8 +202,8 @@ class XxllncToZGWZaakTypeService
     }// end getXxllncAPI
 
     /**
-     * Makes sure this action has the ZaakTypeSchema
-     * 
+     * Makes sure this action has the ZaakTypeSchema.
+     *
      * @return bool|null false if some object couldn't be fetched
      */
     private function getZaakTypeSchema()
@@ -221,14 +218,13 @@ class XxllncToZGWZaakTypeService
 
     /**
      * Makes sure this action has all the gateway objects it needs.
-     * 
+     *
      * @return bool false if some object couldn't be fetched
      */
     private function getRequiredGatewayObjects(): bool
     {
         $this->getXxllncAPI();
         $this->getZaakTypeSchema();
-
 
         // Get ZaakType schema
         if (!isset($this->rolTypeSchema) && !$this->rolTypeSchema = $this->schemaRepo->findOneBy(['name' => 'RolType'])) {
@@ -256,14 +252,14 @@ class XxllncToZGWZaakTypeService
 
     /**
      * Sets default values.
-     * 
+     *
      * @param array $zaakTypeArray
-     * 
+     *
      * @return array $zaakTypeArray
      */
-    private function setDefaultValues($zaakTypeArray) 
+    private function setDefaultValues($zaakTypeArray)
     {
-        foreach($this->skeletonIn as $key => $data) {
+        foreach ($this->skeletonIn as $key => $data) {
             if (!isset($zaakTypeArray[$key])) {
                 $zaakTypeArray[$key] = $data;
             }
@@ -274,22 +270,22 @@ class XxllncToZGWZaakTypeService
 
     /**
      * Creates or updates a casetype to zaaktype.
-     * 
+     *
      * @param array $caseType CaseType from the Xxllnc API
-     * @param bool $flush Do we need to flush here
-     * 
-     * @var Synchronization $synchronization
+     * @param bool  $flush    Do we need to flush here
+     *
+     * @var Synchronization
      *
      * @return void|null
      */
     public function caseTypeToZaakType(array $caseType, bool $flush = true)
-    {  
+    {
         $this->getRequiredGatewayObjects();
         isset($caseType['result']) && $caseType = $caseType['result'];
 
         // Check for id
         if (!isset($caseType['reference'])) {
-            isset($this->io) && $this->io->error("CaseType has no id (reference)");
+            isset($this->io) && $this->io->error('CaseType has no id (reference)');
 
             return null;
         }
@@ -302,7 +298,6 @@ class XxllncToZGWZaakTypeService
         $zaakTypeObject = $synchronization->getObject();
         $zaakTypeArray = $zaakTypeObject->toArray();
         $zaakTypeArray = $this->setDefaultValues($zaakTypeArray);
-
 
         // Manually set array properties (cant map with twig)
         $zaakTypeArray['verantwoordingsrelatie'] = [$caseType['instance']['properties']['supervisor_relation']] ?? null;
@@ -351,6 +346,7 @@ class XxllncToZGWZaakTypeService
 
         // Fetch the xxllnc casetypes
         isset($this->io) && $this->io->info('Fetching xxllnc casetypes');
+
         try {
             $xxllncCaseTypes = $this->callService->getAllResults($this->xxllncAPI, '/casetype', [], 'result.instance.rows');
         } catch (Exception $e) {
