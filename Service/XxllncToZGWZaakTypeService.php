@@ -67,7 +67,7 @@ class XxllncToZGWZaakTypeService
 
     /**
      * @TODO change to monolog
-     * 
+     *
      * Set symfony style in order to output to the console.
      *
      * @param SymfonyStyle $io
@@ -107,7 +107,7 @@ class XxllncToZGWZaakTypeService
 
     /**
      * @TODO make function smaller and readable
-     * 
+     *
      * Maps the statusTypen and rolTypen from xxllnc to zgw.
      *
      * @param array $caseType      This is the xxllcn casetype array.
@@ -277,7 +277,7 @@ class XxllncToZGWZaakTypeService
 
     /**
      * @TODO make function smaller and more readable
-     * 
+     *
      * Creates or updates a casetype to zaaktype.
      *
      * @param array $caseType CaseType from the Xxllnc API
@@ -338,7 +338,7 @@ class XxllncToZGWZaakTypeService
 
     /**
      * @TODO make function smaller and more readable
-     * 
+     *
      * Creates or updates a ZGW ZaakType from a xxllnc casetype with the use of the CoreBundle.
      *
      * @param ?array $data          Data from the handler where the xxllnc casetype is in.

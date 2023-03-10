@@ -70,7 +70,7 @@ class XxllncToZGWZaakService
 
     /**
      * @TODO change to monolog
-     * 
+     *
      * Set symfony style in order to output to the console.
      *
      * @param SymfonyStyle $io
@@ -241,7 +241,7 @@ class XxllncToZGWZaakService
         if (!isset($this->caseMapping) && !$this->caseMapping = $this->mappingRepo->findOneBy(['reference' => 'https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseToZGWZaak.mapping.json'])) {
             isset($this->io) && $this->io->error('No mapping found for https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseToZGWZaak.mapping.json');
 
-            return null;
+            return false;
         }
 
         return true;
