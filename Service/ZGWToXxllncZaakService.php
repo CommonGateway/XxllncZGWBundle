@@ -69,13 +69,11 @@ class ZGWToXxllncZaakService
 
         $this->getRequiredGatewayObjects();
 
-
         if (!isset($zaakObjectArray['zaaktype'])) {
             // throw new \Exception('No zaaktype set on zaak');
 
             return ['response' => $data];
         }
-
 
         if (!isset($zaakObjectArray['zaaktype']['_self']['id'])) {
             // throw new Exception('ZaakType id not found on Zaak object');
@@ -88,7 +86,6 @@ class ZGWToXxllncZaakService
         $casetypeId = $zaakTypeObject->getSynchronizations()[0]->getSourceId() ?? null;
         // Return here cause if the zaaktype is created through this gateway, we cant sync it to xxllnc because it doesn't exist there
         if (!isset($casetypeId)) {
-
             return ['response' => $data];
         }
 
@@ -101,7 +98,6 @@ class ZGWToXxllncZaakService
         $zaakArrayObject = $this->entityManager->find('App:ObjectEntity', $zaakObjectArray['_self']['id']);
 
         if (!isset($zaakArrayObject)) {
-
             return ['response' => $data];
         }
         $zaakArrayObject = $zaakArrayObject->toArray();
@@ -212,7 +208,6 @@ class ZGWToXxllncZaakService
 
         return $xxllncZaakArray;
     } // end mapPostRollen
-
 
     // @TODO Remove once updating zaak completely works (@Barry Brands)
     // /**
@@ -366,7 +361,6 @@ class ZGWToXxllncZaakService
         // Get needed attribute so we can find the already existing case object // @TODO do
         $zgwZaakAttribute = $this->entityManager->getRepository(Attribute::class)->findOneBy(['entity' => $this->xxllncZaakSchema, 'name' => 'zgwZaak']);
         if (!$zgwZaakAttribute) {
-
             return;
         }
 
@@ -446,12 +440,10 @@ class ZGWToXxllncZaakService
         $this->getRequiredGatewayObjects();
 
         if (!isset($this->data['zaaktype'])) {
-
             return ['response' => []];
         }
 
         if (!isset($this->data['embedded']['zaaktype']['_self']['id'])) {
-
             return ['response' => []];
         }
         $zaakTypeId = $this->data['embedded']['zaaktype']['_self']['id'];
@@ -463,14 +455,12 @@ class ZGWToXxllncZaakService
         }
 
         if (!isset($this->data['_self']['id'])) {
-
             return ['response' => []];
         }
 
         $zaakArrayObject = $this->entityManager->find('App:ObjectEntity', $this->data['_self']['id']);
 
         if (!isset($zaakArrayObject)) {
-
             return ['response' => []];
         }
         $zaakArrayObject = $zaakArrayObject->toArray();
