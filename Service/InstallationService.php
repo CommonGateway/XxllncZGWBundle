@@ -19,6 +19,7 @@ use Exception;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+// @TODO update to new installation method (check zgwbundle as example)
 class InstallationService implements InstallerInterface
 {
     private EntityManagerInterface $entityManager;

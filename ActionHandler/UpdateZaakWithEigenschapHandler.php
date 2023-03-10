@@ -26,8 +26,8 @@ class UpdateZaakWithEigenschapHandler implements ActionHandlerInterface
     public function getConfiguration(): array
     {
         return [
-            '$id'         => 'https://docs.commongateway.nl/schemas/UpdateZaakWithEigenschap.ActionHandler.schema.json',
-            '$schema'     => 'https://json-schema.org/draft/2020-12/schema',
+            '$id'         => 'https://development.zaaksysteem.nl/schemas/UpdateZaakWithEigenschap.ActionHandler.schema.json',
+            '$schema'     => 'https://docs.commongateway.nl/schemas/ActionHandler.schema.json',
             'title'       => 'UpdateZaakWithEigenschap',
             'description' => 'This handler updates zgw zaak with eigenschap and saves to xxllnc',
             'required'    => [],

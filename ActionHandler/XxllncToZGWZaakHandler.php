@@ -26,8 +26,8 @@ class XxllncToZGWZaakHandler implements ActionHandlerInterface
     public function getConfiguration(): array
     {
         return [
-            '$id'         => 'https://docs.commongateway.nl/schemas/XxllncToZGWZaak.ActionHandler.schema.json',
-            '$schema'     => 'https://json-schema.org/draft/2020-12/schema',
+            '$id'         => 'https://development.zaaksysteem.nl/schemas/XxllncToZGWZaak.ActionHandler.schema.json',
+            '$schema'     => 'https://docs.commongateway.nl/schemas/ActionHandler.schema.json',
             'title'       => 'XxllncToZGWZaakAction',
             'description' => 'This handler customly maps xxllnc case to zgw zaak',
             'required'    => ['zaakEntityId'],
