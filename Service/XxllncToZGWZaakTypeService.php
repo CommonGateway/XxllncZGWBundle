@@ -66,14 +66,15 @@ class XxllncToZGWZaakTypeService
     } // end _construct
 
     /**
+     * @TODO change to monolog
+     * 
      * Set symfony style in order to output to the console.
      *
      * @param SymfonyStyle $io
      *
      * @return self
      */
-    public function setStyle(SymfonyStyle $io): self // @TODO change to monolog
-    {
+    public function setStyle(SymfonyStyle $io): self
         $this->io = $io;
 
         return $this;
@@ -104,6 +105,8 @@ class XxllncToZGWZaakTypeService
     } // end getZaakType
 
     /**
+     * @TODO make function smaller and readable
+     * 
      * Maps the statusTypen and rolTypen from xxllnc to zgw.
      *
      * @param array $caseType      This is the xxllcn casetype array.
@@ -111,7 +114,7 @@ class XxllncToZGWZaakTypeService
      *
      * @return array $zaakTypeArray This is the ZGW ZaakType array with the added statustypen.
      */
-    private function mapStatusAndRolTypen(array $caseType, array $zaakTypeArray): array // @TODO make function smaller and readable
+    private function mapStatusAndRolTypen(array $caseType, array $zaakTypeArray): array
     {
         $zaakTypeArray['roltypen'] = [];
         $preventDuplicatedRolTypen = [];
@@ -272,6 +275,8 @@ class XxllncToZGWZaakTypeService
     } // end setDefaultValues
 
     /**
+     * @TODO make function smaller and more readable
+     * 
      * Creates or updates a casetype to zaaktype.
      *
      * @param array $caseType CaseType from the Xxllnc API
@@ -281,7 +286,7 @@ class XxllncToZGWZaakTypeService
      *
      * @return void|null
      */
-    public function caseTypeToZaakType(array $caseType, bool $flush = true)// @TODO make function smaller and more readable
+    public function caseTypeToZaakType(array $caseType, bool $flush = true)
     {
         $this->getRequiredGatewayObjects();
         isset($caseType['result']) && $caseType = $caseType['result'];
@@ -331,6 +336,8 @@ class XxllncToZGWZaakTypeService
     } // end caseTypeToZaakType
 
     /**
+     * @TODO make function smaller and more readable
+     * 
      * Creates or updates a ZGW ZaakType from a xxllnc casetype with the use of the CoreBundle.
      *
      * @param ?array $data          Data from the handler where the xxllnc casetype is in.
@@ -338,7 +345,7 @@ class XxllncToZGWZaakTypeService
      *
      * @return void|null
      */
-    public function xxllncToZGWZaakTypeHandler(?array $data = [], ?array $configuration = [])// @TODO make function smaller and more readable
+    public function xxllncToZGWZaakTypeHandler(?array $data = [], ?array $configuration = [])
     {
         isset($this->io) && $this->io->success('xxllncToZGWZaakType triggered');
 

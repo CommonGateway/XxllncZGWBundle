@@ -57,6 +57,8 @@ class ZGWToXxllncZaakService
         return $this;
     } // end setStyle
 
+    // @TODO add docblocks
+    // @TODO make function smaller and more readable
     public function updateZaakWithEigenschapHandler(?array $data = [], ?array $configuration = [])
     {
         isset($this->io) && $this->io->success('updateZaakWithEigenschapHandler triggered');
@@ -283,6 +285,8 @@ class ZGWToXxllncZaakService
     // }
 
     /**
+     * @TODO Make function smaller and more readable
+     * 
      * Saves case to xxllnc by POST or PUT request.
      *
      * @param string           $caseArray       Case object.
@@ -329,6 +333,8 @@ class ZGWToXxllncZaakService
     } // end sendCaseToXxllnc
 
     /**
+     * @TODO Make function smaller and more readable
+     * 
      * Maps zgw zaak to xxllnc case.
      *
      * @param string       $caseTypeId     CaseTypeID as in xxllnc.
@@ -336,7 +342,7 @@ class ZGWToXxllncZaakService
      *
      * @return array $this->data Data which we entered the function with
      */
-    public function mapZGWToXxllncZaak(string $casetypeId, ObjectEntity $zaakTypeObject, array $zaakArrayObject)// @TODO make function smaller and more readable
+    public function mapZGWToXxllncZaak(string $casetypeId, ObjectEntity $zaakTypeObject, array $zaakArrayObject)
     {
         if (!isset($zaakArrayObject['verantwoordelijkeOrganisatie'])) {
             throw new \Exception('verantwoordelijkeOrganisatie is not set');
@@ -423,14 +429,16 @@ class ZGWToXxllncZaakService
     } // end getRequiredGatewayObjects
 
     /**
+     * @TODO Make function smaller and more readable
+     * 
      * Creates or updates a ZGW Zaak from a xxllnc casetype with the use of mapping.
-     *
+     * 
      * @param ?array $data          Data from the handler where the xxllnc casetype is in.
      * @param ?array $configuration Configuration from the Action where the Zaak entity id is stored in.
      *
      * @return array $this->data Data which we entered the function with
      */
-    public function zgwToXxllncZaakHandler(?array $data = [], ?array $configuration = []): array // @TODO Make function smaller and more readable
+    public function zgwToXxllncZaakHandler(?array $data = [], ?array $configuration = []): array
     {
         $this->data = $data['response'];
         $this->configuration = $configuration;

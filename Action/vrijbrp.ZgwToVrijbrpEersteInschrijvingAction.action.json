@@ -1,7 +1,7 @@
 {
   "title": "UpdateZaakWithEigenschapAction",
-  "$id": "https://common-gateway.nl/action/xxllnc.UpdateZaakWithEigenschapAction.action.json",
-  "$schema": "https://json-schema.org/draft/2020-12/action",
+  "$id": "https://development.zaaksysteem.nl/action/xxllnc.UpdateZaakWithEigenschapAction.action.json",
+  "$schema": "https://docs.commongateway.nl/schemas/Action.schema.json",
   "version": "0.0.1",
   "listens": [
     "commongateway.object.create",

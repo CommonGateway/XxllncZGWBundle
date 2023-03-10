@@ -57,13 +57,15 @@ class InstallationService implements InstallerInterface
     }
 
     /**
+     * @TODO change to monolog
+     * 
      * Set symfony style in order to output to the console.
      *
      * @param SymfonyStyle $io
      *
      * @return self
      */
-    public function setStyle(SymfonyStyle $io): self // @TODO change to monolog
+    public function setStyle(SymfonyStyle $io): self 
     {
         $this->io = $io;
 
