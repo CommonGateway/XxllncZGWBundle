@@ -17,7 +17,7 @@
     "require": {
         "php": ">=7.4",
         "commongateway/corebundle": ">=1.0.23",
-        "common-gateway/zgw-bundle": ">=0.1.25"
+        "common-gateway/zgw-bundle": ">=0.1.26"
     },
 	"require-dev" : {
 		"symfony/dependency-injection" : "~3.4|~4.1|~5.0"
