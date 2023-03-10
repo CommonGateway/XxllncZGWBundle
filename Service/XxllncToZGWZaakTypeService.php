@@ -75,6 +75,7 @@ class XxllncToZGWZaakTypeService
      * @return self
      */
     public function setStyle(SymfonyStyle $io): self
+    {
         $this->io = $io;
 
         return $this;
