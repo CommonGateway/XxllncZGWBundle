@@ -39,8 +39,8 @@ class ZGWToXxllncZaakService
         $this->entityManager = $entityManager;
         $this->callService = $callService;
 
-        $this->schemaRepo = $this->entityManager->getRepository(Schema::class);
-        $this->sourceRepo = $this->entityManager->getRepository(Source::class);
+        $this->schemaRepo = $this->entityManager->getRepository('App:Entity');
+        $this->sourceRepo = $this->entityManager->getRepository('App:Gateway');
     } // end __construct
 
     /**
@@ -66,7 +66,7 @@ class ZGWToXxllncZaakService
 
         $caseId = explode('/', $data['response']['zaak']);
         $caseId = end($caseId);
-        $zaakObject = $this->entityManager->find(ObjectEntity::class, $caseId);
+        $zaakObject = $this->entityManager->find('App:ObjectEntity', $caseId);
         $zaakObjectArray = $zaakObject->toArray();
 
         $this->getRequiredGatewayObjects();
@@ -84,7 +84,7 @@ class ZGWToXxllncZaakService
         }
 
         $zaakTypeId = $zaakObjectArray['zaaktype']['_self']['id'];
-        $zaakTypeObject = $this->entityManager->find(ObjectEntity::class, $zaakTypeId);
+        $zaakTypeObject = $this->entityManager->find('App:ObjectEntity', $zaakTypeId);
         $casetypeId = $zaakTypeObject->getSynchronizations()[0]->getSourceId() ?? null;
         // Return here cause if the zaaktype is created through this gateway, we cant sync it to xxllnc because it doesn't exist there
         if (!isset($casetypeId)) {
@@ -190,7 +190,7 @@ class ZGWToXxllncZaakService
             foreach ($zaakArrayObject['rollen'] as $rol) {
                 foreach ($zaakArrayObject['zaaktype']['roltypen'] as $rolType) {
                     if ($rolType['omschrijvingGeneriek'] === $rol['roltoelichting']) {
-                        $rolTypeObject = $this->entityManager->find(ObjectEntity::class, $rolType['_self']['id']);
+                        $rolTypeObject = $this->entityManager->find('App:ObjectEntity', $rolType['_self']['id']);
                         if ($rolTypeObject instanceof ObjectEntity && $rolTypeObject->getExternalId() !== null) {
                             $xxllncZaakArray['subjects'][] = [
                                 'subject' => [
@@ -227,7 +227,7 @@ class ZGWToXxllncZaakService
     //     }
 
     //     // validate object type
-    //     $objectEntity = $this->entityManager->find(ObjectEntity::class, $data['response']['_self']['id']);
+    //     $objectEntity = $this->entityManager->find('App:ObjectEntity', $data['response']['_self']['id']);
     //     if (!in_array($objectEntity->getEntity()->getName(), ['ZaakEigenschap'])) {
     //         return $data;
     //     }

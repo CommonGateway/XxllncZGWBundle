@@ -48,10 +48,10 @@ class XxllncToZGWZaakTypeService
         $this->synchronizationService = $synchronizationService;
         $this->callService = $callService;
 
-        $this->objectRepo = $this->entityManager->getRepository(ObjectEntity::class);
-        $this->schemaRepo = $this->entityManager->getRepository(Schema::class);
-        $this->sourceRepo = $this->entityManager->getRepository(Source::class);
-        $this->mappingRepo = $this->entityManager->getRepository(Mapping::class);
+        $this->objectRepo = $this->entityManager->getRepository('App:ObjectEntity');
+        $this->schemaRepo = $this->entityManager->getRepository('App:Entity');
+        $this->sourceRepo = $this->entityManager->getRepository('App:Gateway');
+        $this->mappingRepo = $this->entityManager->getRepository('App:Mapping');
 
         // @TODO add this to a mapping
         $this->skeletonIn = [
