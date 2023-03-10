@@ -1,14 +1,14 @@
 {
-    "$id": "https://common-gateway.nl/xxllnc-zaak-post.schema.json",
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "version": "0.1",
+    "$id": "https://development.zaaksysteem.nl/schema/xxllnc.zaakPost.schema.json",
+    "$schema": "https://docs.commongateway.nl/schemas/Entity.schema.json",
+    "version": "0.3",
     "title": "XxllncZaakPost",
-    "x-stoplight": {
-        "id": "83dz4kk458mqm"
-    },
     "type": "object",
     "properties": {
         "casetype_id": {
+            "type": "string"
+        },
+        "zgwZaak": {
             "type": "string"
         },
         "source": {
@@ -16,17 +16,7 @@
         },
         "requestor": {
             "type": "object",
-            "items": {
-                "type": "string",
-                "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "type": {
-                        "type": "string"
-                    }
-                }
-            }
+            "$ref": "https://development.zaaksysteem.nl/schema/xxllnc.zaakRequestor.schema.json"
         },
         "values": {
             "type": "array",

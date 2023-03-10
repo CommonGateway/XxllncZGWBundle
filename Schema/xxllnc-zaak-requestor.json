@@ -1,0 +1,15 @@
+{
+    "$id": "https://development.zaaksysteem.nl/schema/xxllnc.zaakRequestor.schema.json",
+    "$schema": "https://docs.commongateway.nl/schemas/Entity.schema.json",
+    "version": "0.1",
+    "title": "XxllncZaakRequestor",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string"
+        },
+        "type": {
+            "type": "string"
+        }
+    }
+}

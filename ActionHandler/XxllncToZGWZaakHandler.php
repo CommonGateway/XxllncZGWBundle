@@ -4,18 +4,18 @@ namespace CommonGateway\XxllncZGWBundle\ActionHandler;
 
 use App\Exception\GatewayException;
 use CommonGateway\CoreBundle\ActionHandler\ActionHandlerInterface;
-use CommonGateway\XxllncZGWBundle\Service\MapZaakTypeService;
+use CommonGateway\XxllncZGWBundle\Service\XxllncToZGWZaakService;
 use Psr\Cache\CacheException;
 use Psr\Cache\InvalidArgumentException;
 use Respect\Validation\Exceptions\ComponentException;
 
-class MapZaakTypeHandler implements ActionHandlerInterface
+class XxllncToZGWZaakHandler implements ActionHandlerInterface
 {
-    private MapZaakTypeService $mapZaakTypeService;
+    private XxllncToZGWZaakService $xxllncToZGWZaakService;
 
-    public function __construct(MapZaakTypeService $mapZaakTypeService)
+    public function __construct(XxllncToZGWZaakService $xxllncToZGWZaakService)
     {
-        $this->mapZaakTypeService = $mapZaakTypeService;
+        $this->xxllncToZGWZaakService = $xxllncToZGWZaakService;
     }
 
     /**
@@ -26,15 +26,15 @@ class MapZaakTypeHandler implements ActionHandlerInterface
     public function getConfiguration(): array
     {
         return [
-            '$id'         => 'https://example.com/person.schema.json',
-            '$schema'     => 'https://json-schema.org/draft/2020-12/schema',
-            'title'       => 'ZGW ZaakType Action',
-            'description' => 'This handler customly maps xxllnc casetype to zgw zaaktype ',
-            'required'    => ['zaakTypeEntityId'],
+            '$id'         => 'https://development.zaaksysteem.nl/schemas/XxllncToZGWZaak.ActionHandler.schema.json',
+            '$schema'     => 'https://docs.commongateway.nl/schemas/ActionHandler.schema.json',
+            'title'       => 'XxllncToZGWZaakAction',
+            'description' => 'This handler customly maps xxllnc case to zgw zaak',
+            'required'    => ['zaakEntityId'],
             'properties'  => [
                 'zaakTypeEntityId' => [
                     'type'        => 'string',
-                    'description' => 'The UUID of the case entitEntity on the gateway',
+                    'description' => 'The UUID of the Zaak Entity on the gateway',
                     'example'     => '',
                 ],
             ],
@@ -56,6 +56,6 @@ class MapZaakTypeHandler implements ActionHandlerInterface
      */
     public function run(array $data, array $configuration): array
     {
-        return $this->mapZaakTypeService->mapZaakTypeHandler($data, $configuration);
+        return $this->xxllncToZGWZaakService->xxllncToZGWZaakHandler($data, $configuration);
     }
 }

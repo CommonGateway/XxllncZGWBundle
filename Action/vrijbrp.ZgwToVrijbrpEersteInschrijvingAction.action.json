@@ -1,0 +1,22 @@
+{
+  "title": "UpdateZaakWithEigenschapAction",
+  "$id": "https://development.zaaksysteem.nl/action/xxllnc.UpdateZaakWithEigenschapAction.action.json",
+  "$schema": "https://docs.commongateway.nl/schemas/Action.schema.json",
+  "version": "0.0.1",
+  "listens": [
+    "commongateway.object.create",
+    "commongateway.object.update"
+  ],
+  "throws": [],
+  "conditions": {
+    "==": [{"var": "entity"}, "https://vng.opencatalogi.nl/schemas/zrc.zaakEigenschap.schema.json"]
+  },
+  "class": "CommonGateway\\XxllncZGWBundle\\ActionHandler\\UpdateZaakWithEigenschapHandler",
+  "configuration": {
+    "source": "https://development.zaaksysteem.nl/api/v1",
+    "location": "/case/{id}/update",
+    "synchronizationEntity": "https://vng.opencatalogi.nl/schemas/zrc.zaakEigenschap.schema.json"
+  },
+  "isLockable": false,
+  "isEnabled": true
+}

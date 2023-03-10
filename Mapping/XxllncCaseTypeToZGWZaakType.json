@@ -1,0 +1,22 @@
+{
+    "title": "XxllncCaseTypeToZGWZaakType",
+    "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseTypeToZGWZaakType.mapping.json",
+    "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
+    "version": "0.0.6",
+    "passTrough": false,
+    "mapping": {
+        "identificatie": "{{ instance.legacy.zaaktype_id }}",
+        "onderwerp": "{{ instance.title }}",
+        "indicatieInternOfExtern": "{{ instance.trigger }}",
+        "doorlooptijd": "{% if instance.properties.lead_time_legal.weken|default %}{{ instance.properties.lead_time_legal.weken }}{% elseif instance.properties.lead_time_legal.kalenderdagen|default %}{{ instance.properties.lead_time_legal.kalenderdagen }}{% else %}{{ \"\" }}{% endif %}",
+        "servicenorm": "{% if instance.properties.lead_time_service.weken|default %}{{ instance.properties.lead_time_service.weken }}{% elseif instance.properties.lead_time_service.kalenderdagen|default %}{{ instance.properties.lead_time_service.kalenderdagen }}{% else %}{{ \"\" }}{% endif %}",
+        "vertrouwelijkheidaanduiding": "{{ instance.properties.designation_of_confidentiality }}",
+        "verlengingMogelijk": "{{ instance.properties.extension }}",
+        "publicatieIndicatie": "{{ instance.properties.publication }}",
+        "omschrijving": "{{ instance.title }}",
+        "opschortingEnAanhoudingMogelijk": "{{ instance.properties.suspension }}"
+    },
+    "unset": {},
+    "cast": {}
+  }
+  
