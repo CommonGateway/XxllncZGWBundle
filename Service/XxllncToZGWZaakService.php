@@ -264,13 +264,13 @@ class XxllncToZGWZaakService
     } // end setDefaultValues
 
     /**
-     * Checks if we have a reference in our case
-     * 
+     * Checks if we have a reference in our case.
+     *
      * @param array $case xxllnc case object
-     * 
+     *
      * @return void|null
      */
-    private function checkId(array $case) 
+    private function checkId(array $case)
     {
         // If no id found return null
         if (!isset($case['reference'])) {
@@ -281,13 +281,13 @@ class XxllncToZGWZaakService
     }
 
     /**
-     * Checks if we have a casetype in our case and get a ZaakType
-     * 
+     * Checks if we have a casetype in our case and get a ZaakType.
+     *
      * @param array $case xxllnc case object
-     * 
+     *
      * @return ObjectEntity|null
      */
-    private function checkZaakType(array $case) 
+    private function checkZaakType(array $case)
     {
         // If no casetype found return null
         if (!isset($case['instance']['casetype']['reference'])) {
@@ -307,13 +307,13 @@ class XxllncToZGWZaakService
     }
 
     /**
-     * Checks and fetches or creates a Synchronization for this case
-     * 
+     * Checks and fetches or creates a Synchronization for this case.
+     *
      * @param array $case xxllnc case object
-     * 
+     *
      * @return Synchronization
      */
-    private function getSyncForCase(array $case): Synchronization 
+    private function getSyncForCase(array $case): Synchronization
     {
         // Find or create synchronization object
         $synchronization = $this->synchronizationService->findSyncBySource($this->xxllncAPI, $this->zaakSchema, $case['reference']);
@@ -324,18 +324,17 @@ class XxllncToZGWZaakService
     }
 
     /**
-     * Creates ZGW Zaak subobjects
-     * 
+     * Creates ZGW Zaak subobjects.
+     *
      * @param array        $zaakArray      ZGW Zaak
      * @param array        $zaakTypeArray  ZGW ZaakType
      * @param ObjectEntity $zaakTypeObject ZGW ZaakType object
      * @param array        $case           xxllnc case object
-     * 
+     *
      * @return array
      */
-    private function createSubObjects(array $zaakArray, array $zaakTypeArray, ObjectEntity $zaakTypeObject, array $case): array 
+    private function createSubObjects(array $zaakArray, array $zaakTypeArray, ObjectEntity $zaakTypeObject, array $case): array
     {
-
         if (isset($zaakTypeArray['statustypen']) && isset($case['instance']['milestone'])) {
             $zaakArray = $this->mapStatus($zaakArray, $zaakTypeArray, $case['instance']['milestone']);
         }
