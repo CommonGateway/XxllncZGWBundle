@@ -39,8 +39,8 @@ class ZGWToXxllncZaakService
         $this->entityManager = $entityManager;
         $this->callService = $callService;
 
-        $this->schemaRepo = $this->entityManager->getRepository(Schema::class);
-        $this->sourceRepo = $this->entityManager->getRepository(Source::class);
+        $this->schemaRepo = $this->entityManager->getRepository('App:Entity');
+        $this->sourceRepo = $this->entityManager->getRepository('App:Gateway');
     } // end __construct
 
     /**
@@ -365,13 +365,13 @@ class ZGWToXxllncZaakService
         // $caseArray = $this->mapPostRollen($caseArray, $zaakArrayObject); // disabled for now
 
         // Get needed attribute so we can find the already existing case object // @TODO do
-        $zgwZaakAttribute = $this->entityManager->getRepository(Attribute::class)->findOneBy(['entity' => $this->xxllncZaakSchema, 'name' => 'zgwZaak']);
+        $zgwZaakAttribute = $this->entityManager->getRepository('App:Attribute')->findOneBy(['entity' => $this->xxllncZaakSchema, 'name' => 'zgwZaak']);
         if (!$zgwZaakAttribute) {
             return;
         }
 
         // Find or create case object
-        $caseValue = $this->entityManager->getRepository(Value::class)->findOneBy(['stringValue' => $zaakArrayObject['_self']['id'], 'attribute' => $zgwZaakAttribute]);
+        $caseValue = $this->entityManager->getRepository('App:Value')->findOneBy(['stringValue' => $zaakArrayObject['_self']['id'], 'attribute' => $zgwZaakAttribute]);
         if ($caseValue instanceof Value) {
             $caseObject = $caseValue->getObjectEntity();
         } else {

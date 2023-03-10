@@ -380,7 +380,7 @@ class InstallationService implements InstallerInterface
     private function updateZGWZaakEndpoint()
     {
         isset($this->io) && $this->io->writeln(['', '<info>Updating zgw zaak endpoint</info>']);
-        $endpoint = $this->entityManager->getRepository(Endpoint::class)->findOneBy(['name' => 'Zaak']);
+        $endpoint = $this->entityManager->getRepository('App:Endpoint')->findOneBy(['name' => 'Zaak']);
         $endpoint->setThrows(['zgw.zaak.saved']);
         $this->entityManager->persist($endpoint);
     }
