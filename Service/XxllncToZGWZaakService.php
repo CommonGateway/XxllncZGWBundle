@@ -70,7 +70,7 @@ class XxllncToZGWZaakService
 
     /**
      * @TODO change to monolog
-     * 
+     *
      * Set symfony style in order to output to the console.
      *
      * @param SymfonyStyle $io

@@ -286,7 +286,7 @@ class ZGWToXxllncZaakService
 
     /**
      * @TODO Make function smaller and more readable
-     * 
+     *
      * Saves case to xxllnc by POST or PUT request.
      *
      * @param string           $caseArray       Case object.
@@ -334,7 +334,7 @@ class ZGWToXxllncZaakService
 
     /**
      * @TODO Make function smaller and more readable
-     * 
+     *
      * Maps zgw zaak to xxllnc case.
      *
      * @param string       $caseTypeId     CaseTypeID as in xxllnc.
@@ -430,9 +430,9 @@ class ZGWToXxllncZaakService
 
     /**
      * @TODO Make function smaller and more readable
-     * 
+     *
      * Creates or updates a ZGW Zaak from a xxllnc casetype with the use of mapping.
-     * 
+     *
      * @param ?array $data          Data from the handler where the xxllnc casetype is in.
      * @param ?array $configuration Configuration from the Action where the Zaak entity id is stored in.
      *
