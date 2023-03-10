@@ -26,7 +26,7 @@ class ZGWToXxllncZaakHandler implements ActionHandlerInterface
     public function getConfiguration(): array
     {
         return [
-            '$id'         => 'https://example.com/person.schema.json',
+            '$id'         => 'https://docs.commongateway.nl/schemas/ZGWToXxllncZaak.ActionHandler.schema.json',
             '$schema'     => 'https://json-schema.org/draft/2020-12/schema',
             'title'       => 'ZGWZaakToXxllnc',
             'description' => 'This handler posts zgw zaak to xxllnc',

@@ -1,5 +1,5 @@
 {
-    "$id": "https://common-gateway.nl/xxllnc-zaak-post.schema.json",
+    "$id": "https://development.zaaksysteem.nl/schema/xxllnc.zaakPost.schema.json",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "version": "0.3",
     "title": "XxllncZaakPost",
@@ -16,7 +16,7 @@
         },
         "requestor": {
             "type": "object",
-            "$ref": "https://common-gateway.nl/xxllnc-zaak-requestor.schema.json"
+            "$ref": "https://development.zaaksysteem.nl/schema/xxllnc.zaakRequestor.schema.json"
         },
         "values": {
             "type": "array",

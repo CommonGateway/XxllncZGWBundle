@@ -57,6 +57,7 @@ class XxllncToZGWZaakService
         $this->synchronizationRepo = $this->entityManager->getRepository(Synchronization::class);
         $this->mappingRepo = $this->entityManager->getRepository(Mapping::class);
 
+        // @TODO add this to a mapping
         $this->skeletonIn = [
             'verantwoordelijkeOrganisatie' => '070124036',
             'betalingsindicatie'           => 'geheel',
@@ -74,7 +75,7 @@ class XxllncToZGWZaakService
      *
      * @return self
      */
-    public function setStyle(SymfonyStyle $io): self
+    public function setStyle(SymfonyStyle $io): self // @TODO change to monolog
     {
         $this->io = $io;
 
@@ -235,8 +236,8 @@ class XxllncToZGWZaakService
             return false;
         }
 
-        if (!isset($this->caseMapping) && !$this->caseMapping = $this->mappingRepo->findOneBy(['reference' => 'https://development.zaaksysteem.nl/api/v1/case'])) {
-            isset($this->io) && $this->io->error('No mapping found for https://development.zaaksysteem.nl/api/v1/case');
+        if (!isset($this->caseMapping) && !$this->caseMapping = $this->mappingRepo->findOneBy(['reference' => 'https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseToZGWZaak.mapping.json'])) {
+            isset($this->io) && $this->io->error('No mapping found for https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseToZGWZaak.mapping.json');
 
             return null;
         }
@@ -260,16 +261,16 @@ class XxllncToZGWZaakService
         }
 
         return $zaakArray;
-    }// end setDefaultValues
+    } // end setDefaultValues
 
     /**
-     * Creates or updates a case to zaak.
-     *
-     * @param array $case Case from the Xxllnc API
-     *
+     * Checks if we have a reference in our case
+     * 
+     * @param array $case xxllnc case object
+     * 
      * @return void|null
      */
-    public function caseToZaak(array $case)
+    private function checkId(array $case) 
     {
         // If no id found return null
         if (!isset($case['reference'])) {
@@ -277,7 +278,17 @@ class XxllncToZGWZaakService
 
             return null;
         }
+    }
 
+    /**
+     * Checks if we have a casetype in our case and get a ZaakType
+     * 
+     * @param array $case xxllnc case object
+     * 
+     * @return ObjectEntity|null
+     */
+    private function checkZaakType(array $case) 
+    {
         // If no casetype found return null
         if (!isset($case['instance']['casetype']['reference'])) {
             isset($this->io) && $this->io->error('Case has no casetype');
@@ -292,20 +303,38 @@ class XxllncToZGWZaakService
             return null;
         }
 
-        $zaakTypeArray = $zaakTypeObject->toArray();
+        return $zaakTypeObject;
+    }
 
+    /**
+     * Checks and fetches or creates a Synchronization for this case
+     * 
+     * @param array $case xxllnc case object
+     * 
+     * @return Synchronization
+     */
+    private function getSyncForCase(array $case): Synchronization 
+    {
         // Find or create synchronization object
         $synchronization = $this->synchronizationService->findSyncBySource($this->xxllncAPI, $this->zaakSchema, $case['reference']);
         $synchronization->setMapping($this->caseMapping);
         $synchronization = $this->synchronizationService->synchronize($synchronization, $case);
-        $zaakObject = $synchronization->getObject();
-        $zaakArray = $zaakObject->toArray();
-        $zaakArray = $this->setDefaultValues($zaakArray);
 
-        $zaakArray['zaaktype'] = $zaakTypeObject;
+        return $synchronization;
+    }
 
-        // Manually map the xxllnc case to zgw zaak
-        isset($this->io) && $this->io->info("Mapping case with sourceId: {$case['reference']}");
+    /**
+     * Creates ZGW Zaak subobjects
+     * 
+     * @param array        $zaakArray      ZGW Zaak
+     * @param array        $zaakTypeArray  ZGW ZaakType
+     * @param ObjectEntity $zaakTypeObject ZGW ZaakType object
+     * @param array        $case           xxllnc case object
+     * 
+     * @return array
+     */
+    private function createSubObjects(array $zaakArray, array $zaakTypeArray, ObjectEntity $zaakTypeObject, array $case): array 
+    {
 
         if (isset($zaakTypeArray['statustypen']) && isset($case['instance']['milestone'])) {
             $zaakArray = $this->mapStatus($zaakArray, $zaakTypeArray, $case['instance']['milestone']);
@@ -316,6 +345,33 @@ class XxllncToZGWZaakService
         if (isset($zaakTypeArray['eigenschappen']) && isset($case['instance']['attributes'])) {
             $zaakArray = $this->mapEigenschappen($zaakArray, $zaakTypeArray, $zaakTypeObject, $case['instance']['attributes']);
         }
+
+        return $zaakArray;
+    }
+
+    /**
+     * Creates or updates a case to zaak.
+     *
+     * @param array $case Case from the Xxllnc API
+     *
+     * @return void|null
+     */
+    public function caseToZaak(array $case)
+    {
+        $this->checkId($case);
+        $zaakTypeObject = $this->checkZaakType($case);
+        $zaakTypeArray = $zaakTypeObject->toArray();
+
+        $synchronization = $this->getSyncForCase($case);
+        $zaakObject = $synchronization->getObject();
+        $zaakArray = $zaakObject->toArray();
+        $zaakArray = $this->setDefaultValues($zaakArray);
+
+        $zaakArray['zaaktype'] = $zaakTypeObject;
+
+        // Manually map the xxllnc case to zgw zaak
+        isset($this->io) && $this->io->info("Mapping case with sourceId: {$case['reference']}");
+        $zaakArray = $this->createSubObjects($zaakArray, $zaakTypeArray, $zaakTypeObject, $case);
 
         $zaakObject->hydrate($zaakArray);
         $this->entityManager->persist($zaakObject);

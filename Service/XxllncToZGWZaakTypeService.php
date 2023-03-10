@@ -53,6 +53,7 @@ class XxllncToZGWZaakTypeService
         $this->sourceRepo = $this->entityManager->getRepository(Source::class);
         $this->mappingRepo = $this->entityManager->getRepository(Mapping::class);
 
+        // @TODO add this to a mapping
         $this->skeletonIn = [
             'handelingInitiator'   => 'indienen',
             'beginGeldigheid'      => '1970-01-01',
@@ -62,7 +63,7 @@ class XxllncToZGWZaakTypeService
             'handelingBehandelaar' => 'Hoofd beveiliging',
             'aanleiding'           => 'Er is een afspraak gemaakt met een (niet) natuurlijk persoon',
         ];
-    }// end _construct
+    } // end _construct
 
     /**
      * Set symfony style in order to output to the console.
@@ -71,12 +72,12 @@ class XxllncToZGWZaakTypeService
      *
      * @return self
      */
-    public function setStyle(SymfonyStyle $io): self
+    public function setStyle(SymfonyStyle $io): self // @TODO change to monolog
     {
         $this->io = $io;
 
         return $this;
-    }// end setStyle
+    } // end setStyle
 
     /**
      * Fetches a xxllnc casetype and maps it to a zgw zaaktype.
@@ -89,18 +90,18 @@ class XxllncToZGWZaakTypeService
     {
         $this->getXxllncAPI();
 
-        // try {
-        isset($this->io) && $this->io->info("Fetching casetype: $caseTypeID");
-        $response = $this->callService->call($this->xxllncAPI, "/casetype/$caseTypeID", 'GET', [], false, false);
-        $caseType = $this->callService->decodeResponse($this->xxllncAPI, $response);
-        // } catch (Exception $e) {
-        // isset($this->io) && $this->io->error("Failed to fetch casetype: $caseTypeID, message:  {$e->getMessage()}");
+        try {
+            isset($this->io) && $this->io->info("Fetching casetype: $caseTypeID");
+            $response = $this->callService->call($this->xxllncAPI, "/casetype/$caseTypeID", 'GET', [], false, false);
+            $caseType = $this->callService->decodeResponse($this->xxllncAPI, $response);
+        } catch (Exception $e) {
+            isset($this->io) && $this->io->error("Failed to fetch casetype: $caseTypeID, message:  {$e->getMessage()}");
 
-        // return null;
-        // }
+            return null;
+        }
 
         return $this->caseTypeToZaakType($caseType);
-    }// end getZaakType
+    } // end getZaakType
 
     /**
      * Maps the statusTypen and rolTypen from xxllnc to zgw.
@@ -110,7 +111,7 @@ class XxllncToZGWZaakTypeService
      *
      * @return array $zaakTypeArray This is the ZGW ZaakType array with the added statustypen.
      */
-    private function mapStatusAndRolTypen(array $caseType, array $zaakTypeArray): array
+    private function mapStatusAndRolTypen(array $caseType, array $zaakTypeArray): array // @TODO make function smaller and readable
     {
         $zaakTypeArray['roltypen'] = [];
         $preventDuplicatedRolTypen = [];
@@ -135,8 +136,10 @@ class XxllncToZGWZaakTypeService
                 }
 
                 // Map role to roltype
-                if (isset($phase['route']['role']['reference']) && isset($phase['route']['role']['instance']['name']) &&
-                    !in_array(strtolower($phase['route']['role']['instance']['name']), $preventDuplicatedRolTypen)) {
+                if (
+                    isset($phase['route']['role']['reference']) && isset($phase['route']['role']['instance']['name']) &&
+                    !in_array(strtolower($phase['route']['role']['instance']['name']), $preventDuplicatedRolTypen)
+                ) {
                     $rolTypeArray = [
                         'omschrijving'         => isset($phase['route']['role']['instance']['description']) ? $phase['route']['role']['instance']['description'] : null,
                         'omschrijvingGeneriek' => isset($phase['route']['role']['instance']['name']) ? strtolower($phase['route']['role']['instance']['name']) : null,
@@ -156,7 +159,7 @@ class XxllncToZGWZaakTypeService
         }
 
         return $zaakTypeArray;
-    }// end mapStatusAndRolTypen
+    } // end mapStatusAndRolTypen
 
     /**
      * Maps the resultaatTypen from xxllnc to zgw.
@@ -184,7 +187,7 @@ class XxllncToZGWZaakTypeService
         }
 
         return $zaakTypeArray;
-    }// end mapResultaatTypen
+    } // end mapResultaatTypen
 
     /**
      * Makes sure this action has the xxllnc api source.
@@ -199,7 +202,7 @@ class XxllncToZGWZaakTypeService
 
             return false;
         }
-    }// end getXxllncAPI
+    } // end getXxllncAPI
 
     /**
      * Makes sure this action has the ZaakTypeSchema.
@@ -214,7 +217,7 @@ class XxllncToZGWZaakTypeService
 
             return false;
         }
-    }// end getZaakTypeSchema
+    } // end getZaakTypeSchema
 
     /**
      * Makes sure this action has all the gateway objects it needs.
@@ -241,14 +244,14 @@ class XxllncToZGWZaakTypeService
             return false;
         }
 
-        if (!isset($this->caseTypeMapping) && !$this->caseTypeMapping = $this->mappingRepo->findOneBy(['reference' => 'https://development.zaaksysteem.nl/api/v1/casetype'])) {
-            isset($this->io) && $this->io->error('No mapping found for https://development.zaaksysteem.nl/api/v1/casetype');
+        if (!isset($this->caseTypeMapping) && !$this->caseTypeMapping = $this->mappingRepo->findOneBy(['reference' => 'https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseTypeToZGWZaakType.mapping.json'])) {
+            isset($this->io) && $this->io->error('No mapping found for https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseTypeToZGWZaakType.mapping.json');
 
             return false;
         }
 
         return true;
-    }// end getRequiredGatewayObjects
+    } // end getRequiredGatewayObjects
 
     /**
      * Sets default values.
@@ -266,7 +269,7 @@ class XxllncToZGWZaakTypeService
         }
 
         return $zaakTypeArray;
-    }// end setDefaultValues
+    } // end setDefaultValues
 
     /**
      * Creates or updates a casetype to zaaktype.
@@ -278,7 +281,7 @@ class XxllncToZGWZaakTypeService
      *
      * @return void|null
      */
-    public function caseTypeToZaakType(array $caseType, bool $flush = true)
+    public function caseTypeToZaakType(array $caseType, bool $flush = true)// @TODO make function smaller and more readable
     {
         $this->getRequiredGatewayObjects();
         isset($caseType['result']) && $caseType = $caseType['result'];
@@ -325,7 +328,7 @@ class XxllncToZGWZaakTypeService
         isset($this->io) && $this->io->success("Created/updated zaaktype: $zaakTypeID");
 
         return $synchronization->getObject();
-    }// end caseTypeToZaakType
+    } // end caseTypeToZaakType
 
     /**
      * Creates or updates a ZGW ZaakType from a xxllnc casetype with the use of the CoreBundle.
@@ -335,7 +338,7 @@ class XxllncToZGWZaakTypeService
      *
      * @return void|null
      */
-    public function xxllncToZGWZaakTypeHandler(?array $data = [], ?array $configuration = [])
+    public function xxllncToZGWZaakTypeHandler(?array $data = [], ?array $configuration = [])// @TODO make function smaller and more readable
     {
         isset($this->io) && $this->io->success('xxllncToZGWZaakType triggered');
 
@@ -372,5 +375,5 @@ class XxllncToZGWZaakTypeService
             }
         }
         isset($this->io) && $this->io->success("Created $createdZaakTypeCount zaaktypen from the $caseTypeCount fetched casetypes");
-    }// end xxllncToZGWZaakTypeHandler
+    } // end xxllncToZGWZaakTypeHandler
 }

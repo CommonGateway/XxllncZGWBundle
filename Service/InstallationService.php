@@ -62,7 +62,7 @@ class InstallationService implements InstallerInterface
      *
      * @return self
      */
-    public function setStyle(SymfonyStyle $io): self
+    public function setStyle(SymfonyStyle $io): self // @TODO change to monolog
     {
         $this->io = $io;
 

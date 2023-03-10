@@ -26,7 +26,7 @@ class XxllncToZGWZaakTypeHandler implements ActionHandlerInterface
     public function getConfiguration(): array
     {
         return [
-            '$id'         => 'https://example.com/person.schema.json',
+            '$id'         => 'https://docs.commongateway.nl/schemas/XxllncToZGWZaakType.ActionHandler.schema.json',
             '$schema'     => 'https://json-schema.org/draft/2020-12/schema',
             'title'       => 'ZGW ZaakType Action',
             'description' => 'This handler customly maps xxllnc casetype to zgw zaaktype ',
