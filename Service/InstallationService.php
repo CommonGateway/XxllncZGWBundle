@@ -111,7 +111,8 @@ class InstallationService implements InstallerInterface
         $this->attributeRepository = $this->entityManager->getRepository('App:Attribute');
         // $this->cronjobRepository = $this->entityManager->getRepository('App:Cronjob');
         $this->translationRepository = $this->entityManager->getRepository('App:Translation');
-    } //end __construct()
+
+    }//end __construct()
 
     /**
      * Set symfony style in order to output to the console.
@@ -127,24 +128,28 @@ class InstallationService implements InstallerInterface
         $this->style = $style;
 
         return $this;
-    } //end setStyle()
+
+    }//end setStyle()
 
     public function install()
     {
         $this->checkDataConsistency();
-    } //end install()
+
+    }//end install()
 
 
     public function update()
     {
         $this->checkDataConsistency();
-    } //end update()
+
+    }//end update()
 
 
     public function uninstall()
     {
         // Do some cleanup
-    } //end uninstall()
+
+    }//end uninstall()
 
     /**
      * Checks if we need to create/update objects.
@@ -191,7 +196,8 @@ class InstallationService implements InstallerInterface
         $this->createTranslations();
 
         $this->entityManager->flush();
-    } //end checkDataConsistency()
+
+    }//end checkDataConsistency()
 
     /**
      * Checks if ZGWBundle is installed
@@ -211,7 +217,8 @@ class InstallationService implements InstallerInterface
         isset($this->style) === true && $this->style->info('ZGWBundle is installed, continueing..');
 
         return true;
-    } //end isZGWBundleInstalled()
+
+    }//end isZGWBundleInstalled()
 
 
     /**
@@ -240,8 +247,9 @@ class InstallationService implements InstallerInterface
         } else {
             $catalogusObject = $catalogusObjecten[0];
             isset($this->style) === true && $this->style->writeln('ObjectEntity: \'Catalogus\' found');
-        } //end if
-    } //end createCatalogus()
+        }//end if
+
+    }//end createCatalogus()
 
 
     /**
@@ -258,8 +266,9 @@ class InstallationService implements InstallerInterface
             $xxllncZaakPostFiles->setMultiple(false);
             $xxllncZaakPostFiles->setType('array');
             $this->entityManager->persist($xxllncZaakPostFiles);
-        } //end if
-    } //end updateAttributes()
+        }//end if
+
+    }//end updateAttributes()
 
     /**
      * Updates ZGW Zaak endpoint with a throw event.
@@ -272,7 +281,8 @@ class InstallationService implements InstallerInterface
         $endpoint = $this->entityManager->getRepository('App:Endpoint')->findOneBy(['name' => 'Zaak']);
         $endpoint->setThrows(['zgw.zaak.saved']);
         $this->entityManager->persist($endpoint);
-    } //end updateZGWZaakEndpoint()
+        
+    }//end updateZGWZaakEndpoint()
 
     /**
      * Creates needed translations for xxllnc to zgw
@@ -323,7 +333,8 @@ class InstallationService implements InstallerInterface
         $trans->setLanguage('nl');
         $this->entityManager->persist($trans);
         isset($this->style) === true && $this->style->writeln('Translation created');
-    } //end createTranslations()
+
+    }//end createTranslations()
 
     // /**
     //  * Creates dashboard cards for the given schemas.

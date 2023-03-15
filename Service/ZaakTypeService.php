@@ -132,7 +132,8 @@ class ZaakTypeService
             'handelingBehandelaar' => 'Hoofd beveiliging',
             'aanleiding'           => 'Er is een afspraak gemaakt met een (niet) natuurlijk persoon',
         ];
-    } //end __construct()
+    
+    }//end __construct()
 
     /**
      * Set symfony style in order to output to the console.
@@ -148,7 +149,8 @@ class ZaakTypeService
         $this->style = $style;
 
         return $this;
-    } //end setStyle()
+    
+    }//end setStyle()
 
     /**
      * Fetches a xxllnc casetype and maps it to a zgw zaaktype.
@@ -173,7 +175,8 @@ class ZaakTypeService
 
         return $this->caseTypeToZaakType($caseType);
         
-    } //end getZaakType()
+    
+    }//end getZaakType()
 
     /**
      * @TODO make function smaller and readable.
@@ -233,7 +236,8 @@ class ZaakTypeService
         }
 
         return $zaakTypeArray;
-    } //end mapStatusAndRolTypen()
+    
+    }//end mapStatusAndRolTypen()
 
     /**
      * Maps the resultaatTypen from xxllnc to zgw.
@@ -261,7 +265,8 @@ class ZaakTypeService
         }
 
         return $zaakTypeArray;
-    } //end mapResultaatTypen()
+    
+    }//end mapResultaatTypen()
 
     /**
      * Makes sure this action has the xxllnc api source.
@@ -276,7 +281,7 @@ class ZaakTypeService
 
             return false;
         }
-    } //end getXxllncAPI()
+    }//end getXxllncAPI()
 
     /**
      * Makes sure this action has the ZaakTypeSchema.
@@ -291,7 +296,8 @@ class ZaakTypeService
 
             return false;
         }
-    } //end getZaakTypeSchema()
+    
+    }//end getZaakTypeSchema()
 
     /**
      * Makes sure this action has all the gateway objects it needs.
@@ -325,7 +331,8 @@ class ZaakTypeService
         }
 
         return true;
-    } //end getRequiredGatewayObjects()
+    
+    }//end getRequiredGatewayObjects()
 
     /**
      * Sets default values.
@@ -343,7 +350,8 @@ class ZaakTypeService
         }
 
         return $zaakTypeArray;
-    } //end setDefaultValues()
+    
+    }//end setDefaultValues()
 
     /**
      * Creates or updates a casetype to zaaktype.
@@ -404,7 +412,8 @@ class ZaakTypeService
         isset($this->style) === true && $this->style->success("Created/updated zaaktype: $zaakTypeID");
 
         return $synchronization->getObject();
-    } //end caseTypeToZaakType()
+    
+    }//end caseTypeToZaakType()
 
     /**
      * Creates or updates a ZGW ZaakType from a xxllnc casetype with the use of the CoreBundle.
@@ -453,5 +462,6 @@ class ZaakTypeService
             }//end if
         }//end foreach
         isset($this->style) === true && $this->style->success("Created $createdZaakTypeCount zaaktypen from the $caseTypeCount fetched casetypes");
-    } //end zaakTypeHandler()
+    
+    }//end zaakTypeHandler()
 }

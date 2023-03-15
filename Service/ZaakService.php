@@ -138,7 +138,8 @@ class ZaakService
             'archiefnominatie'             => 'blijvend_bewaren',
             'archiefstatus'                => 'nog_te_archiveren',
         ];
-    } //end __construct())
+        
+    }//end __construct())
 
     /**
      * Set symfony style in order to output to the console.
@@ -154,7 +155,8 @@ class ZaakService
         $this->style = $style;
 
         return $this;
-    } //end setStyle()
+
+    }//end setStyle()
 
     /**
      * Maps the eigenschappen from xxllnc to zgw.
@@ -199,7 +201,8 @@ class ZaakService
         }
 
         return $zaakArray;
-    } //end mapEigenschappen()
+
+    }//end mapEigenschappen()
 
     /**
      * Maps the rollen from xxllnc to zgw.
@@ -227,7 +230,7 @@ class ZaakService
 
         return $zaakArray;
 
-    } //end mapRollen()
+    }//end mapRollen()
 
     /**
      * Maps the status from xxllnc to zgw.
@@ -254,7 +257,7 @@ class ZaakService
 
         return $zaakArray;
 
-    } //end mapStatus()
+    }//end mapStatus()
 
     /**
      * Gets a existing ZaakType or syncs one from the xxllnc api.
@@ -283,7 +286,7 @@ class ZaakService
 
         return null;
 
-    } //end getZaakTypeByExtId()
+    }//end getZaakTypeByExtId()
 
     /**
      * Makes sure this action has all the gateway objects it needs.
@@ -321,7 +324,7 @@ class ZaakService
 
         return true;
 
-    } //end getRequiredGatewayObjects()
+    }//end getRequiredGatewayObjects()
 
     /**
      * Sets default values.
@@ -340,7 +343,7 @@ class ZaakService
 
         return $zaakArray;
 
-    } //end setDefaultValues()
+    }//end setDefaultValues()
 
     /**
      * Checks if we have a reference in our case.
@@ -358,7 +361,7 @@ class ZaakService
             return null;
         }
 
-    } //end checkId()
+    }//end checkId()
 
     /**
      * Checks if we have a casetype in our case and get a ZaakType.
@@ -385,7 +388,7 @@ class ZaakService
 
         return $zaakTypeObject;
 
-    } //end checkZaakType()
+    }//end checkZaakType()
 
     /**
      * Checks and fetches or creates a Synchronization for this case.
@@ -403,7 +406,7 @@ class ZaakService
 
         return $synchronization;
 
-    } //end getSyncForCase()
+    }//end getSyncForCase()
 
     /**
      * Creates ZGW Zaak subobjects.
@@ -429,7 +432,7 @@ class ZaakService
 
         return $zaakArray;
 
-    } //end createSubObjects()
+    }//end createSubObjects()
 
     /**
      * Creates or updates a case to zaak.
@@ -463,7 +466,7 @@ class ZaakService
 
         return $synchronization->getObject();
         
-    } //end caseToZaak()
+    }//end caseToZaak()
 
     /**
      * Creates or updates a ZGW Zaak from a xxllnc case with the use of mapping.
@@ -514,5 +517,5 @@ class ZaakService
 
         isset($this->style) === true && $this->style->success("Created $createdZaakCount zaken from the $caseCount fetched cases");
 
-    } //end zaakHandler()
+    }//end zaakHandler()
 }

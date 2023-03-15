@@ -55,6 +55,7 @@ class ZaakTypeHandler implements ActionHandlerInterface
                 ],
             ],
         ];
+
     }//end getConfiguration()
 
     /**
@@ -73,5 +74,6 @@ class ZaakTypeHandler implements ActionHandlerInterface
     public function run(array $data, array $configuration): array
     {
         return $this->zaakTypeService->zaakTypeHandler($data, $configuration);
+        
     }//end run()
 }

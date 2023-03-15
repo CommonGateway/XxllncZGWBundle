@@ -84,7 +84,7 @@ class ZGWToXxllncService
 
         $this->schemaRepo = $this->entityManager->getRepository('App:Entity');
         $this->sourceRepo = $this->entityManager->getRepository('App:Gateway');
-    } //end __construct()
+    }//end __construct()
 
     /**
      * Set symfony style in order to output to the console.
@@ -98,7 +98,8 @@ class ZGWToXxllncService
         $this->style = $style;
 
         return $this;
-    } //end setStyle()
+    
+    }//end setStyle()
 
     /**
      * Updates zgw zrc zaak with zrc eigenschap
@@ -158,7 +159,8 @@ class ZGWToXxllncService
         $xxllncZaakArrayObject = $this->mapZGWToXxllnc($casetypeId, $zaakTypeObject, $zaakArrayObject);
 
         return ['response' => $data];
-    } //end updateZaakWithEigenschapHandler()
+    
+    }//end updateZaakWithEigenschapHandler()
 
     /**
      * Maps the eigenschappen from zgw to xxllnc.
@@ -186,7 +188,8 @@ class ZGWToXxllncService
         }
 
         return $xxllncZaakArray;
-    } //end mapPostEigenschappen()
+    
+    }//end mapPostEigenschappen()
 
     /**
      * Maps the informatieobjecten from zgw to xxllnc.
@@ -225,7 +228,8 @@ class ZGWToXxllncService
         }
 
         return $xxllncZaakArray;
-    } //end mapPostInfoObjecten()
+    
+    }//end mapPostInfoObjecten()
 
     /**
      * Maps the rollen from zgw to xxllnc.
@@ -260,7 +264,8 @@ class ZGWToXxllncService
         }
 
         return $xxllncZaakArray;
-    } //end mapPostRollen()
+   
+    }//end mapPostRollen()
 
     // @todo Remove once updating zaak completely works (@Barry Brands)
     // /**
@@ -358,7 +363,7 @@ class ZGWToXxllncService
             $endpoint = '/case/create';
             $logMessage = 'Posting new case to xxllnc';
             $unsetProperties = ['_self', 'requestor._self', 'zgwZaak'];
-        } //end if
+        }//end if
 
         // unset unwanted properties.
         foreach ($unsetProperties as $property) {
@@ -378,10 +383,11 @@ class ZGWToXxllncService
             isset($this->style) === true && $this->style->error("Failed to $method case, message:  {$e->getMessage()}");
 
             return false;
-        } //end try catch
+        }//end try catch
 
         return $id ?? false;
-    } //end sendCaseToXxllnc()
+    
+    }//end sendCaseToXxllnc()
 
     /**
      * Maps zgw zaak to xxllnc case.
@@ -453,7 +459,8 @@ class ZGWToXxllncService
         $this->entityManager->flush();
 
         return $caseArray;
-    } //end mapZGWToXxllnc()
+    
+    }//end mapZGWToXxllnc()
 
     /**
      * Makes sure this action has all the gateway objects it needs.
@@ -477,7 +484,8 @@ class ZGWToXxllncService
         }
 
         return true;
-    } //end getRequiredGatewayObjects()
+    
+    }//end getRequiredGatewayObjects()
 
     /**
      *
@@ -528,5 +536,6 @@ class ZGWToXxllncService
         $xxllncZaakArrayObject = $this->mapZGWToXxllnc($casetypeId, $zaakTypeObject, $zaakArrayObject);
 
         return ['response' => $zaakArrayObject];
-    } //end zgwToXxllncHandler()
+    
+    }//end zgwToXxllncHandler()
 }

@@ -38,7 +38,8 @@ class ZaakCommand extends Command
     {
         $this->zaakService = $zaakService;
         parent::__construct();
-    } //end __construct()
+
+    }//end __construct()
 
     /**
      * Configures this command
@@ -50,7 +51,8 @@ class ZaakCommand extends Command
         $this
             ->setDescription('This command triggers Xxllnc ZaakService')
             ->setHelp('This command triggers Xxllnc ZaakService');
-    } //end configure()
+
+    }//end configure()
 
     /**
      * Executes this command
@@ -70,5 +72,6 @@ class ZaakCommand extends Command
         }
 
         return Command::SUCCESS;
+        
     } // end execute()
 }

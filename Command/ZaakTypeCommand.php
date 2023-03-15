@@ -38,8 +38,8 @@ class ZaakTypeCommand extends Command
     {
         $this->zaakTypeService = $zaakTypeService;
         parent::__construct();
-    } //end __construct()
 
+    }//end __construct()
 
     /**
      * Configures this command
@@ -52,7 +52,8 @@ class ZaakTypeCommand extends Command
             ->setDescription('This command triggers Xxllnc zaakTypeService')
             ->setHelp('This command triggers Xxllnc zaakTypeService')
             ->addArgument('id', InputArgument::OPTIONAL, 'Casetype id to fetch from xxllnc');
-    } //end configure()
+
+    }//end configure()
 
     /**
      * Executes this command
@@ -82,5 +83,6 @@ class ZaakTypeCommand extends Command
         }
 
         return Command::SUCCESS;
-    } // end execute()
+
+    }// end execute()
 }

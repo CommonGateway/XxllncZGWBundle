@@ -32,6 +32,7 @@ class ZGWToXxllncHandler implements ActionHandlerInterface
     public function __construct(ZGWToXxllncService $zgwToXxllncService)
     {
         $this->zgwToXxllncService = $zgwToXxllncService;
+        
     }//end __construct()
 
     /**
@@ -49,6 +50,7 @@ class ZGWToXxllncHandler implements ActionHandlerInterface
             'required'    => [],
             'properties'  => [],
         ];
+
     }//end getConfiguration()
 
     /**
@@ -67,5 +69,6 @@ class ZGWToXxllncHandler implements ActionHandlerInterface
     public function run(array $data, array $configuration): array
     {
         return $this->zgwToXxllncService->zgwToXxllncHandler($data, $configuration);
+
     }//end run()
 }
