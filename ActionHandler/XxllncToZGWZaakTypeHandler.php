@@ -9,6 +9,15 @@ use Psr\Cache\CacheException;
 use Psr\Cache\InvalidArgumentException;
 use Respect\Validation\Exceptions\ComponentException;
 
+/**
+ * This class handles the synchronization of one or more of xxllnc casetypes to zgw ztc zaaktypen.
+ *
+ * This ActionHandler executes the xxllncToZGWZaakTypeService->xxllncToZGWZaakTypeHandler.
+ *
+ * @author Barry Brands <barry@conduction.nl>
+ *
+ * @category ActionHandler
+ */
 class XxllncToZGWZaakTypeHandler implements ActionHandlerInterface
 {
     private XxllncToZGWZaakTypeService $xxllncToZGWZaakTypeService;

@@ -11,7 +11,13 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Command to execute the FindOrganizationThroughRepositoriesService.
+ * This class handles the command for the synchronization of a xxllnc casetype to a zgw ztc zaaktype.
+ *
+ * This Command executes the xxllncToZGWZaakTypeService->xxllncToZGWZaakTypeHandler.
+ *
+ * @author Barry Brands <barry@conduction.nl>
+ *
+ * @category Command
  */
 class XxllncToZGWZaakTypeCommand extends Command
 {

@@ -19,7 +19,17 @@ use Exception;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-// @TODO update to new installation method (check zgwbundle as example)
+/**
+ * This class handles the installation of the XxllncZGWBundle.
+ *
+ * By creating symfony objects that function as configuration for the gateway.
+ *
+ * @author Barry Brands <barry@conduction.nl>
+ *
+ * @category Service
+ * 
+ * @todo update to new installation method (check zgwbundle as example)
+ */
 class InstallationService implements InstallerInterface
 {
     private EntityManagerInterface $entityManager;
@@ -27,7 +37,6 @@ class InstallationService implements InstallerInterface
     private SymfonyStyle $io;
 
     private ObjectRepository $sourceRepository;
-    private ObjectRepository $actionRepository;
     private ObjectRepository $schemaRepository;
     private ObjectRepository $attributeRepository;
     private ObjectRepository $cronjobRepository;

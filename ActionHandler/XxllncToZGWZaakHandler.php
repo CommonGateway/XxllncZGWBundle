@@ -9,6 +9,15 @@ use Psr\Cache\CacheException;
 use Psr\Cache\InvalidArgumentException;
 use Respect\Validation\Exceptions\ComponentException;
 
+/**
+ * This class handles the synchronization of one or more of xxllnc cases to zgw zrc zaken.
+ *
+ * This ActionHandler executes the xxllncToZGWZaakService->xxllncToZGWZaakHandler.
+ *
+ * @author Barry Brands <barry@conduction.nl>
+ *
+ * @category ActionHandler
+ */
 class XxllncToZGWZaakHandler implements ActionHandlerInterface
 {
     private XxllncToZGWZaakService $xxllncToZGWZaakService;

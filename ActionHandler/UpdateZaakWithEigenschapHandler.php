@@ -9,6 +9,16 @@ use Psr\Cache\CacheException;
 use Psr\Cache\InvalidArgumentException;
 use Respect\Validation\Exceptions\ComponentException;
 
+
+/**
+ * This class handles the update of a zrc zaak with zrc eigenschap.
+ *
+ * This ActionHandler executes the ZGWToXxllncZaakService->updateZaakWithEigenschapHandler.
+ *
+ * @author Barry Brands <barry@conduction.nl>
+ *
+ * @category ActionHandler
+ */
 class UpdateZaakWithEigenschapHandler implements ActionHandlerInterface
 {
     private ZGWToXxllncZaakService $zgwToXxllncZaakService;

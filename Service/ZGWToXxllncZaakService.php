@@ -15,6 +15,15 @@ use Doctrine\Persistence\ObjectRepository;
 use Exception;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * This class handles the synchronization of a zgw zrc zaak to a xxllnc case.
+ *
+ * By mapping, posting and creating a synchronization.
+ *
+ * @author Barry Brands <barry@conduction.nl>
+ *
+ * @category Service
+ */
 class ZGWToXxllncZaakService
 {
     private EntityManagerInterface $entityManager;

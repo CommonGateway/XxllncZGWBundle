@@ -9,10 +9,26 @@ use Psr\Cache\CacheException;
 use Psr\Cache\InvalidArgumentException;
 use Respect\Validation\Exceptions\ComponentException;
 
+/**
+ * This class handles the synchronization of a zgw zrc zaak to a xxllnc case.
+ *
+ * This ActionHandler executes the zgwToXxllncZaakService->zgwToXxllncZaakHandler.
+ *
+ * @author Barry Brands <barry@conduction.nl>
+ *
+ * @category ActionHandler
+ */
 class ZGWToXxllncZaakHandler implements ActionHandlerInterface
 {
+
+    /**
+     * ZGWToXxllncZaakService
+     */
     private ZGWToXxllncZaakService $zgwToXxllncZaakService;
 
+    /**
+     * __construct
+     */
     public function __construct(ZGWToXxllncZaakService $zgwToXxllncZaakService)
     {
         $this->zgwToXxllncZaakService = $zgwToXxllncZaakService;
