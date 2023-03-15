@@ -4,7 +4,7 @@ namespace CommonGateway\XxllncZGWBundle\ActionHandler;
 
 use App\Exception\GatewayException;
 use CommonGateway\CoreBundle\ActionHandler\ActionHandlerInterface;
-use CommonGateway\XxllncZGWBundle\Service\XxllncToZGWZaakService;
+use CommonGateway\XxllncZGWBundle\Service\ZaakService;
 use Psr\Cache\CacheException;
 use Psr\Cache\InvalidArgumentException;
 use Respect\Validation\Exceptions\ComponentException;
@@ -12,23 +12,23 @@ use Respect\Validation\Exceptions\ComponentException;
 /**
  * This class handles the synchronization of one or more of xxllnc cases to zgw zrc zaken.
  *
- * This ActionHandler executes the xxllncToZGWZaakService->xxllncToZGWZaakHandler.
+ * This ActionHandler executes the zaakService->zaakHandler.
  *
  * @author Barry Brands <barry@conduction.nl>
  *
  * @category ActionHandler
  */
-class XxllncToZGWZaakHandler implements ActionHandlerInterface
+class ZaakHandler implements ActionHandlerInterface
 {
-    private XxllncToZGWZaakService $xxllncToZGWZaakService;
+    private ZaakService $zaakService;
 
     /**
      * __construct
      */
-    public function __construct(XxllncToZGWZaakService $xxllncToZGWZaakService)
+    public function __construct(ZaakService $zaakService)
     {
-        $this->xxllncToZGWZaakService = $xxllncToZGWZaakService;
-    }//end __construct()
+        $this->zaakService = $zaakService;
+    } //end __construct()
 
     /**
      * This function returns the requered configuration as a [json-schema](https://json-schema.org/) array.
@@ -38,9 +38,9 @@ class XxllncToZGWZaakHandler implements ActionHandlerInterface
     public function getConfiguration(): array
     {
         return [
-            '$id'         => 'https://development.zaaksysteem.nl/schemas/XxllncToZGWZaak.ActionHandler.schema.json',
+            '$id'         => 'https://development.zaaksysteem.nl/schemas/Zaak.ActionHandler.schema.json',
             '$schema'     => 'https://docs.commongateway.nl/schemas/ActionHandler.schema.json',
-            'title'       => 'XxllncToZGWZaakAction',
+            'title'       => 'ZaakAction',
             'description' => 'This handler customly maps xxllnc case to zgw zaak',
             'required'    => ['zaakEntityId'],
             'properties'  => [
@@ -51,7 +51,7 @@ class XxllncToZGWZaakHandler implements ActionHandlerInterface
                 ]
             ]
         ];
-    }//end getConfiguration()
+    } //end getConfiguration()
 
     /**
      * This function runs the service for validating cases.
@@ -68,6 +68,6 @@ class XxllncToZGWZaakHandler implements ActionHandlerInterface
      */
     public function run(array $data, array $configuration): array
     {
-        return $this->xxllncToZGWZaakService->xxllncToZGWZaakHandler($data, $configuration);
-    }//end run()
+        return $this->zaakService->zaakHandler($data, $configuration);
+    } //end run()
 }

@@ -2,7 +2,7 @@
 
 namespace CommonGateway\XxllncZGWBundle\Command;
 
-use CommonGateway\XxllncZGWBundle\Service\XxllncToZGWZaakTypeService;
+use CommonGateway\XxllncZGWBundle\Service\ZaakTypeService;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -13,32 +13,32 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * This class handles the command for the synchronization of a xxllnc casetype to a zgw ztc zaaktype.
  *
- * This Command executes the xxllncToZGWZaakTypeService->xxllncToZGWZaakTypeHandler.
+ * This Command executes the zaakTypeService->zaakTypeHandler.
  *
  * @author Barry Brands <barry@conduction.nl>
  *
  * @category Command
  */
-class XxllncToZGWZaakTypeCommand extends Command
+class ZaakTypeCommand extends Command
 {
 
     /**
      * @var static $defaultName The actual command
      */
-    protected static $defaultName = 'xxllnc:xxllncToZGWZaakType:execute';
+    protected static $defaultName = 'xxllnc:zaakType:synchronize';
     /**
-     * @var XxllncToZGWZaakTypeService
+     * @var ZaakTypeService
      */
-    private XxllncToZGWZaakTypeService $xxllncToZGWZaakTypeService;
+    private ZaakTypeService $zaakTypeService;
 
     /**
      * __construct
      */
-    public function __construct(XxllncToZGWZaakTypeService $xxllncToZGWZaakTypeService)
+    public function __construct(ZaakTypeService $zaakTypeService)
     {
-        $this->xxllncToZGWZaakTypeService = $xxllncToZGWZaakTypeService;
+        $this->zaakTypeService = $zaakTypeService;
         parent::__construct();
-    }//end __construct()
+    } //end __construct()
 
 
     /**
@@ -49,10 +49,10 @@ class XxllncToZGWZaakTypeCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setDescription('This command triggers Xxllnc xxllncToZGWZaakTypeService')
-            ->setHelp('This command triggers Xxllnc xxllncToZGWZaakTypeService')
+            ->setDescription('This command triggers Xxllnc zaakTypeService')
+            ->setHelp('This command triggers Xxllnc zaakTypeService')
             ->addArgument('id', InputArgument::OPTIONAL, 'Casetype id to fetch from xxllnc');
-    }//end configure()
+    } //end configure()
 
     /**
      * Executes this command
@@ -65,22 +65,22 @@ class XxllncToZGWZaakTypeCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $this->xxllncToZGWZaakTypeService->setStyle($io);
+        $this->zaakTypeService->setStyle($io);
         $id = $input->getArgument('id');
 
         if (isset($id) && Uuid::isValid($id)) {
-            $io->info('ID is valid, trying to fetch and map casetype '.$id.' to a ZGW ZaakType');
-            if (!$this->xxllncToZGWZaakTypeService->getZaakType($id)) {
+            $io->info('ID is valid, trying to fetch and map casetype ' . $id . ' to a ZGW ZaakType');
+            if (!$this->zaakTypeService->getZaakType($id)) {
                 return Command::FAILURE;
             }
 
             return Command::SUCCESS;
         }
 
-        if (!$this->xxllncToZGWZaakTypeService->xxllncToZGWZaakTypeHandler()) {
+        if (!$this->zaakTypeService->zaakTypeHandler()) {
             return Command::FAILURE;
         }
 
         return Command::SUCCESS;
-    }// end execute()
+    } // end execute()
 }

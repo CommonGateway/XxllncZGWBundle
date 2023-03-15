@@ -11,13 +11,13 @@
     "actions": {
       "handlers": [
         {
-          "reference": "https://development.zaaksysteem.nl/action/xxllnc.XxllncToZGWZaak.action.json",
-          "actionHandler": "CommonGateway\\XxllncZGWBundle\\ActionHandler\\XxllncToZGWZaakHandler",
+          "reference": "https://development.zaaksysteem.nl/action/xxllnc.Zaak.action.json",
+          "actionHandler": "CommonGateway\\XxllncZGWBundle\\ActionHandler\\ZaakHandler",
           "listens": ["xxllnc.cronjob.trigger"]
         },
         {
-          "reference": "https://development.zaaksysteem.nl/action/xxllnc.XxllncToZGWZaakType.action.json",
-          "actionHandler": "CommonGateway\\XxllncZGWBundle\\ActionHandler\\XxllncToZGWZaakTypeHandler",
+          "reference": "https://development.zaaksysteem.nl/action/xxllnc.ZaakType.action.json",
+          "actionHandler": "CommonGateway\\XxllncZGWBundle\\ActionHandler\\ZaakTypeHandler",
           "listens": ["xxllnc.cronjob.trigger"]
         },
         {

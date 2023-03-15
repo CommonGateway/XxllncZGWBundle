@@ -78,19 +78,19 @@ class InstallationService implements InstallerInterface
     //  * @var const OBJECTS_THAT_SHOULD_HAVE_CARDS Configuration for dashboard card objects 
     //  */
     // public const OBJECTS_THAT_SHOULD_HAVE_CARDS = ['https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json',];
-    
+
     // @todo test Installation/installation.json Actions then remove this
     // /**
     //  * @var const ACTION_HANDLERS Configuration for action objects 
     //  */
     // public const ACTION_HANDLERS = [
     //     [
-    //         'name' => 'XxllncToZGWZaak', 
-    //         'actionHandler' => 'CommonGateway\XxllncZGWBundle\ActionHandler\XxllncToZGWZaakHandler', 
+    //         'name' => 'Zaak', 
+    //         'actionHandler' => 'CommonGateway\XxllncZGWBundle\ActionHandler\ZaakHandler', 
     //         'listens' => ['xxllnc.cronjob.trigger']],
     //     [
-    //         'name' => 'XxllncToZGWZaakType', 
-    //         'actionHandler' => 'CommonGateway\XxllncZGWBundle\ActionHandler\XxllncToZGWZaakTypeHandler',
+    //         'name' => 'ZaakType', 
+    //         'actionHandler' => 'CommonGateway\XxllncZGWBundle\ActionHandler\ZaakTypeHandler',
     //          'listens' => ['xxllnc.cronjob.trigger']],
     //     [
     //         'name' => 'ZGWZaakToXxllnc', 
@@ -111,7 +111,7 @@ class InstallationService implements InstallerInterface
         $this->attributeRepository = $this->entityManager->getRepository('App:Attribute');
         // $this->cronjobRepository = $this->entityManager->getRepository('App:Cronjob');
         $this->translationRepository = $this->entityManager->getRepository('App:Translation');
-    }//end __construct()
+    } //end __construct()
 
     /**
      * Set symfony style in order to output to the console.
@@ -127,24 +127,24 @@ class InstallationService implements InstallerInterface
         $this->io = $io;
 
         return $this;
-    }//end setStyle()
+    } //end setStyle()
 
     public function install()
     {
         $this->checkDataConsistency();
-    }//end install()
+    } //end install()
 
 
     public function update()
     {
         $this->checkDataConsistency();
-    }//end update()
-    
+    } //end update()
+
 
     public function uninstall()
     {
         // Do some cleanup
-    }//end uninstall()
+    } //end uninstall()
 
     /**
      * Checks if we need to create/update objects.
@@ -191,7 +191,7 @@ class InstallationService implements InstallerInterface
         $this->createTranslations();
 
         $this->entityManager->flush();
-    }//end checkDataConsistency()
+    } //end checkDataConsistency()
 
     /**
      * Checks if ZGWBundle is installed
@@ -211,7 +211,7 @@ class InstallationService implements InstallerInterface
         isset($this->io) === true && $this->io->info('ZGWBundle is installed, continueing..');
 
         return true;
-    }//end isZGWBundleInstalled()
+    } //end isZGWBundleInstalled()
 
 
     /**
@@ -240,8 +240,8 @@ class InstallationService implements InstallerInterface
         } else {
             $catalogusObject = $catalogusObjecten[0];
             isset($this->io) === true && $this->io->writeln('ObjectEntity: \'Catalogus\' found');
-        }//end if
-    }//end createCatalogus()
+        } //end if
+    } //end createCatalogus()
 
 
     /**
@@ -258,8 +258,8 @@ class InstallationService implements InstallerInterface
             $xxllncZaakPostFiles->setMultiple(false);
             $xxllncZaakPostFiles->setType('array');
             $this->entityManager->persist($xxllncZaakPostFiles);
-        }//end if
-    }//end updateAttributes()
+        } //end if
+    } //end updateAttributes()
 
     /**
      * Updates ZGW Zaak endpoint with a throw event.
@@ -272,7 +272,7 @@ class InstallationService implements InstallerInterface
         $endpoint = $this->entityManager->getRepository('App:Endpoint')->findOneBy(['name' => 'Zaak']);
         $endpoint->setThrows(['zgw.zaak.saved']);
         $this->entityManager->persist($endpoint);
-    }//end updateZGWZaakEndpoint()
+    } //end updateZGWZaakEndpoint()
 
     /**
      * Creates needed translations for xxllnc to zgw
@@ -323,7 +323,7 @@ class InstallationService implements InstallerInterface
         $trans->setLanguage('nl');
         $this->entityManager->persist($trans);
         isset($this->io) === true && $this->io->writeln('Translation created');
-    }//end createTranslations()
+    } //end createTranslations()
 
     // /**
     //  * Creates dashboard cards for the given schemas.

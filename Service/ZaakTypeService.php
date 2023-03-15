@@ -22,7 +22,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  *
  * @category Service
  */
-class XxllncToZGWZaakTypeService
+class ZaakTypeService
 {
 
     /**
@@ -132,7 +132,7 @@ class XxllncToZGWZaakTypeService
             'handelingBehandelaar' => 'Hoofd beveiliging',
             'aanleiding'           => 'Er is een afspraak gemaakt met een (niet) natuurlijk persoon',
         ];
-    }//end __construct()
+    } //end __construct()
 
     /**
      * Set symfony style in order to output to the console.
@@ -148,7 +148,7 @@ class XxllncToZGWZaakTypeService
         $this->io = $io;
 
         return $this;
-    }//end setStyle()
+    } //end setStyle()
 
     /**
      * Fetches a xxllnc casetype and maps it to a zgw zaaktype.
@@ -172,7 +172,7 @@ class XxllncToZGWZaakTypeService
         }
 
         return $this->caseTypeToZaakType($caseType);
-    }//end getZaakType()
+    } //end getZaakType()
 
     /**
      * @TODO make function smaller and readable.
@@ -232,7 +232,7 @@ class XxllncToZGWZaakTypeService
         }
 
         return $zaakTypeArray;
-    }//end mapStatusAndRolTypen()
+    } //end mapStatusAndRolTypen()
 
     /**
      * Maps the resultaatTypen from xxllnc to zgw.
@@ -260,7 +260,7 @@ class XxllncToZGWZaakTypeService
         }
 
         return $zaakTypeArray;
-    }//end mapResultaatTypen()
+    } //end mapResultaatTypen()
 
     /**
      * Makes sure this action has the xxllnc api source.
@@ -275,7 +275,7 @@ class XxllncToZGWZaakTypeService
 
             return false;
         }
-    }//end getXxllncAPI()
+    } //end getXxllncAPI()
 
     /**
      * Makes sure this action has the ZaakTypeSchema.
@@ -290,7 +290,7 @@ class XxllncToZGWZaakTypeService
 
             return false;
         }
-    }//end getZaakTypeSchema()
+    } //end getZaakTypeSchema()
 
     /**
      * Makes sure this action has all the gateway objects it needs.
@@ -324,7 +324,7 @@ class XxllncToZGWZaakTypeService
         }
 
         return true;
-    }//end getRequiredGatewayObjects()
+    } //end getRequiredGatewayObjects()
 
     /**
      * Sets default values.
@@ -342,7 +342,7 @@ class XxllncToZGWZaakTypeService
         }
 
         return $zaakTypeArray;
-    }//end setDefaultValues()
+    } //end setDefaultValues()
 
     /**
      * Creates or updates a casetype to zaaktype.
@@ -403,7 +403,7 @@ class XxllncToZGWZaakTypeService
         isset($this->io) === true && $this->io->success("Created/updated zaaktype: $zaakTypeID");
 
         return $synchronization->getObject();
-    }//end caseTypeToZaakType()
+    } //end caseTypeToZaakType()
 
     /**
      * Creates or updates a ZGW ZaakType from a xxllnc casetype with the use of the CoreBundle.
@@ -415,9 +415,9 @@ class XxllncToZGWZaakTypeService
      * 
      * @todo make function smaller and more readable.
      */
-    public function xxllncToZGWZaakTypeHandler(?array $data = [], ?array $configuration = [])
+    public function zaakTypeHandler(?array $data = [], ?array $configuration = [])
     {
-        isset($this->io) === true && $this->io->success('xxllncToZGWZaakType triggered');
+        isset($this->io) === true && $this->io->success('zaakType triggered');
 
         // Get schemas, sources and other gateway objects.
         if ($this->getRequiredGatewayObjects() === false) {
@@ -452,5 +452,5 @@ class XxllncToZGWZaakTypeService
             }
         }
         isset($this->io) === true && $this->io->success("Created $createdZaakTypeCount zaaktypen from the $caseTypeCount fetched casetypes");
-    }//end xxllncToZGWZaakTypeHandler()
+    } //end zaakTypeHandler()
 }
