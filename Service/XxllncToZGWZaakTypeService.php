@@ -24,29 +24,89 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class XxllncToZGWZaakTypeService
 {
+
+    /**
+     * @var EntityManagerInterface
+     */
     private EntityManagerInterface $entityManager;
+
+    /**
+     * @var CallService
+     */
     private CallService $callService;
+
+    /**
+     * @var SynchronizationService
+     */
     private SynchronizationService $synchronizationService;
+
+    /**
+     * @var SymfonyStyle
+     */
     private SymfonyStyle $io;
+
+    /**
+     * @var array
+     */
     private array $configuration;
+
+    /**
+     * @var array
+     */
     private array $data;
 
+    /**
+     * @var ObjectRepository|null
+     */
     private ?ObjectRepository $objectRepo;
+
+    /**
+     * @var ObjectRepository|null
+     */
     private ?ObjectRepository $schemaRepo;
+
+    /**
+     * @var ObjectRepository|null
+     */
     private ?ObjectRepository $sourceRepo;
+
+    /**
+     * @var ObjectRepository|null
+     */
     private ?ObjectRepository $mappingRepo;
 
+    /**
+     * @var Source|null
+     */
     private ?Source $xxllncAPI;
+
+    /**
+     * @var Schema|null
+     */
     private ?Schema $zaakTypeSchema;
+
+    /**
+     * @var Schema|null
+     */
     private ?Schema $rolTypeSchema;
+
+    /**
+     * @var Mapping|null
+     */
     private ?Mapping $caseTypeMapping;
 
+    /**
+     * @var ObjectEntity|null
+     */
     private ?ObjectEntity $catalogusObject;
 
+    /**
+     * @var array
+     */
     private array $skeletonIn;
 
     /**
-     * @param EntityManagerInterface $entityManager
+     * __construct
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -72,7 +132,7 @@ class XxllncToZGWZaakTypeService
             'handelingBehandelaar' => 'Hoofd beveiliging',
             'aanleiding'           => 'Er is een afspraak gemaakt met een (niet) natuurlijk persoon',
         ];
-    } // end _construct
+    }//end __construct()
 
     /**
      * @TODO change to monolog
@@ -88,7 +148,7 @@ class XxllncToZGWZaakTypeService
         $this->io = $io;
 
         return $this;
-    } // end setStyle
+    }//end setStyle()
 
     /**
      * Fetches a xxllnc casetype and maps it to a zgw zaaktype.
@@ -112,7 +172,7 @@ class XxllncToZGWZaakTypeService
         }
 
         return $this->caseTypeToZaakType($caseType);
-    } // end getZaakType
+    }//end getZaakType()
 
     /**
      * @TODO make function smaller and readable
@@ -172,7 +232,7 @@ class XxllncToZGWZaakTypeService
         }
 
         return $zaakTypeArray;
-    } // end mapStatusAndRolTypen
+    }//end mapStatusAndRolTypen()
 
     /**
      * Maps the resultaatTypen from xxllnc to zgw.
@@ -200,7 +260,7 @@ class XxllncToZGWZaakTypeService
         }
 
         return $zaakTypeArray;
-    } // end mapResultaatTypen
+    }//end mapResultaatTypen()
 
     /**
      * Makes sure this action has the xxllnc api source.
@@ -215,7 +275,7 @@ class XxllncToZGWZaakTypeService
 
             return false;
         }
-    } // end getXxllncAPI
+    }//end getXxllncAPI()
 
     /**
      * Makes sure this action has the ZaakTypeSchema.
@@ -230,7 +290,7 @@ class XxllncToZGWZaakTypeService
 
             return false;
         }
-    } // end getZaakTypeSchema
+    }//end getZaakTypeSchema()
 
     /**
      * Makes sure this action has all the gateway objects it needs.
@@ -264,7 +324,7 @@ class XxllncToZGWZaakTypeService
         }
 
         return true;
-    } // end getRequiredGatewayObjects
+    }//end getRequiredGatewayObjects()
 
     /**
      * Sets default values.
@@ -282,7 +342,7 @@ class XxllncToZGWZaakTypeService
         }
 
         return $zaakTypeArray;
-    } // end setDefaultValues
+    }//end setDefaultValues()
 
     /**
      * @TODO make function smaller and more readable
@@ -343,7 +403,7 @@ class XxllncToZGWZaakTypeService
         isset($this->io) && $this->io->success("Created/updated zaaktype: $zaakTypeID");
 
         return $synchronization->getObject();
-    } // end caseTypeToZaakType
+    }//end caseTypeToZaakType()
 
     /**
      * @TODO make function smaller and more readable
@@ -392,5 +452,5 @@ class XxllncToZGWZaakTypeService
             }
         }
         isset($this->io) && $this->io->success("Created $createdZaakTypeCount zaaktypen from the $caseTypeCount fetched casetypes");
-    } // end xxllncToZGWZaakTypeHandler
+    }//end xxllncToZGWZaakTypeHandler()
 }

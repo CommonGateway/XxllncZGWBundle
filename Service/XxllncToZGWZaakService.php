@@ -71,17 +71,17 @@ class XxllncToZGWZaakService
      * @var ObjectRepository
      */
     private ObjectRepository $schemaRepo;
-    
+
     /**
      * @var ObjectRepository
      */
     private ObjectRepository $sourceRepo;
-    
+
     /**
      * @var ObjectRepository
      */
     private ObjectRepository $mappingRepo;
-    
+
     /**
      * @var ObjectRepository
      */
@@ -91,17 +91,17 @@ class XxllncToZGWZaakService
      * @var Source|null
      */
     private ?Source $xxllncAPI;
-    
+
     /**
      * @var Schema|null
      */
     private ?Schema $zaakTypeSchema;
-    
+
     /**
      * @var Schema|null
      */
     private ?Schema $zaakSchema;
-    
+
     /**
      * @var Mapping|null
      */
@@ -138,7 +138,7 @@ class XxllncToZGWZaakService
             'archiefnominatie'             => 'blijvend_bewaren',
             'archiefstatus'                => 'nog_te_archiveren',
         ];
-    } // end _construct
+    }//end __construct())
 
     /**
      * Set symfony style in order to output to the console.
@@ -154,7 +154,7 @@ class XxllncToZGWZaakService
         $this->io = $io;
 
         return $this;
-    } // end setStyle
+    }//end setStyle()
 
     /**
      * Maps the eigenschappen from xxllnc to zgw.
@@ -191,7 +191,7 @@ class XxllncToZGWZaakService
                         'naam'   => $attributeName,
                         'waarde' => is_array($attributeValue) ?
                             json_encode($attributeValue) :
-                            strval($attributeValue),
+                            (string) $attributeValue,
                         'eigenschap' => $this->objectRepo->find($eigenschap['_self']['id']),
                     ];
                 }
@@ -199,7 +199,7 @@ class XxllncToZGWZaakService
         }
 
         return $zaakArray;
-    } // end mapEigenschappen
+    }//end mapEigenschappen()
 
     /**
      * Maps the rollen from xxllnc to zgw.
@@ -226,7 +226,7 @@ class XxllncToZGWZaakService
         }
 
         return $zaakArray;
-    } // end mapRollen
+    }//end mapRollen()
 
     /**
      * Maps the status from xxllnc to zgw.
@@ -244,7 +244,7 @@ class XxllncToZGWZaakService
                 $zaakArray['status'] = [
                     'statustype'        => $this->objectRepo->find($statusType['_self']['id']),
                     'datumStatusGezet'  => isset($status['instance']['date_modified']) ? $status['instance']['date_modified'] : '2020-04-15',
-                    'statustoelichting' => isset($status['instance']['milestone_label']) && strval($status['instance']['milestone_label']),
+                    'statustoelichting' => isset($status['instance']['milestone_label']) && (string) $status['instance']['milestone_label'],
                 ];
 
                 return $zaakArray;
@@ -252,7 +252,7 @@ class XxllncToZGWZaakService
         }
 
         return $zaakArray;
-    } // end mapStatus
+    }//end mapStatus()
 
     /**
      * Gets a existing ZaakType or syncs one from the xxllnc api.
@@ -277,14 +277,14 @@ class XxllncToZGWZaakService
             return $zaakTypeObject;
         }
 
-        isset($this->io) && $this->io->error("Could not find or create ZaakType for id: $caseTypeId");
+        isset($this->io) && $this->io->error not find or create ZaakType for id: $caseTypeId");
 
         return null;
-    } // end getZaakTypeByExtId
+    }//end getZaakTypeByExtId()
 
     /**
      * Makes sure this action has all the gateway objects it needs.
-     *
+     *("Could
      * @return bool false if some object couldn't be fetched
      */
     private function getRequiredGatewayObjects(): bool
@@ -317,7 +317,7 @@ class XxllncToZGWZaakService
         }
 
         return true;
-    } // end getRequiredGatewayObjects
+    }//end getRequiredGatewayObjects()
 
     /**
      * Sets default values.
@@ -335,7 +335,7 @@ class XxllncToZGWZaakService
         }
 
         return $zaakArray;
-    } // end setDefaultValues
+    }//end setDefaultValues()
 
     /**
      * Checks if we have a reference in our case.
@@ -352,7 +352,7 @@ class XxllncToZGWZaakService
 
             return null;
         }
-    }
+    }//end checkId()
 
     /**
      * Checks if we have a casetype in our case and get a ZaakType.
@@ -373,12 +373,12 @@ class XxllncToZGWZaakService
         // Get ZGW ZaakType
         isset($this->io) && $this->io->info("Trying to find ZaakType: {$case['instance']['casetype']['reference']}");
         $zaakTypeObject = $this->getZaakTypeByExtId($case['instance']['casetype']['reference']);
-        if (!$zaakTypeObject) {
+        if ($zaakTypeObject === null) {
             return null;
         }
 
         return $zaakTypeObject;
-    }
+    }//end checkZaakType()
 
     /**
      * Checks and fetches or creates a Synchronization for this case.
@@ -395,7 +395,7 @@ class XxllncToZGWZaakService
         $synchronization = $this->synchronizationService->synchronize($synchronization, $case);
 
         return $synchronization;
-    }
+    }//end getSyncForCase()
 
     /**
      * Creates ZGW Zaak subobjects.
@@ -420,7 +420,7 @@ class XxllncToZGWZaakService
         }
 
         return $zaakArray;
-    }
+    }//end createSubObjects()
 
     /**
      * Creates or updates a case to zaak.
@@ -453,7 +453,7 @@ class XxllncToZGWZaakService
         isset($this->io) && $this->io->success("Created/updated zaak: $zaakID");
 
         return $synchronization->getObject();
-    } // end caseToZaak
+    }//end caseToZaak()
 
     /**
      * Creates or updates a ZGW Zaak from a xxllnc case with the use of mapping.
@@ -503,5 +503,5 @@ class XxllncToZGWZaakService
         }
 
         isset($this->io) && $this->io->success("Created $createdZaakCount zaken from the $caseCount fetched cases");
-    } // end xxllncToZGWZaakHandler
+    }//end xxllncToZGWZaakHandler()
 }

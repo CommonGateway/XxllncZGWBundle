@@ -32,6 +32,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class InstallationService implements InstallerInterface
 {
+
     /**
      * @var EntityManagerInterface
      */
@@ -73,10 +74,13 @@ class InstallationService implements InstallerInterface
     private ObjectRepository $translationRepository;
 
     /**
-     * @var const
+     * @var const OBJECTS_THAT_SHOULD_HAVE_CARDS Configuration for dashboard card objects 
      */
     public const OBJECTS_THAT_SHOULD_HAVE_CARDS = ['https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json',];
 
+    /**
+     * @var const ACTION_HANDLERS Configuration for action objects 
+     */
     public const ACTION_HANDLERS = [
         ['name' => 'XxllncToZGWZaak', 'actionHandler' => 'CommonGateway\XxllncZGWBundle\ActionHandler\XxllncToZGWZaakHandler', 'listens' => ['xxllnc.cronjob.trigger']],
         ['name' => 'XxllncToZGWZaakType', 'actionHandler' => 'CommonGateway\XxllncZGWBundle\ActionHandler\XxllncToZGWZaakTypeHandler', 'listens' => ['xxllnc.cronjob.trigger']],
@@ -97,38 +101,41 @@ class InstallationService implements InstallerInterface
         $this->attributeRepository = $this->entityManager->getRepository('App:Attribute');
         $this->cronjobRepository = $this->entityManager->getRepository('App:Cronjob');
         $this->translationRepository = $this->entityManager->getRepository('App:Translation');
-    }
+    }//end __construct()
 
     /**
-     * @TODO change to monolog
-     *
      * Set symfony style in order to output to the console.
      *
      * @param SymfonyStyle $io
      *
      * @return self
+     * 
+     * @todo change to monolog
      */
     public function setStyle(SymfonyStyle $io): self
     {
         $this->io = $io;
 
         return $this;
-    }
+    }//end setStyle()
 
     public function install()
     {
         $this->checkDataConsistency();
-    }
+    }//end install()
+
 
     public function update()
     {
         $this->checkDataConsistency();
-    }
+    }//end update()
+    
 
     public function uninstall()
     {
         // Do some cleanup
-    }
+    }//end uninstall()
+
 
     /**
      * This function creates default configuration for the action.
@@ -166,7 +173,7 @@ class InstallationService implements InstallerInterface
         }
 
         return $defaultConfig;
-    }
+    }//end addActionConfiguration()
 
     /**
      * Decides wether or not an array is associative.
@@ -182,7 +189,7 @@ class InstallationService implements InstallerInterface
         }
 
         return array_keys($array) !== range(0, count($array) - 1);
-    }
+    }//end isAssociative()
 
     /**
      * @param array $defaultConfig
@@ -215,8 +222,8 @@ class InstallationService implements InstallerInterface
         }
 
         return $defaultConfig;
-    }
-
+    }//end overrideConfig()
+    
     public function replaceRefById(array $conditions): array
     {
         if ($conditions['=='][0]['var'] == 'entity') {
