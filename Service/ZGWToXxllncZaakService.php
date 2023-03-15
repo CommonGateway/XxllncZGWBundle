@@ -26,6 +26,10 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class ZGWToXxllncZaakService
 {
+    
+    /**
+     * @var EntityManagerInterface
+     */
     private EntityManagerInterface $entityManager;
     private CallService $callService;
     private SymfonyStyle $io;

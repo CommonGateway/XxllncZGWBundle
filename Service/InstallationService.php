@@ -32,19 +32,50 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class InstallationService implements InstallerInterface
 {
+    /**
+     * @var EntityManagerInterface
+     */
     private EntityManagerInterface $entityManager;
+
+    /**
+     * @var ContainerInterface
+     */
     private ContainerInterface $container;
+
+    /**
+     * @var SymfonyStyle
+     */
     private SymfonyStyle $io;
 
+    /**
+     * @var SymfonyStyle
+     */
     private ObjectRepository $sourceRepository;
+
+    /**
+     * @var SymfonyStyle
+     */
     private ObjectRepository $schemaRepository;
+
+    /**
+     * @var SymfonyStyle
+     */
     private ObjectRepository $attributeRepository;
+
+    /**
+     * @var SymfonyStyle
+     */
     private ObjectRepository $cronjobRepository;
+
+    /**
+     * @var SymfonyStyle
+     */
     private ObjectRepository $translationRepository;
 
-    public const OBJECTS_THAT_SHOULD_HAVE_CARDS = [
-        'https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json',
-    ];
+    /**
+     * @var const
+     */
+    public const OBJECTS_THAT_SHOULD_HAVE_CARDS = ['https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json',];
 
     public const ACTION_HANDLERS = [
         ['name' => 'XxllncToZGWZaak', 'actionHandler' => 'CommonGateway\XxllncZGWBundle\ActionHandler\XxllncToZGWZaakHandler', 'listens' => ['xxllnc.cronjob.trigger']],
@@ -52,6 +83,9 @@ class InstallationService implements InstallerInterface
         ['name' => 'ZGWZaakToXxllnc', 'actionHandler' => 'CommonGateway\XxllncZGWBundle\ActionHandler\ZGWToXxllncZaakHandler', 'listens' => ['zgw.zaak.saved']],
     ];
 
+    /**
+     * __construct
+     */
     public function __construct(EntityManagerInterface $entityManager, ContainerInterface $container)
     {
         $this->entityManager = $entityManager;
@@ -249,10 +283,17 @@ class InstallationService implements InstallerInterface
         }
     }
 
-    private function createTranslations()
+    /**
+     * Creates needed translations for xxllnc to zgw
+     * 
+     * @todo Should be integrated in mapping
+     *
+     * @return void
+     */
+    private function createTranslations(): void
     {
         isset($this->io) && $this->io->writeln(['', '<info>Looking for translations</info>']);
-        $trans = $this->translationRepository->findOneBy(['translateFrom' => 'Nee', 'translationTable' => 'caseTypeTable1']) ?? new Translation();
+        $trans = ($this->translationRepository->findOneBy(['translateFrom' => 'Nee', 'translationTable' => 'caseTypeTable1']) ?? new Translation());
         $trans->setTranslationTable('caseTypeTable1');
         $trans->setTranslateFrom('Nee');
         $trans->setTranslateTo(false);
@@ -260,7 +301,7 @@ class InstallationService implements InstallerInterface
         $this->entityManager->persist($trans);
         isset($this->io) && $this->io->writeln('Translation created');
 
-        $trans = $this->translationRepository->findOneBy(['translateFrom' => 'Ja', 'translationTable' => 'caseTypeTable1']) ?? new Translation();
+        $trans = ($this->translationRepository->findOneBy(['translateFrom' => 'Ja', 'translationTable' => 'caseTypeTable1']) ?? new Translation());
         $trans->setTranslationTable('caseTypeTable1');
         $trans->setTranslateFrom('Ja');
         $trans->setTranslateTo(true);
@@ -268,7 +309,7 @@ class InstallationService implements InstallerInterface
         $this->entityManager->persist($trans);
         isset($this->io) && $this->io->writeln('Translation created');
 
-        $trans = $this->translationRepository->findOneBy(['translateFrom' => 'internextern', 'translationTable' => 'caseTypeTable1']) ?? new Translation();
+        $trans = ($this->translationRepository->findOneBy(['translateFrom' => 'internextern', 'translationTable' => 'caseTypeTable1']) ?? new Translation());
         $trans->setTranslationTable('caseTypeTable1');
         $trans->setTranslateFrom('internextern');
         $trans->setTranslateTo('intern');
@@ -276,7 +317,7 @@ class InstallationService implements InstallerInterface
         $this->entityManager->persist($trans);
         isset($this->io) && $this->io->writeln('Translation created');
 
-        $trans = $this->translationRepository->findOneBy(['translateFrom' => 'Vernietigen (V)', 'translationTable' => 'caseTypeTable1']) ?? new Translation();
+        $trans = ($this->translationRepository->findOneBy(['translateFrom' => 'Vernietigen (V)', 'translationTable' => 'caseTypeTable1']) ?? new Translation());
         $trans->setTranslationTable('caseTypeTable1');
         $trans->setTranslateFrom('Vernietigen (V)');
         $trans->setTranslateTo('vernietigen');
@@ -284,7 +325,7 @@ class InstallationService implements InstallerInterface
         $this->entityManager->persist($trans);
         isset($this->io) && $this->io->writeln('Translation created');
 
-        $trans = $this->translationRepository->findOneBy(['translateFrom' => 'Bewaren (B)', 'translationTable' => 'caseTypeTable1']) ?? new Translation();
+        $trans = ($this->translationRepository->findOneBy(['translateFrom' => 'Bewaren (B)', 'translationTable' => 'caseTypeTable1']) ?? new Translation());
         $trans->setTranslationTable('caseTypeTable1');
         $trans->setTranslateFrom('Bewaren (B)');
         $trans->setTranslateTo('blijvend_bewaren');
@@ -293,7 +334,13 @@ class InstallationService implements InstallerInterface
         isset($this->io) && $this->io->writeln('Translation created');
     }
 
-    private function createCatalogus()
+
+    /**
+     * Creates a standard ZGW Catalogus
+     *
+     * @return void
+     */
+    private function createCatalogus(): void
     {
         isset($this->io) && $this->io->writeln(['', '<info>Creating catalogus</info>']);
         // Create Catalogus
@@ -386,7 +433,12 @@ class InstallationService implements InstallerInterface
         isset($this->io) && $this->io->writeln('Gateway: \'zaaksysteem\' created');
     }
 
-    private function updateZGWZaakEndpoint()
+    /**
+     * Updates ZGW Zaak endpoint with a throw event.
+     *
+     * @return void
+     */
+    private function updateZGWZaakEndpoint(): void
     {
         isset($this->io) && $this->io->writeln(['', '<info>Updating zgw zaak endpoint</info>']);
         $endpoint = $this->entityManager->getRepository('App:Endpoint')->findOneBy(['name' => 'Zaak']);
@@ -394,6 +446,14 @@ class InstallationService implements InstallerInterface
         $this->entityManager->persist($endpoint);
     }
 
+
+    /**
+     * Checks if ZGWBundle is installed
+     * 
+     * If not we cant install this XxllncZGWBundle.
+     *
+     * @return bool true if installed, false if not
+     */
     private function isZGWBundleInstalled()
     {
         $ZGWZaak = $this->schemaRepository->findOneBy(['reference' => 'https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json']);
@@ -407,7 +467,12 @@ class InstallationService implements InstallerInterface
         return true;
     }
 
-    public function checkDataConsistency()
+    /**
+     * Checks if we need to create/update objects
+     *
+     * @return void
+     */
+    public function checkDataConsistency(): void
     {
         // Return if zgw is not installed
         if ($this->isZGWBundleInstalled() == false) {

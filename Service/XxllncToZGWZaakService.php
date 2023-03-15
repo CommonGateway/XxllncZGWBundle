@@ -26,29 +26,91 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class XxllncToZGWZaakService
 {
+
+    /**
+     * @var EntityManagerInterface
+     */
     private EntityManagerInterface $entityManager;
+
+    /**
+     * @var SynchronizationService
+     */
     private SynchronizationService $synchronizationService;
+
+    /**
+     * @var SymfonyStyle
+     */
     private SymfonyStyle $io;
+
+    /**
+     * @var CallService
+     */
     private CallService $callService;
+
+    /**
+     * @var XxllncToZGWZaakTypeService
+     */
     private XxllncToZGWZaakTypeService $xxllncToZGWZaakTypeService;
+
+    /**
+     * @var array
+     */
     private array $configuration;
+
+    /**
+     * @var array
+     */
     private array $data;
 
+    /**
+     * @var ObjectRepository
+     */
     private ObjectRepository $objectRepo;
+
+    /**
+     * @var ObjectRepository
+     */
     private ObjectRepository $schemaRepo;
+    
+    /**
+     * @var ObjectRepository
+     */
     private ObjectRepository $sourceRepo;
+    
+    /**
+     * @var ObjectRepository
+     */
     private ObjectRepository $mappingRepo;
+    
+    /**
+     * @var ObjectRepository
+     */
     private ObjectRepository $synchronizationRepo;
 
+    /**
+     * @var Source|null
+     */
     private ?Source $xxllncAPI;
+    
+    /**
+     * @var Schema|null
+     */
     private ?Schema $zaakTypeSchema;
+    
+    /**
+     * @var Schema|null
+     */
     private ?Schema $zaakSchema;
+    
+    /**
+     * @var Mapping|null
+     */
     private ?Mapping $caseMapping;
 
     private array $skeletonIn;
 
     /**
-     * @param EntityManagerInterface $entityManager
+     * __construct
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -67,7 +129,7 @@ class XxllncToZGWZaakService
         $this->synchronizationRepo = $this->entityManager->getRepository('App:Synchronization');
         $this->mappingRepo = $this->entityManager->getRepository('App:Mapping');
 
-        // @TODO add this to a mapping
+        // @todo add this to a mapping
         $this->skeletonIn = [
             'verantwoordelijkeOrganisatie' => '070124036',
             'betalingsindicatie'           => 'geheel',
@@ -79,13 +141,13 @@ class XxllncToZGWZaakService
     } // end _construct
 
     /**
-     * @TODO change to monolog
-     *
      * Set symfony style in order to output to the console.
      *
      * @param SymfonyStyle $io
      *
      * @return self
+     * 
+     * @todo change to monolog
      */
     public function setStyle(SymfonyStyle $io): self
     {
