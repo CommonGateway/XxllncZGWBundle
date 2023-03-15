@@ -43,7 +43,7 @@ class ZaakTypeService
     /**
      * @var SymfonyStyle
      */
-    private SymfonyStyle $io;
+    private SymfonyStyle $style;
 
     /**
      * @var array
@@ -137,15 +137,15 @@ class ZaakTypeService
     /**
      * Set symfony style in order to output to the console.
      *
-     * @param SymfonyStyle $io
+     * @param SymfonyStyle $style
      *
      * @return self
      * 
      * @todo change to monolog
      */
-    public function setStyle(SymfonyStyle $io): self
+    public function setStyle(SymfonyStyle $style): self
     {
-        $this->io = $io;
+        $this->style = $style;
 
         return $this;
     } //end setStyle()
@@ -162,16 +162,17 @@ class ZaakTypeService
         $this->getXxllncAPI();
 
         try {
-            isset($this->io) && $this->io->info("Fetching casetype: $caseTypeID");
+            isset($this->style) === true && $this->style->info("Fetching casetype: $caseTypeID");
             $response = $this->callService->call($this->xxllncAPI, "/casetype/$caseTypeID", 'GET', [], false, false);
             $caseType = $this->callService->decodeResponse($this->xxllncAPI, $response);
         } catch (Exception $e) {
-            isset($this->io) && $this->io->error("Failed to fetch casetype: $caseTypeID, message:  {$e->getMessage()}");
+            isset($this->style) === true && $this->style->error("Failed to fetch casetype: $caseTypeID, message:  {$e->getMessage()}");
 
             return null;
         }
 
         return $this->caseTypeToZaakType($caseType);
+        
     } //end getZaakType()
 
     /**
@@ -271,7 +272,7 @@ class ZaakTypeService
     {
         // Get xxllnc source
         if (isset($this->xxllncAPI) === false && $this->xxllncAPI = $this->sourceRepo->findOneBy(['reference' => 'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json']) === null) {
-            isset($this->io) === true && $this->io->error('Could not find Source: Xxllnc API');
+            isset($this->style) === true && $this->style->error('Could not find Source: Xxllnc API');
 
             return false;
         }
@@ -286,7 +287,7 @@ class ZaakTypeService
     {
         // Get ZaakType schema
         if (isset($this->zaakTypeSchema) === false && $this->zaakTypeSchema = $this->schemaRepo->findOneBy(['name' => 'ZaakType']) === null) {
-            isset($this->io) === true && $this->io->error('Could not find Schema: ZaakType');
+            isset($this->style) === true && $this->style->error('Could not find Schema: ZaakType');
 
             return false;
         }
@@ -304,7 +305,7 @@ class ZaakTypeService
 
         // Get ZaakType schema.
         if (isset($this->rolTypeSchema) === false && !$this->rolTypeSchema = $this->schemaRepo->findOneBy(['name' => 'RolType'])) {
-            isset($this->io) === true && $this->io->error('Could not find Schema: RolType');
+            isset($this->style) === true && $this->style->error('Could not find Schema: RolType');
 
             return false;
         }
@@ -312,13 +313,13 @@ class ZaakTypeService
         // Get Catalogus object.
         $catalogusSchema = $this->schemaRepo->findOneBy(['reference' => 'https://vng.opencatalogi.nl/schemas/ztc.catalogus.schema.json']);
         if ($catalogusSchema === null || (isset($this->catalogusObject) === false && $this->catalogusObject = $this->objectRepo->findOneBy(['entity' => $catalogusSchema]) === null)) {
-            isset($this->io) === true && $this->io->error('Could not find schema: https://vng.opencatalogi.nl/schemas/ztc.catalogus.schema.json or a catalogus object');
+            isset($this->style) === true && $this->style->error('Could not find schema: https://vng.opencatalogi.nl/schemas/ztc.catalogus.schema.json or a catalogus object');
 
             return false;
         }
 
         if (isset($this->caseTypeMapping) === false && $this->caseTypeMapping = $this->mappingRepo->findOneBy(['reference' => 'https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseTypeToZGWZaakType.mapping.json']) === null) {
-            isset($this->io) === true && $this->io->error('No mapping found for https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseTypeToZGWZaakType.mapping.json');
+            isset($this->style) === true && $this->style->error('No mapping found for https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseTypeToZGWZaakType.mapping.json');
 
             return false;
         }
@@ -362,8 +363,8 @@ class ZaakTypeService
         isset($caseType['result']) === true && $caseType = $caseType['result'];
 
         // Check for id.
-        if (!isset($caseType['reference'])) {
-            isset($this->io) && $this->io->error('CaseType has no id (reference)');
+        if (isset($caseType['reference']) === false) {
+            isset($this->style) === true && $this->style->error('CaseType has no id (reference)');
 
             return null;
         }
@@ -371,7 +372,7 @@ class ZaakTypeService
         // Get or create sync and map object.
         $synchronization = $this->synchronizationService->findSyncBySource($this->xxllncAPI, $this->zaakTypeSchema, $caseType['reference']);
         $synchronization->setMapping($this->caseTypeMapping);
-        isset($this->io) === true && $this->io->info("Mapping casetype with sourceId: {$caseType['reference']}");
+        isset($this->style) === true && $this->style->info("Mapping casetype with sourceId: {$caseType['reference']}");
         $synchronization = $this->synchronizationService->synchronize($synchronization, $caseType);
         $zaakTypeObject = $synchronization->getObject();
         $zaakTypeArray = $zaakTypeObject->toArray();
@@ -392,7 +393,7 @@ class ZaakTypeService
         $zaakTypeID = $zaakTypeObject->getId()->toString();
 
         // Update catalogus with new zaaktype.
-        isset($this->io) === true && $this->io->info("Updating catalogus: {$zaakTypeArray['catalogus']} with zaaktype: $zaakTypeID");
+        isset($this->style) === true && $this->style->info("Updating catalogus: {$zaakTypeArray['catalogus']} with zaaktype: $zaakTypeID");
         $linkedZaakTypen = $this->catalogusObject->getValue('zaaktypen')->toArray() ?? [];
         $this->catalogusObject->setValue('zaaktypen', array_merge($linkedZaakTypen, [$zaakTypeID]));
         $this->entityManager->persist($this->catalogusObject);
@@ -400,7 +401,7 @@ class ZaakTypeService
         // Flush here if we are only mapping one zaaktype and not loopin through more in a parent function.
         $flush && $this->entityManager->flush();
 
-        isset($this->io) === true && $this->io->success("Created/updated zaaktype: $zaakTypeID");
+        isset($this->style) === true && $this->style->success("Created/updated zaaktype: $zaakTypeID");
 
         return $synchronization->getObject();
     } //end caseTypeToZaakType()
@@ -417,7 +418,7 @@ class ZaakTypeService
      */
     public function zaakTypeHandler(?array $data = [], ?array $configuration = [])
     {
-        isset($this->io) === true && $this->io->success('zaakType triggered');
+        isset($this->style) === true && $this->style->success('zaakType triggered');
 
         // Get schemas, sources and other gateway objects.
         if ($this->getRequiredGatewayObjects() === false) {
@@ -425,17 +426,17 @@ class ZaakTypeService
         }
 
         // Fetch the xxllnc casetypes.
-        isset($this->io) === true && $this->io->info('Fetching xxllnc casetypes');
+        isset($this->style) === true && $this->style->info('Fetching xxllnc casetypes');
 
         try {
             $xxllncCaseTypes = $this->callService->getAllResults($this->xxllncAPI, '/casetype', [], 'result.instance.rows');
         } catch (Exception $e) {
-            isset($this->io) === true && $this->io->error("Failed to fetch: {$e->getMessage()}");
+            isset($this->style) === true && $this->style->error("Failed to fetch: {$e->getMessage()}");
 
             return null;
         }
         $caseTypeCount = count($xxllncCaseTypes);
-        isset($this->io) === true && $this->io->success("Fetched $caseTypeCount casetypes");
+        isset($this->style) === true && $this->style->success("Fetched $caseTypeCount casetypes");
 
         $createdZaakTypeCount = 0;
         $flushCount = 0;
@@ -443,14 +444,14 @@ class ZaakTypeService
             if ($this->caseTypeToZaakType($caseType, false)) {
                 $createdZaakTypeCount = $createdZaakTypeCount + 1;
                 $flushCount = $flushCount + 1;
-            }
+            }//end if
 
             // Flush every 20.
             if ($flushCount == 20) {
                 $this->entityManager->flush();
                 $flushCount = 0;
-            }
-        }
-        isset($this->io) === true && $this->io->success("Created $createdZaakTypeCount zaaktypen from the $caseTypeCount fetched casetypes");
+            }//end if
+        }//end foreach
+        isset($this->style) === true && $this->style->success("Created $createdZaakTypeCount zaaktypen from the $caseTypeCount fetched casetypes");
     } //end zaakTypeHandler()
 }

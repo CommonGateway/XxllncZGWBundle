@@ -24,7 +24,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  *
  * @category Service
  */
-class ZGWToXxllncZaakService
+class ZGWToXxllncService
 {
 
     /**
@@ -40,7 +40,7 @@ class ZGWToXxllncZaakService
     /**
      * @var SymfonyStyle
      */
-    private SymfonyStyle $io;
+    private SymfonyStyle $style;
 
     /**
      * @var array
@@ -84,22 +84,22 @@ class ZGWToXxllncZaakService
 
         $this->schemaRepo = $this->entityManager->getRepository('App:Entity');
         $this->sourceRepo = $this->entityManager->getRepository('App:Gateway');
-    }//end __construct()
+    } //end __construct()
 
     /**
      * Set symfony style in order to output to the console.
      *
-     * @param SymfonyStyle $io
+     * @param SymfonyStyle $style
      *
      * @return self
      */
-    public function setStyle(SymfonyStyle $io): self // @TODO change to monolog
+    public function setStyle(SymfonyStyle $style): self // @TODO change to monolog
     {
-        $this->io = $io;
+        $this->style = $style;
 
         return $this;
-    }//end setStyle()
-    
+    } //end setStyle()
+
     /**
      * Updates zgw zrc zaak with zrc eigenschap
      *
@@ -112,7 +112,7 @@ class ZGWToXxllncZaakService
      */
     public function updateZaakWithEigenschapHandler(?array $data = [], ?array $configuration = [])
     {
-        isset($this->io) === true && $this->io->success('updateZaakWithEigenschapHandler triggered');
+        isset($this->style) === true && $this->style->success('updateZaakWithEigenschapHandler triggered');
         $this->configuration = $configuration;
 
         $caseId = explode('/', $data['response']['zaak']);
@@ -155,10 +155,10 @@ class ZGWToXxllncZaakService
         }
         $zaakArrayObject = $zaakArrayObject->toArray();
 
-        $xxllncZaakArrayObject = $this->mapZGWToXxllncZaak($casetypeId, $zaakTypeObject, $zaakArrayObject);
+        $xxllncZaakArrayObject = $this->mapZGWToXxllnc($casetypeId, $zaakTypeObject, $zaakArrayObject);
 
         return ['response' => $data];
-    }//end updateZaakWithEigenschapHandler()
+    } //end updateZaakWithEigenschapHandler()
 
     /**
      * Maps the eigenschappen from zgw to xxllnc.
@@ -186,7 +186,7 @@ class ZGWToXxllncZaakService
         }
 
         return $xxllncZaakArray;
-    }//end mapPostEigenschappen()
+    } //end mapPostEigenschappen()
 
     /**
      * Maps the informatieobjecten from zgw to xxllnc.
@@ -225,7 +225,7 @@ class ZGWToXxllncZaakService
         }
 
         return $xxllncZaakArray;
-    }//end mapPostInfoObjecten()
+    } //end mapPostInfoObjecten()
 
     /**
      * Maps the rollen from zgw to xxllnc.
@@ -260,7 +260,7 @@ class ZGWToXxllncZaakService
         }
 
         return $xxllncZaakArray;
-    }//end mapPostRollen()
+    } //end mapPostRollen()
 
     // @todo Remove once updating zaak completely works (@Barry Brands)
     // /**
@@ -330,7 +330,7 @@ class ZGWToXxllncZaakService
 
     //     $zaakArray = $zaakObject->toArray();
 
-    //     $xxllncZaakArray = $this->mapZGWToXxllncZaak($casetypeId, $zaakTypeObject, $zaakArray, $xxllncZaakPostEntity, false);
+    //     $xxllncZaakArray = $this->mapZGWToXxllnc($casetypeId, $zaakTypeObject, $zaakArray, $xxllncZaakPostEntity, false);
 
     //     return ['response' => $xxllncZaakArray, 'entity' => $xxllncZaakPostEntity->getId()->toString()];
     // }
@@ -358,7 +358,7 @@ class ZGWToXxllncZaakService
             $endpoint = '/case/create';
             $logMessage = 'Posting new case to xxllnc';
             $unsetProperties = ['_self', 'requestor._self', 'zgwZaak'];
-        }//end if
+        } //end if
 
         // unset unwanted properties.
         foreach ($unsetProperties as $property) {
@@ -370,18 +370,18 @@ class ZGWToXxllncZaakService
 
         // Send the POST/PUT request to xxllnc.
         try {
-            isset($this->io) === true && $this->io->info($logMessage);
+            isset($this->style) === true && $this->style->info($logMessage);
             $response = $this->callService->call($this->xxllncAPI, $endpoint, $method, ['form_params' => $caseArray]);
             $result = $this->callService->decodeResponse($this->xxllncAPI, $response);
             $id = $result['result']['reference'] ?? null;
         } catch (Exception $e) {
-            isset($this->io) === true && $this->io->error("Failed to $method case, message:  {$e->getMessage()}");
+            isset($this->style) === true && $this->style->error("Failed to $method case, message:  {$e->getMessage()}");
 
             return false;
-        }//end try catch
+        } //end try catch
 
         return $id ?? false;
-    }//end sendCaseToXxllnc()
+    } //end sendCaseToXxllnc()
 
     /**
      * Maps zgw zaak to xxllnc case.
@@ -393,7 +393,7 @@ class ZGWToXxllncZaakService
      * 
      * @todo Make function smaller and more readable.
      */
-    public function mapZGWToXxllncZaak(string $casetypeId, ObjectEntity $zaakTypeObject, array $zaakArrayObject)
+    public function mapZGWToXxllnc(string $casetypeId, ObjectEntity $zaakTypeObject, array $zaakArrayObject)
     {
         if (!isset($zaakArrayObject['verantwoordelijkeOrganisatie'])) {
             throw new \Exception('verantwoordelijkeOrganisatie is not set');
@@ -453,7 +453,7 @@ class ZGWToXxllncZaakService
         $this->entityManager->flush();
 
         return $caseArray;
-    }//end mapZGWToXxllncZaak()
+    } //end mapZGWToXxllnc()
 
     /**
      * Makes sure this action has all the gateway objects it needs.
@@ -464,20 +464,20 @@ class ZGWToXxllncZaakService
     {
         // Get XxllncZaak schema.
         if (isset($this->xxllncZaakSchema) === false && $this->xxllncZaakSchema = $this->schemaRepo->findOneBy(['reference' => 'https://development.zaaksysteem.nl/schema/xxllnc.zaakPost.schema.json']) === null) {
-            isset($this->io) && $this->io->error('Could not find Schema: https://development.zaaksysteem.nl/schema/xxllnc.zaakPost.schema.json');
+            isset($this->style) && $this->style->error('Could not find Schema: https://development.zaaksysteem.nl/schema/xxllnc.zaakPost.schema.json');
 
             return false;
         }
 
         // Get xxllnc source.
         if (isset($this->xxllncAPI) === false && $this->xxllncAPI = $this->sourceRepo->findOneBy(['reference' => 'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json']) === null) {
-            isset($this->io) && $this->io->error('Could not find Source: https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json');
+            isset($this->style) && $this->style->error('Could not find Source: https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json');
 
             return false;
         }
 
         return true;
-    }//end getRequiredGatewayObjects()
+    } //end getRequiredGatewayObjects()
 
     /**
      *
@@ -490,12 +490,12 @@ class ZGWToXxllncZaakService
      * 
      * @todo Make function smaller and more readable.
      */
-    public function zgwToXxllncZaakHandler(?array $data = [], ?array $configuration = []): array
+    public function zgwToXxllncHandler(?array $data = [], ?array $configuration = []): array
     {
         $this->data = $data['response'];
         $this->configuration = $configuration;
 
-        isset($this->io) === true && $this->io->success('zgwToXxllncZaak triggered');
+        isset($this->style) === true && $this->style->success('zgwToXxllnc triggered');
 
         $this->getRequiredGatewayObjects();
 
@@ -525,8 +525,8 @@ class ZGWToXxllncZaakService
         }
         $zaakArrayObject = $zaakArrayObject->toArray();
 
-        $xxllncZaakArrayObject = $this->mapZGWToXxllncZaak($casetypeId, $zaakTypeObject, $zaakArrayObject);
+        $xxllncZaakArrayObject = $this->mapZGWToXxllnc($casetypeId, $zaakTypeObject, $zaakArrayObject);
 
         return ['response' => $zaakArrayObject];
-    }//end zgwToXxllncZaakHandler()
+    } //end zgwToXxllncHandler()
 }

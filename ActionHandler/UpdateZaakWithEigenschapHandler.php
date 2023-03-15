@@ -4,7 +4,7 @@ namespace CommonGateway\XxllncZGWBundle\ActionHandler;
 
 use App\Exception\GatewayException;
 use CommonGateway\CoreBundle\ActionHandler\ActionHandlerInterface;
-use CommonGateway\XxllncZGWBundle\Service\ZGWToXxllncZaakService;
+use CommonGateway\XxllncZGWBundle\Service\ZGWToXxllncService;
 use Psr\Cache\CacheException;
 use Psr\Cache\InvalidArgumentException;
 use Respect\Validation\Exceptions\ComponentException;
@@ -13,7 +13,7 @@ use Respect\Validation\Exceptions\ComponentException;
 /**
  * This class handles the update of a zrc zaak with zrc eigenschap.
  *
- * This ActionHandler executes the ZGWToXxllncZaakService->updateZaakWithEigenschapHandler.
+ * This ActionHandler executes the ZGWToXxllncService->updateZaakWithEigenschapHandler.
  *
  * @author Barry Brands <barry@conduction.nl>
  *
@@ -21,18 +21,22 @@ use Respect\Validation\Exceptions\ComponentException;
  */
 class UpdateZaakWithEigenschapHandler implements ActionHandlerInterface
 {
-    private ZGWToXxllncZaakService $zgwToXxllncZaakService;
+
+    /**
+     * @var ZGWToXxllncService
+     */
+    private ZGWToXxllncService $zgwToXxllncService;
 
     /**
      * __construct
      */
-    public function __construct(ZGWToXxllncZaakService $zgwToXxllncZaakService)
+    public function __construct(ZGWToXxllncService $zgwToXxllncService)
     {
-        $this->zgwToXxllncZaakService = $zgwToXxllncZaakService;
-    }//end __construct()
+        $this->zgwToXxllncService = $zgwToXxllncService;
+    } //end __construct()
 
     /**
-     *  This function returns the requered configuration as a [json-schema](https://json-schema.org/) array.
+     * This function returns the requered configuration as a [json-schema](https://json-schema.org/) array.
      *
      * @throws array a [json-schema](https://json-schema.org/) that this  action should comply to
      */
@@ -46,7 +50,7 @@ class UpdateZaakWithEigenschapHandler implements ActionHandlerInterface
             'required'    => [],
             'properties'  => [],
         ];
-    }//end getConfiguration()
+    } //end getConfiguration()
 
     /**
      * This function runs the zgw zaak eigenschap update.
@@ -63,6 +67,6 @@ class UpdateZaakWithEigenschapHandler implements ActionHandlerInterface
      */
     public function run(array $data, array $configuration): array
     {
-        return $this->zgwToXxllncZaakService->updateZaakWithEigenschapHandler($data, $configuration);
-    }//end run()
+        return $this->zgwToXxllncService->updateZaakWithEigenschapHandler($data, $configuration);
+    } //end run()
 }

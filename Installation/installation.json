@@ -22,7 +22,7 @@
         },
         {
           "reference": "https://development.zaaksysteem.nl/action/xxllnc.ZGWZaakToXxllnc.action.json",
-          "actionHandler": "CommonGateway\\XxllncZGWBundle\\ActionHandler\\ZGWZaakToXxllncHandler",
+          "actionHandler": "CommonGateway\\XxllncZGWBundle\\ActionHandler\\ZGWToXxllncHandler",
           "listens": ["zgw.zaak.saved"]
         }
       ]

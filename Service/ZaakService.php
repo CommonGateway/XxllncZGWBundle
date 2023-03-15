@@ -40,7 +40,7 @@ class ZaakService
     /**
      * @var SymfonyStyle
      */
-    private SymfonyStyle $io;
+    private SymfonyStyle $style;
 
     /**
      * @var CallService
@@ -143,15 +143,15 @@ class ZaakService
     /**
      * Set symfony style in order to output to the console.
      *
-     * @param SymfonyStyle $io
+     * @param SymfonyStyle $style
      *
      * @return self
      * 
      * @todo change to monolog
      */
-    public function setStyle(SymfonyStyle $io): self
+    public function setStyle(SymfonyStyle $style): self
     {
-        $this->io = $io;
+        $this->style = $style;
 
         return $this;
     } //end setStyle()
@@ -168,7 +168,7 @@ class ZaakService
     private function mapEigenschappen(array $zaakArray, array $zaakTypeArray, ObjectEntity $zaakTypeObjectEntity, array $attributes): array
     {
         // Manually map properties to eigenschappen
-        if (!isset($zaakTypeArray['eigenschappen'])) {
+        if (isset($zaakTypeArray['eigenschappen']) === false) {
             $eigenschappen = [];
             foreach ($attributes as $attributeName => $attributeValue) {
                 $eigenschappen[] = [
@@ -183,7 +183,7 @@ class ZaakService
 
         $zaakTypeArray = $zaakTypeObjectEntity->toArray();
 
-        !isset($zaakArray['eigenschappen']) && $zaakArray['eigenschappen'] = [];
+        isset($zaakArray['eigenschappen']) === false && $zaakArray['eigenschappen'] = [];
         foreach ($attributes as $attributeName => $attributeValue) {
             foreach ($zaakTypeArray['eigenschappen'] as $eigenschap) {
                 if ($eigenschap['naam'] == $attributeName) {
@@ -222,10 +222,11 @@ class ZaakService
                     'roltoelichting'       => $rol['instance']['description'],
                     'betrokkeneType'       => 'natuurlijk_persoon',
                 ];
-            }
-        }
+            }//end if
+        }//end foreach
 
         return $zaakArray;
+
     } //end mapRollen()
 
     /**
@@ -243,15 +244,16 @@ class ZaakService
             if ($status['preview'] == $statusType['omschrijving']) {
                 $zaakArray['status'] = [
                     'statustype'        => $this->objectRepo->find($statusType['_self']['id']),
-                    'datumStatusGezet'  => isset($status['instance']['date_modified']) ? $status['instance']['date_modified'] : '2020-04-15',
-                    'statustoelichting' => isset($status['instance']['milestone_label']) && (string) $status['instance']['milestone_label'],
+                    'datumStatusGezet'  => isset($status['instance']['date_modified']) === true ? $status['instance']['date_modified'] : '2020-04-15',
+                    'statustoelichting' => isset($status['instance']['milestone_label']) === true && (string) $status['instance']['milestone_label'],
                 ];
 
                 return $zaakArray;
-            }
-        }
+            }//end if
+        }//end foreach
 
         return $zaakArray;
+
     } //end mapStatus()
 
     /**
@@ -266,20 +268,21 @@ class ZaakService
         // Find existing zaaktype
         $zaakTypeSync = $this->synchronizationService->findSyncBySource($this->xxllncAPI, $this->zaakTypeSchema, $caseTypeId);
         if ($zaakTypeSync && $zaakTypeSync->getObject()) {
-            isset($this->io) && $this->io->info("Found a existing zaaktype with sourceId: $caseTypeId and gateway id: {$zaakTypeSync->getObject()->getId()->toString()}");
+            isset($this->style) === true && $this->style->info("Found a existing zaaktype with sourceId: $caseTypeId and gateway id: {$zaakTypeSync->getObject()->getId()->toString()}");
 
             return $zaakTypeSync->getObject();
-        }
+        }//end if
 
         // Fetch and create new zaaktype
         $zaakTypeObject = $this->zaakTypeService->getZaakType($caseTypeId);
         if ($zaakTypeObject) {
             return $zaakTypeObject;
-        }
+        }//end if
 
-        isset($this->io) && $this->io->error("Could not find or create ZaakType for id: $caseTypeId");
+        isset($this->style) === true && $this->style->error("Could not find or create ZaakType for id: $caseTypeId");
 
         return null;
+
     } //end getZaakTypeByExtId()
 
     /**
@@ -290,33 +293,34 @@ class ZaakService
     private function getRequiredGatewayObjects(): bool
     {
         // Get xxllnc source
-        if (!isset($this->xxllncAPI) && !$this->xxllncAPI = $this->sourceRepo->findOneBy(['reference' => 'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json'])) {
-            isset($this->io) && $this->io->error('Could not find Source: https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json');
+        if (isset($this->xxllncAPI) === false && !$this->xxllncAPI = $this->sourceRepo->findOneBy(['reference' => 'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json'])) {
+            isset($this->style) === true && $this->style->error('Could not find Source: https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json');
 
             return false;
-        }
+        }//end if
 
         // Get ZaakType schema
-        if (!isset($this->zaakTypeSchema) && !$this->zaakTypeSchema = $this->schemaRepo->findOneBy(['name' => 'ZaakType'])) {
-            isset($this->io) && $this->io->error('Could not find Schema: ZaakType');
+        if (isset($this->zaakTypeSchema) === false && !$this->zaakTypeSchema = $this->schemaRepo->findOneBy(['name' => 'ZaakType'])) {
+            isset($this->style) === true && $this->style->error('Could not find Schema: ZaakType');
 
             return false;
-        }
+        }//end if
 
         // Get Zaak schema
-        if (!isset($this->zaakSchema) && !$this->zaakSchema = $this->schemaRepo->findOneBy(['name' => 'Zaak'])) {
-            isset($this->io) && $this->io->error('Could not find Schema: Zaak');
+        if (isset($this->zaakSchema) === false && !$this->zaakSchema = $this->schemaRepo->findOneBy(['name' => 'Zaak'])) {
+            isset($this->style) === true && $this->style->error('Could not find Schema: Zaak');
 
             return false;
-        }
+        }//end if
 
-        if (!isset($this->caseMapping) && !$this->caseMapping = $this->mappingRepo->findOneBy(['reference' => 'https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseToZGWZaak.mapping.json'])) {
-            isset($this->io) && $this->io->error('No mapping found for https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseToZGWZaak.mapping.json');
+        if (isset($this->caseMapping) === false && !$this->caseMapping = $this->mappingRepo->findOneBy(['reference' => 'https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseToZGWZaak.mapping.json'])) {
+            isset($this->style) === true && $this->style->error('No mapping found for https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseToZGWZaak.mapping.json');
 
             return false;
-        }
+        }//end if
 
         return true;
+
     } //end getRequiredGatewayObjects()
 
     /**
@@ -329,12 +333,13 @@ class ZaakService
     private function setDefaultValues($zaakArray)
     {
         foreach ($this->skeletonIn as $key => $data) {
-            if (!isset($zaakArray[$key])) {
+            if (isset($zaakArray[$key]) === false) {
                 $zaakArray[$key] = $data;
             }
         }
 
         return $zaakArray;
+
     } //end setDefaultValues()
 
     /**
@@ -347,11 +352,12 @@ class ZaakService
     private function checkId(array $case)
     {
         // If no id found return null.
-        if (!isset($case['reference'])) {
-            isset($this->io) && $this->io->error('Case has no id (reference)');
+        if (isset($case['reference']) === false) {
+            isset($this->style) === true && $this->style->error('Case has no id (reference)');
 
             return null;
         }
+
     } //end checkId()
 
     /**
@@ -363,69 +369,72 @@ class ZaakService
      */
     private function checkZaakType(array $case)
     {
-        // If no casetype found return null
-        if (!isset($case['instance']['casetype']['reference'])) {
-            isset($this->io) && $this->io->error('Case has no casetype');
+        // If no casetype found return null.
+        if (isset($case['instance']['casetype']['reference']) === false) {
+            isset($this->style) === true && $this->style->error('Case has no casetype');
 
             return null;
-        }
+        }//end if
 
-        // Get ZGW ZaakType
-        isset($this->io) && $this->io->info("Trying to find ZaakType: {$case['instance']['casetype']['reference']}");
+        // Get ZGW ZaakType.
+        isset($this->style) === true && $this->style->info("Trying to find ZaakType: {$case['instance']['casetype']['reference']}");
         $zaakTypeObject = $this->getZaakTypeByExtId($case['instance']['casetype']['reference']);
         if ($zaakTypeObject === null) {
             return null;
-        }
+        }//end if
 
         return $zaakTypeObject;
+
     } //end checkZaakType()
 
     /**
      * Checks and fetches or creates a Synchronization for this case.
      *
-     * @param array $case xxllnc case object
+     * @param array $case xxllnc case object.
      *
      * @return Synchronization
      */
     private function getSyncForCase(array $case): Synchronization
     {
-        // Find or create synchronization object
+        // Find or create synchronization object.
         $synchronization = $this->synchronizationService->findSyncBySource($this->xxllncAPI, $this->zaakSchema, $case['reference']);
         $synchronization->setMapping($this->caseMapping);
         $synchronization = $this->synchronizationService->synchronize($synchronization, $case);
 
         return $synchronization;
+
     } //end getSyncForCase()
 
     /**
      * Creates ZGW Zaak subobjects.
      *
-     * @param array        $zaakArray      ZGW Zaak
-     * @param array        $zaakTypeArray  ZGW ZaakType
-     * @param ObjectEntity $zaakTypeObject ZGW ZaakType object
-     * @param array        $case           xxllnc case object
+     * @param array        $zaakArray      ZGW Zaak.
+     * @param array        $zaakTypeArray  ZGW ZaakType.
+     * @param ObjectEntity $zaakTypeObject ZGW ZaakType object.
+     * @param array        $case           xxllnc case object.
      *
      * @return array
      */
     private function createSubObjects(array $zaakArray, array $zaakTypeArray, ObjectEntity $zaakTypeObject, array $case): array
     {
-        if (isset($zaakTypeArray['statustypen']) && isset($case['instance']['milestone'])) {
+        if (isset($zaakTypeArray['statustypen']) === true && isset($case['instance']['milestone']) === true) {
             $zaakArray = $this->mapStatus($zaakArray, $zaakTypeArray, $case['instance']['milestone']);
         }
-        if (isset($zaakTypeArray['roltypen']) && isset($case['instance']['route']['instance']['role'])) {
+        if (isset($zaakTypeArray['roltypen']) === true && isset($case['instance']['route']['instance']['role']) === true) {
             $zaakArray = $this->mapRollen($zaakArray, $zaakTypeArray, $case['instance']['route']['instance']['role']);
         }
-        if (isset($zaakTypeArray['eigenschappen']) && isset($case['instance']['attributes'])) {
+        if (isset($zaakTypeArray['eigenschappen']) === true && isset($case['instance']['attributes']) === true) {
             $zaakArray = $this->mapEigenschappen($zaakArray, $zaakTypeArray, $zaakTypeObject, $case['instance']['attributes']);
         }
 
         return $zaakArray;
+
     } //end createSubObjects()
 
     /**
      * Creates or updates a case to zaak.
      *
-     * @param array $case Case from the Xxllnc API
+     * @param array $case Case from the Xxllnc API.
      *
      * @return void|null
      */
@@ -442,17 +451,18 @@ class ZaakService
 
         $zaakArray['zaaktype'] = $zaakTypeObject;
 
-        // Manually map the xxllnc case to zgw zaak
-        isset($this->io) && $this->io->info("Mapping case with sourceId: {$case['reference']}");
+        // Manually map the xxllnc case to zgw zaak.
+        isset($this->style) === true && $this->style->info("Mapping case with sourceId: {$case['reference']}");
         $zaakArray = $this->createSubObjects($zaakArray, $zaakTypeArray, $zaakTypeObject, $case);
 
         $zaakObject->hydrate($zaakArray);
         $this->entityManager->persist($zaakObject);
         $zaakID = $zaakObject->getId()->toString();
 
-        isset($this->io) && $this->io->success("Created/updated zaak: $zaakID");
+        isset($this->style) === true && $this->style->success("Created/updated zaak: $zaakID");
 
         return $synchronization->getObject();
+        
     } //end caseToZaak()
 
     /**
@@ -461,31 +471,31 @@ class ZaakService
      * @param ?array $data          Data from the handler where the xxllnc case is in.
      * @param ?array $configuration Configuration from the Action where the Zaak entity id is stored in.
      *
-     * @return ?array $this->data Data which we entered the function with
+     * @return ?array $this->data Data which we entered the function with.
      */
     public function zaakHandler(?array $data = [], ?array $configuration = [])
     {
-        isset($this->io) && $this->io->success('zaak triggered');
+        isset($this->style) === true && $this->style->success('zaak triggered');
 
-        // Get schemas, sources and other gateway objects
+        // Get schemas, sources and other gateway objects.
         if (!$this->getRequiredGatewayObjects()) {
             return null;
         }
 
-        isset($this->io) && $this->zaakTypeService->setStyle($this->io);
+        isset($this->style) === true && $this->zaakTypeService->setStyle($this->style);
 
-        // Fetch the xxllnc cases
-        isset($this->io) && $this->io->info('Fetching xxllnc cases');
+        // Fetch the xxllnc cases.
+        isset($this->style) === true && $this->style->info('Fetching xxllnc cases');
 
         try {
             $xxllncCases = $this->callService->getAllResults($this->xxllncAPI, '/case', [], 'result.instance.rows');
         } catch (Exception $e) {
-            isset($this->io) && $this->io->error("Failed to fetch: {$e->getMessage()}");
+            isset($this->style) === true && $this->style->error("Failed to fetch: {$e->getMessage()}");
 
             return null;
         }
         $caseCount = count($xxllncCases);
-        isset($this->io) && $this->io->success("Fetched $caseCount cases");
+        isset($this->style) === true && $this->style->success("Fetched $caseCount cases");
 
         $createdZaakCount = 0;
         $flushCount = 0;
@@ -493,15 +503,16 @@ class ZaakService
             if ($this->caseToZaak($case)) {
                 $createdZaakCount = $createdZaakCount + 1;
                 $flushCount = $flushCount + 1;
-            }
+            }//end if
 
             // Flush every 20
             if ($flushCount == 20) {
                 $this->entityManager->flush();
                 $flushCount = 0;
-            }
-        }
+            }//end if
+        }//end foreach
 
-        isset($this->io) && $this->io->success("Created $createdZaakCount zaken from the $caseCount fetched cases");
+        isset($this->style) === true && $this->style->success("Created $createdZaakCount zaken from the $caseCount fetched cases");
+
     } //end zaakHandler()
 }

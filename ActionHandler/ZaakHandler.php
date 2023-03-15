@@ -20,6 +20,10 @@ use Respect\Validation\Exceptions\ComponentException;
  */
 class ZaakHandler implements ActionHandlerInterface
 {
+
+    /**
+     * @var ZaakService
+     */
     private ZaakService $zaakService;
 
     /**

@@ -46,7 +46,7 @@ class InstallationService implements InstallerInterface
     /**
      * @var SymfonyStyle
      */
-    private SymfonyStyle $io;
+    private SymfonyStyle $style;
 
     // /**
     //  * @var ObjectRepository
@@ -94,7 +94,7 @@ class InstallationService implements InstallerInterface
     //          'listens' => ['xxllnc.cronjob.trigger']],
     //     [
     //         'name' => 'ZGWZaakToXxllnc', 
-    //         'actionHandler' => 'CommonGateway\XxllncZGWBundle\ActionHandler\ZGWToXxllncZaakHandler',
+    //         'actionHandler' => 'CommonGateway\XxllncZGWBundle\ActionHandler\ZGWToXxllncHandler',
     //          'listens' => ['zgw.zaak.saved']],
     // ];
 
@@ -116,15 +116,15 @@ class InstallationService implements InstallerInterface
     /**
      * Set symfony style in order to output to the console.
      *
-     * @param SymfonyStyle $io
+     * @param SymfonyStyle $style
      *
      * @return self
      * 
      * @todo change to monolog
      */
-    public function setStyle(SymfonyStyle $io): self
+    public function setStyle(SymfonyStyle $style): self
     {
-        $this->io = $io;
+        $this->style = $style;
 
         return $this;
     } //end setStyle()
@@ -204,11 +204,11 @@ class InstallationService implements InstallerInterface
     {
         $ZGWZaak = $this->schemaRepository->findOneBy(['reference' => 'https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json']);
         if (!$ZGWZaak) {
-            isset($this->io) === true && $this->io->error('ZGWBundle not installed, please make sure that bundle is installed before this one');
+            isset($this->style) === true && $this->style->error('ZGWBundle not installed, please make sure that bundle is installed before this one');
 
             return false;
         }
-        isset($this->io) === true && $this->io->info('ZGWBundle is installed, continueing..');
+        isset($this->style) === true && $this->style->info('ZGWBundle is installed, continueing..');
 
         return true;
     } //end isZGWBundleInstalled()
@@ -221,11 +221,11 @@ class InstallationService implements InstallerInterface
      */
     private function createCatalogus(): void
     {
-        isset($this->io) === true && $this->io->writeln(['', '<info>Creating catalogus</info>']);
+        isset($this->style) === true && $this->style->writeln(['', '<info>Creating catalogus</info>']);
         // Create Catalogus
         $catalogusSchema = $this->entityManager->getRepository('App:Entity')->findOneBy(['name' => 'Catalogus']);
         if (!$catalogusSchema instanceof Entity) {
-            isset($this->io) === true && $this->io->error('ZGW not correctly installed, no Catalogus schema found');
+            isset($this->style) === true && $this->style->error('ZGW not correctly installed, no Catalogus schema found');
         }
 
         $catalogusObjecten = $this->entityManager->getRepository('App:ObjectEntity')->findBy(['entity' => $catalogusSchema]);
@@ -236,10 +236,10 @@ class InstallationService implements InstallerInterface
                 'domein'                   => 'http://localhost',
             ]);
             $this->entityManager->persist($catalogusObject);
-            isset($this->io) === true && $this->io->writeln('ObjectEntity: \'Catalogus\' created');
+            isset($this->style) === true && $this->style->writeln('ObjectEntity: \'Catalogus\' created');
         } else {
             $catalogusObject = $catalogusObjecten[0];
-            isset($this->io) === true && $this->io->writeln('ObjectEntity: \'Catalogus\' found');
+            isset($this->style) === true && $this->style->writeln('ObjectEntity: \'Catalogus\' found');
         } //end if
     } //end createCatalogus()
 
@@ -268,7 +268,7 @@ class InstallationService implements InstallerInterface
      */
     private function updateZGWZaakEndpoint(): void
     {
-        isset($this->io) === true && $this->io->writeln(['', '<info>Updating zgw zaak endpoint</info>']);
+        isset($this->style) === true && $this->style->writeln(['', '<info>Updating zgw zaak endpoint</info>']);
         $endpoint = $this->entityManager->getRepository('App:Endpoint')->findOneBy(['name' => 'Zaak']);
         $endpoint->setThrows(['zgw.zaak.saved']);
         $this->entityManager->persist($endpoint);
@@ -283,14 +283,14 @@ class InstallationService implements InstallerInterface
      */
     private function createTranslations(): void
     {
-        isset($this->io) === true && $this->io->writeln(['', '<info>Looking for translations</info>']);
+        isset($this->style) === true && $this->style->writeln(['', '<info>Looking for translations</info>']);
         $trans = ($this->translationRepository->findOneBy(['translateFrom' => 'Nee', 'translationTable' => 'caseTypeTable1']) ?? new Translation());
         $trans->setTranslationTable('caseTypeTable1');
         $trans->setTranslateFrom('Nee');
         $trans->setTranslateTo(false);
         $trans->setLanguage('nl');
         $this->entityManager->persist($trans);
-        isset($this->io) === true && $this->io->writeln('Translation created');
+        isset($this->style) === true && $this->style->writeln('Translation created');
 
         $trans = ($this->translationRepository->findOneBy(['translateFrom' => 'Ja', 'translationTable' => 'caseTypeTable1']) ?? new Translation());
         $trans->setTranslationTable('caseTypeTable1');
@@ -298,7 +298,7 @@ class InstallationService implements InstallerInterface
         $trans->setTranslateTo(true);
         $trans->setLanguage('nl');
         $this->entityManager->persist($trans);
-        isset($this->io) === true && $this->io->writeln('Translation created');
+        isset($this->style) === true && $this->style->writeln('Translation created');
 
         $trans = ($this->translationRepository->findOneBy(['translateFrom' => 'internextern', 'translationTable' => 'caseTypeTable1']) ?? new Translation());
         $trans->setTranslationTable('caseTypeTable1');
@@ -306,7 +306,7 @@ class InstallationService implements InstallerInterface
         $trans->setTranslateTo('intern');
         $trans->setLanguage('nl');
         $this->entityManager->persist($trans);
-        isset($this->io) === true && $this->io->writeln('Translation created');
+        isset($this->style) === true && $this->style->writeln('Translation created');
 
         $trans = ($this->translationRepository->findOneBy(['translateFrom' => 'Vernietigen (V)', 'translationTable' => 'caseTypeTable1']) ?? new Translation());
         $trans->setTranslationTable('caseTypeTable1');
@@ -314,7 +314,7 @@ class InstallationService implements InstallerInterface
         $trans->setTranslateTo('vernietigen');
         $trans->setLanguage('nl');
         $this->entityManager->persist($trans);
-        isset($this->io) === true && $this->io->writeln('Translation created');
+        isset($this->style) === true && $this->style->writeln('Translation created');
 
         $trans = ($this->translationRepository->findOneBy(['translateFrom' => 'Bewaren (B)', 'translationTable' => 'caseTypeTable1']) ?? new Translation());
         $trans->setTranslationTable('caseTypeTable1');
@@ -322,7 +322,7 @@ class InstallationService implements InstallerInterface
         $trans->setTranslateTo('blijvend_bewaren');
         $trans->setLanguage('nl');
         $this->entityManager->persist($trans);
-        isset($this->io) === true && $this->io->writeln('Translation created');
+        isset($this->style) === true && $this->style->writeln('Translation created');
     } //end createTranslations()
 
     // /**
@@ -334,17 +334,17 @@ class InstallationService implements InstallerInterface
     // {
     //     // Lets create some generic dashboard cards
     //     foreach ($this::OBJECTS_THAT_SHOULD_HAVE_CARDS as $object) {
-    //         isset($this->io) === true && $this->io->writeln('Looking for a dashboard card for: '.$object);
+    //         isset($this->style) === true && $this->style->writeln('Looking for a dashboard card for: '.$object);
     //         $entity = $this->entityManager->getRepository('App:Entity')->findOneBy(['reference' => $object]);
     //         if (
     //             isset($entity) && !$dashboardCard = $this->entityManager->getRepository('App:DashboardCard')->findOneBy(['entityId' => $entity->getId()])
     //         ) {
     //             $dashboardCard = new DashboardCard($entity);
     //             $this->entityManager->persist($dashboardCard);
-    //             (isset($this->io) ? $this->io->writeln('Dashboard card created') : '');
+    //             (isset($this->style) ? $this->style->writeln('Dashboard card created') : '');
     //             continue;
     //         }
-    //         (isset($this->io) ? $this->io->writeln('Dashboard card found') : '');
+    //         (isset($this->style) ? $this->style->writeln('Dashboard card found') : '');
     //     }
     // }
 
@@ -458,18 +458,18 @@ class InstallationService implements InstallerInterface
     // public function addActions(): void
     // {
     //     $actionHandlers = $this::ACTION_HANDLERS;
-    //     isset($this->io) === true && $this->io->writeln(['', '<info>Looking for actions</info>']);
+    //     isset($this->style) === true && $this->style->writeln(['', '<info>Looking for actions</info>']);
 
     //     foreach ($actionHandlers as $handler) {
     //         $actionHandler = $this->container->get($handler['actionHandler']);
 
     //         if (array_key_exists('name', $handler)) {
     //             if ($this->entityManager->getRepository('App:Action')->findOneBy(['name'=> $handler['name']])) {
-    //                 (isset($this->io) ? $this->io->writeln(['Action found with name '.$handler['name']]) : '');
+    //                 (isset($this->style) ? $this->style->writeln(['Action found with name '.$handler['name']]) : '');
     //                 continue;
     //             }
     //         } elseif ($this->entityManager->getRepository('App:Action')->findOneBy(['class'=> get_class($actionHandler)])) {
-    //             (isset($this->io) ? $this->io->writeln(['Action found for '.$handler['actionHandler']]) : '');
+    //             (isset($this->style) ? $this->style->writeln(['Action found for '.$handler['actionHandler']]) : '');
     //             continue;
     //         }
 
@@ -487,7 +487,7 @@ class InstallationService implements InstallerInterface
     //         $action->setConditions($handler['conditions'] ?? ['==' => [1, 1]]);
 
     //         $this->entityManager->persist($action);
-    //         (isset($this->io) ? $this->io->writeln(['Created Action '.$action->getName().' with Handler: '.$handler['actionHandler']]) : '');
+    //         (isset($this->style) ? $this->style->writeln(['Created Action '.$action->getName().' with Handler: '.$handler['actionHandler']]) : '');
     //     }
     // }
 
@@ -498,7 +498,7 @@ class InstallationService implements InstallerInterface
     //  */
     // public function createCronjobs(): void
     // {
-    //     isset($this->io) === true && $this->io->writeln(['', '<info>Looking for cronjobs</info>']);
+    //     isset($this->style) === true && $this->style->writeln(['', '<info>Looking for cronjobs</info>']);
     //     // We only need 1 cronjob so lets set that
     //     $cronjob = $this->cronjobRepository->findOneBy(['name' => 'Xxllnc sync']) ?? new Cronjob();
     //     $cronjob->setName('Xxllnc sync');
@@ -508,9 +508,9 @@ class InstallationService implements InstallerInterface
     //     $cronjob->setData([]);
     //     $cronjob->setIsEnabled(true);
     //     $this->entityManager->persist($cronjob);
-    //     isset($this->io) === true && $this->io->writeln('Cronjob: \'Xxllnc sync\' created');
+    //     isset($this->style) === true && $this->style->writeln('Cronjob: \'Xxllnc sync\' created');
 
-    //     (isset($this->io) ? $this->io->writeln(['', 'Created/updated a cronjob for '.$cronjob->getName()]) : '');
+    //     (isset($this->style) ? $this->style->writeln(['', 'Created/updated a cronjob for '.$cronjob->getName()]) : '');
     // }
 
     // /**
@@ -520,7 +520,7 @@ class InstallationService implements InstallerInterface
     //  */
     // private function createSource(): void
     // {
-    //     isset($this->io) === true && $this->io->writeln(['', '<info>Creating xxllnc source</info>']);
+    //     isset($this->style) === true && $this->style->writeln(['', '<info>Creating xxllnc source</info>']);
     //     // Xxllnc v1 api
     //     if ($source = $this->sourceRepository->findOneBy(['location' => 'https://development.zaaksysteem.nl/api/v1'])) {
     //         $newSource = false;
@@ -534,6 +534,6 @@ class InstallationService implements InstallerInterface
     //     $source->setLocation('https://development.zaaksysteem.nl/api/v1');
     //     $newSource && $source->setIsEnabled(false);
     //     $this->entityManager->persist($source);
-    //     isset($this->io) === true && $this->io->writeln('Gateway: \'zaaksysteem\' created');
+    //     isset($this->style) === true && $this->style->writeln('Gateway: \'zaaksysteem\' created');
     // }
 }

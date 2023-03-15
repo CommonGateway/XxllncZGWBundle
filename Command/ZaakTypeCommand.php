@@ -64,12 +64,12 @@ class ZaakTypeCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new SymfonyStyle($input, $output);
-        $this->zaakTypeService->setStyle($io);
+        $style = new SymfonyStyle($input, $output);
+        $this->zaakTypeService->setStyle($style);
         $id = $input->getArgument('id');
 
         if (isset($id) && Uuid::isValid($id)) {
-            $io->info('ID is valid, trying to fetch and map casetype ' . $id . ' to a ZGW ZaakType');
+            $style->info('ID is valid, trying to fetch and map casetype ' . $id . ' to a ZGW ZaakType');
             if (!$this->zaakTypeService->getZaakType($id)) {
                 return Command::FAILURE;
             }

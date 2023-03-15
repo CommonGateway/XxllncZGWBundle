@@ -62,8 +62,8 @@ class ZaakCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new SymfonyStyle($input, $output);
-        $this->zaakService->setStyle($io);
+        $style = new SymfonyStyle($input, $output);
+        $this->zaakService->setStyle($style);
 
         if (!$this->zaakService->zaakHandler()) {
             return Command::FAILURE;
