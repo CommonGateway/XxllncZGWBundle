@@ -138,7 +138,7 @@ class ZaakService
             'archiefnominatie'             => 'blijvend_bewaren',
             'archiefstatus'                => 'nog_te_archiveren',
         ];
-        
+
     }//end __construct())
 
     /**
@@ -518,4 +518,4 @@ class ZaakService
         isset($this->style) === true && $this->style->success("Created $createdZaakCount zaken from the $caseCount fetched cases");
 
     }//end zaakHandler()
-}
+}//end class

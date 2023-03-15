@@ -538,4 +538,4 @@ class ZGWToXxllncService
         return ['response' => $zaakArrayObject];
     
     }//end zgwToXxllncHandler()
-}
+}//end class

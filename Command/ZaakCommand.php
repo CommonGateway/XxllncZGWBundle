@@ -74,4 +74,5 @@ class ZaakCommand extends Command
         return Command::SUCCESS;
 
     } // end execute()
-}
+
+}//end class

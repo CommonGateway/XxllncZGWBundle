@@ -464,4 +464,4 @@ class ZaakTypeService
         isset($this->style) === true && $this->style->success("Created $createdZaakTypeCount zaaktypen from the $caseTypeCount fetched casetypes");
     
     }//end zaakTypeHandler()
-}
+}//end class

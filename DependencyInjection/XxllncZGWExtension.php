@@ -22,4 +22,5 @@ class XxllncZGWExtension extends Extension
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');
     }
-}
+    
+}//end class

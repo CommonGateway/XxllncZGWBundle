@@ -547,4 +547,4 @@ class InstallationService implements InstallerInterface
     //     $this->entityManager->persist($source);
     //     isset($this->style) === true && $this->style->writeln('Gateway: \'zaaksysteem\' created');
     // }
-}
+}//end class

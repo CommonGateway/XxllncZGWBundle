@@ -32,6 +32,7 @@ class ZaakTypeHandler implements ActionHandlerInterface
     public function __construct(ZaakTypeService $zaakTypeService)
     {
         $this->zaakTypeService = $zaakTypeService;
+
     }//end __construct()
 
     /**
@@ -74,6 +75,7 @@ class ZaakTypeHandler implements ActionHandlerInterface
     public function run(array $data, array $configuration): array
     {
         return $this->zaakTypeService->zaakTypeHandler($data, $configuration);
-        
+
     }//end run()
-}
+
+}//end class
