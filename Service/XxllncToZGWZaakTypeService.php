@@ -270,7 +270,7 @@ class XxllncToZGWZaakTypeService
     private function getXxllncAPI()
     {
         // Get xxllnc source
-        if (isset($this->xxllncAPI) === false && $this->xxllncAPI = $this->sourceRepo->findOneBy(['location' => 'https://development.zaaksysteem.nl/api/v1']) === null) {
+        if (isset($this->xxllncAPI) === false && $this->xxllncAPI = $this->sourceRepo->findOneBy(['reference' => 'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json']) === null) {
             isset($this->io) === true && $this->io->error('Could not find Source: Xxllnc API');
 
             return false;

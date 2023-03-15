@@ -290,8 +290,8 @@ class XxllncToZGWZaakService
     private function getRequiredGatewayObjects(): bool
     {
         // Get xxllnc source
-        if (!isset($this->xxllncAPI) && !$this->xxllncAPI = $this->sourceRepo->findOneBy(['location' => 'https://development.zaaksysteem.nl/api/v1'])) {
-            isset($this->io) && $this->io->error('Could not find Source: Xxllnc API');
+        if (!isset($this->xxllncAPI) && !$this->xxllncAPI = $this->sourceRepo->findOneBy(['reference' => 'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json'])) {
+            isset($this->io) && $this->io->error('Could not find Source: https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json');
 
             return false;
         }

@@ -1,0 +1,15 @@
+{
+    "title": "xxllnc zaaksysteem",
+    "$id": "https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json",
+    "$schema": "https://docs.commongateway.nl/schemas/Gateway.schema.json",
+    "version": "0.0.1",
+    "description": "xxllnc zaaksysteem api",
+    "location": "!ChangMe!",
+    "authorizationHeader": "API-KEY",
+    "authorizationPassthroughMethod": "header",
+    "apikey": "!ChangeMe!",
+    "headers": {
+        "API-Interface-ID" : "!ChangeMe!"
+    },
+    "isEnabled": false
+}
