@@ -209,7 +209,7 @@ class InstallationService implements InstallerInterface
     private function isZGWBundleInstalled()
     {
         $ZGWZaak = $this->schemaRepository->findOneBy(['reference' => 'https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json']);
-        if (!$ZGWZaak) {
+        if ($ZGWZaak === null) {
             isset($this->style) === true && $this->style->error('ZGWBundle not installed, please make sure that bundle is installed before this one');
 
             return false;
@@ -281,7 +281,7 @@ class InstallationService implements InstallerInterface
         $endpoint = $this->entityManager->getRepository('App:Endpoint')->findOneBy(['name' => 'Zaak']);
         $endpoint->setThrows(['zgw.zaak.saved']);
         $this->entityManager->persist($endpoint);
-        
+
     }//end updateZGWZaakEndpoint()
 
     /**

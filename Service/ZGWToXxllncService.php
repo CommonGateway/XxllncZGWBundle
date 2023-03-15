@@ -401,7 +401,7 @@ class ZGWToXxllncService
      */
     public function mapZGWToXxllnc(string $casetypeId, ObjectEntity $zaakTypeObject, array $zaakArrayObject)
     {
-        if (!isset($zaakArrayObject['verantwoordelijkeOrganisatie'])) {
+        if (isset($zaakArrayObject['verantwoordelijkeOrganisatie']) === false) {
             throw new \Exception('verantwoordelijkeOrganisatie is not set');
         }
 
@@ -423,7 +423,7 @@ class ZGWToXxllncService
 
         // Get needed attribute so we can find the already existing case object
         $zgwZaakAttribute = $this->entityManager->getRepository('App:Attribute')->findOneBy(['entity' => $this->xxllncZaakSchema, 'name' => 'zgwZaak']);
-        if (!$zgwZaakAttribute) {
+        if ($zgwZaakAttribute === null) {
             return;
         }
 

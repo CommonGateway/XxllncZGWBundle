@@ -69,16 +69,16 @@ class ZaakTypeCommand extends Command
         $this->zaakTypeService->setStyle($style);
         $id = $input->getArgument('id');
 
-        if (isset($id) && Uuid::isValid($id)) {
+        if (isset($id) === true && Uuid::isValid($id)) {
             $style->info('ID is valid, trying to fetch and map casetype ' . $id . ' to a ZGW ZaakType');
-            if (!$this->zaakTypeService->getZaakType($id)) {
+            if ($this->zaakTypeService->getZaakType($id)) {
                 return Command::FAILURE;
             }
 
             return Command::SUCCESS;
         }
 
-        if (!$this->zaakTypeService->zaakTypeHandler()) {
+        if ($this->zaakTypeService->zaakTypeHandler() === null) {
             return Command::FAILURE;
         }
 

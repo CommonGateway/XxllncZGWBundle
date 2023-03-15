@@ -67,11 +67,11 @@ class ZaakCommand extends Command
         $style = new SymfonyStyle($input, $output);
         $this->zaakService->setStyle($style);
 
-        if (!$this->zaakService->zaakHandler()) {
+        if ($this->zaakService->zaakHandler() === null) {
             return Command::FAILURE;
         }
 
         return Command::SUCCESS;
-        
+
     } // end execute()
 }
