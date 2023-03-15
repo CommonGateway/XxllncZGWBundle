@@ -277,14 +277,14 @@ class XxllncToZGWZaakService
             return $zaakTypeObject;
         }
 
-        isset($this->io) && $this->io->error not find or create ZaakType for id: $caseTypeId");
+        isset($this->io) && $this->io->error("Could not find or create ZaakType for id: $caseTypeId");
 
         return null;
     }//end getZaakTypeByExtId()
 
     /**
      * Makes sure this action has all the gateway objects it needs.
-     *("Could
+     *
      * @return bool false if some object couldn't be fetched
      */
     private function getRequiredGatewayObjects(): bool
@@ -346,7 +346,7 @@ class XxllncToZGWZaakService
      */
     private function checkId(array $case)
     {
-        // If no id found return null
+        // If no id found return null.
         if (!isset($case['reference'])) {
             isset($this->io) && $this->io->error('Case has no id (reference)');
 
