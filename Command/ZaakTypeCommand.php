@@ -26,6 +26,12 @@ class ZaakTypeCommand extends Command
      * @var static $defaultName The actual command
      */
     protected static $defaultName = 'xxllnc:zaakType:synchronize';
+    
+    /**
+     * @var Uuid
+     */
+    private Uuid $uuid;
+    
     /**
      * @var ZaakTypeService
      */
@@ -34,9 +40,10 @@ class ZaakTypeCommand extends Command
     /**
      * __construct
      */
-    public function __construct(ZaakTypeService $zaakTypeService)
+    public function __construct(ZaakTypeService $zaakTypeService, Uuid $uuid)
     {
         $this->zaakTypeService = $zaakTypeService;
+        $this->uuid = $uuid;
         parent::__construct();
 
     }//end __construct()
@@ -67,23 +74,23 @@ class ZaakTypeCommand extends Command
     {
         $style = new SymfonyStyle($input, $output);
         $this->zaakTypeService->setStyle($style);
-        $id = $input->getArgument('id');
+        $zaakTypeId = $input->getArgument('id');
 
-        if (isset($id) === true && Uuid::isValid($id)) {
-            $style->info('ID is valid, trying to fetch and map casetype ' . $id . ' to a ZGW ZaakType');
-            if ($this->zaakTypeService->getZaakType($id)) {
+        if (isset($zaakTypeId) === true && $this->uuid->isValid($zaakTypeId)) {
+            $style->info('ID is valid, trying to fetch and map casetype ' . $zaakTypeId . ' to a ZGW ZaakType');
+            if ($this->zaakTypeService->getZaakType($zaakTypeId)) {
                 return Command::FAILURE;
-            }
+            }//end if
 
             return Command::SUCCESS;
-        }
+        }//end if
 
         if ($this->zaakTypeService->zaakTypeHandler() === null) {
             return Command::FAILURE;
-        }
+        }//end if
 
         return Command::SUCCESS;
 
     }// end execute()
-    
+
 }//end class

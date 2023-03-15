@@ -293,7 +293,7 @@ class ZaakService
      *
      * @return bool false if some object couldn't be fetched
      */
-    private function getRequiredGatewayObjects(): bool
+    private function hasRequiredGatewayObjects(): bool
     {
         // Get xxllnc source
         if (isset($this->xxllncAPI) === false && !$this->xxllncAPI = $this->sourceRepo->findOneBy(['reference' => 'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json'])) {
@@ -324,7 +324,7 @@ class ZaakService
 
         return true;
 
-    }//end getRequiredGatewayObjects()
+    }//end hasRequiredGatewayObjects()
 
     /**
      * Sets default values.
@@ -481,7 +481,7 @@ class ZaakService
         isset($this->style) === true && $this->style->success('zaak triggered');
 
         // Get schemas, sources and other gateway objects.
-        if (!$this->getRequiredGatewayObjects()) {
+        if (!$this->hasRequiredGatewayObjects()) {
             return null;
         }
 

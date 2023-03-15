@@ -81,7 +81,7 @@ class InstallationService implements InstallerInterface
 
     // @todo test Installation/installation.json Actions then remove this
     // /**
-    //  * @var const ACTION_HANDLERS Configuration for action objects 
+    //  * @var const ACTION_HANDLERS Configuration for action objects
     //  */
     // public const ACTION_HANDLERS = [
     //     [
@@ -244,10 +244,12 @@ class InstallationService implements InstallerInterface
             ]);
             $this->entityManager->persist($catalogusObject);
             isset($this->style) === true && $this->style->writeln('ObjectEntity: \'Catalogus\' created');
-        } else {
-            $catalogusObject = $catalogusObjecten[0];
-            isset($this->style) === true && $this->style->writeln('ObjectEntity: \'Catalogus\' found');
+            
+            return;
         }//end if
+
+        $catalogusObject = $catalogusObjecten[0];
+        isset($this->style) === true && $this->style->writeln('ObjectEntity: \'Catalogus\' found');
 
     }//end createCatalogus()
 

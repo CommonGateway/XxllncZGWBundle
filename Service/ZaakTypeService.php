@@ -191,7 +191,7 @@ class ZaakTypeService
     private function mapStatusAndRolTypen(array $caseType, array $zaakTypeArray): array
     {
         $zaakTypeArray['roltypen'] = [];
-        $preventDuplicatedRolTypen = [];
+        $preventDupedRolTypen = [];
 
         // Manually map phases to statustypen.
         if (isset($caseType['instance']['phases'])) {
@@ -210,18 +210,18 @@ class ZaakTypeService
                     foreach ($phase['fields'] as $field) {
                         isset($field['magic_string']) && $zaakTypeArray['eigenschappen'][] = ['naam' => $field['magic_string'], 'definitie' => $field['magic_string']];
                     }
-                }
+                }//end if
 
                 // Map role to roltype.
                 if (
                     isset($phase['route']['role']['reference']) && isset($phase['route']['role']['instance']['name']) &&
-                    in_array(strtolower($phase['route']['role']['instance']['name']), $preventDuplicatedRolTypen) === false
+                    in_array(strtolower($phase['route']['role']['instance']['name']), $preventDupedRolTypen) === false
                 ) {
                     $rolTypeArray = [
                         'omschrijving'         => isset($phase['route']['role']['instance']['description']) ? $phase['route']['role']['instance']['description'] : null,
                         'omschrijvingGeneriek' => isset($phase['route']['role']['instance']['name']) ? strtolower($phase['route']['role']['instance']['name']) : null,
                     ];
-                    isset($phase['route']['role']['instance']['name']) === true && $preventDuplicatedRolTypen[] = strtolower($phase['route']['role']['instance']['name']);
+                    isset($phase['route']['role']['instance']['name']) === true && $preventDupedRolTypen[] = strtolower($phase['route']['role']['instance']['name']);
 
                     // Find or create new roltype object.
                     $rolTypeObject = $this->objectRepo->findOneBy(['externalId' => $phase['route']['role']['reference']]) ?? new ObjectEntity($this->rolTypeSchema);
@@ -229,11 +229,11 @@ class ZaakTypeService
                     $rolTypeObject->hydrate($rolTypeArray);
                     $this->entityManager->persist($rolTypeObject);
                     $zaakTypeArray['roltypen'][] = $rolTypeObject;
-                }
+                }//end if
 
                 $zaakTypeArray['statustypen'][] = $statusTypeArray;
-            }
-        }
+            }//end foreach
+        }//end if
 
         return $zaakTypeArray;
     
@@ -261,8 +261,8 @@ class ZaakTypeService
                 $result['period_of_preservation'] && $resultaatTypeArray['archiefactietermijn'] = $result['period_of_preservation'];
 
                 $zaakTypeArray['resultaattypen'][] = $resultaatTypeArray;
-            }
-        }
+            }//end foreach
+        }//end if
 
         return $zaakTypeArray;
     
@@ -280,7 +280,7 @@ class ZaakTypeService
             isset($this->style) === true && $this->style->error('Could not find Source: Xxllnc API');
 
             return false;
-        }
+        }//end if
     }//end getXxllncAPI()
 
     /**
@@ -295,7 +295,7 @@ class ZaakTypeService
             isset($this->style) === true && $this->style->error('Could not find Schema: ZaakType');
 
             return false;
-        }
+        }//end if
     
     }//end getZaakTypeSchema()
 
@@ -304,7 +304,7 @@ class ZaakTypeService
      *
      * @return bool false if some object couldn't be fetched.
      */
-    private function getRequiredGatewayObjects(): bool
+    private function hasRequiredGatewayObjects(): bool
     {
         $this->getXxllncAPI();
         $this->getZaakTypeSchema();
@@ -314,7 +314,7 @@ class ZaakTypeService
             isset($this->style) === true && $this->style->error('Could not find Schema: RolType');
 
             return false;
-        }
+        }//end if
 
         // Get Catalogus object.
         $catalogusSchema = $this->schemaRepo->findOneBy(['reference' => 'https://vng.opencatalogi.nl/schemas/ztc.catalogus.schema.json']);
@@ -322,17 +322,17 @@ class ZaakTypeService
             isset($this->style) === true && $this->style->error('Could not find schema: https://vng.opencatalogi.nl/schemas/ztc.catalogus.schema.json or a catalogus object');
 
             return false;
-        }
+        }//end if
 
         if (isset($this->caseTypeMapping) === false && $this->caseTypeMapping = $this->mappingRepo->findOneBy(['reference' => 'https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseTypeToZGWZaakType.mapping.json']) === null) {
             isset($this->style) === true && $this->style->error('No mapping found for https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseTypeToZGWZaakType.mapping.json');
 
             return false;
-        }
+        }//end if
 
         return true;
     
-    }//end getRequiredGatewayObjects()
+    }//end hasRequiredGatewayObjects()
 
     /**
      * Sets default values.
@@ -346,8 +346,8 @@ class ZaakTypeService
         foreach ($this->skeletonIn as $key => $data) {
             if (isset($zaakTypeArray[$key]) === false) {
                 $zaakTypeArray[$key] = $data;
-            }
-        }
+            }//end if
+        }//end foreach
 
         return $zaakTypeArray;
     
@@ -367,7 +367,7 @@ class ZaakTypeService
      */
     public function caseTypeToZaakType(array $caseType, bool $flush = true)
     {
-        $this->getRequiredGatewayObjects();
+        $this->hasRequiredGatewayObjects();
         isset($caseType['result']) === true && $caseType = $caseType['result'];
 
         // Check for id.
@@ -375,7 +375,7 @@ class ZaakTypeService
             isset($this->style) === true && $this->style->error('CaseType has no id (reference)');
 
             return null;
-        }
+        }//end if
 
         // Get or create sync and map object.
         $synchronization = $this->synchronizationService->findSyncBySource($this->xxllncAPI, $this->zaakTypeSchema, $caseType['reference']);
@@ -430,9 +430,9 @@ class ZaakTypeService
         isset($this->style) === true && $this->style->success('zaakType triggered');
 
         // Get schemas, sources and other gateway objects.
-        if ($this->getRequiredGatewayObjects() === false) {
+        if ($this->hasRequiredGatewayObjects() === false) {
             return null;
-        }
+        }//end if
 
         // Fetch the xxllnc casetypes.
         isset($this->style) === true && $this->style->info('Fetching xxllnc casetypes');
