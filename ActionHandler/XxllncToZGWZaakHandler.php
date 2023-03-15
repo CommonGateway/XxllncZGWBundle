@@ -22,10 +22,13 @@ class XxllncToZGWZaakHandler implements ActionHandlerInterface
 {
     private XxllncToZGWZaakService $xxllncToZGWZaakService;
 
+    /**
+     * __construct
+     */
     public function __construct(XxllncToZGWZaakService $xxllncToZGWZaakService)
     {
         $this->xxllncToZGWZaakService = $xxllncToZGWZaakService;
-    }
+    }//end __construct()
 
     /**
      * This function returns the requered configuration as a [json-schema](https://json-schema.org/) array.
@@ -48,7 +51,7 @@ class XxllncToZGWZaakHandler implements ActionHandlerInterface
                 ]
             ]
         ];
-    }
+    }//end getConfiguration()
 
     /**
      * This function runs the service for validating cases.
@@ -66,5 +69,5 @@ class XxllncToZGWZaakHandler implements ActionHandlerInterface
     public function run(array $data, array $configuration): array
     {
         return $this->xxllncToZGWZaakService->xxllncToZGWZaakHandler($data, $configuration);
-    }
+    }//end run()
 }

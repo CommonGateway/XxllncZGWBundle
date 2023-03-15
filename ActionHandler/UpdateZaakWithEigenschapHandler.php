@@ -23,10 +23,13 @@ class UpdateZaakWithEigenschapHandler implements ActionHandlerInterface
 {
     private ZGWToXxllncZaakService $zgwToXxllncZaakService;
 
+    /**
+     * __construct
+     */
     public function __construct(ZGWToXxllncZaakService $zgwToXxllncZaakService)
     {
         $this->zgwToXxllncZaakService = $zgwToXxllncZaakService;
-    }
+    }//end __construct()
 
     /**
      *  This function returns the requered configuration as a [json-schema](https://json-schema.org/) array.
@@ -43,7 +46,7 @@ class UpdateZaakWithEigenschapHandler implements ActionHandlerInterface
             'required'    => [],
             'properties'  => [],
         ];
-    }
+    }//end getConfiguration()
 
     /**
      * This function runs the zgw zaak eigenschap update.
@@ -61,5 +64,5 @@ class UpdateZaakWithEigenschapHandler implements ActionHandlerInterface
     public function run(array $data, array $configuration): array
     {
         return $this->zgwToXxllncZaakService->updateZaakWithEigenschapHandler($data, $configuration);
-    }
+    }//end run()
 }

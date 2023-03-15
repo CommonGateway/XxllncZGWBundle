@@ -21,23 +21,47 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class XxllncToZGWZaakTypeCommand extends Command
 {
-    protected static $defaultName = 'xxllnc:xxllncToZGWZaakType:execute';
-    private XxllncToZGWZaakTypeService  $xxllncToZGWZaakTypeService;
 
+    /**
+     * @var static $defaultName The actual command
+     */
+    protected static $defaultName = 'xxllnc:xxllncToZGWZaakType:execute';
+    /**
+     * @var XxllncToZGWZaakTypeService
+     */
+    private XxllncToZGWZaakTypeService $xxllncToZGWZaakTypeService;
+
+    /**
+     * __construct
+     */
     public function __construct(XxllncToZGWZaakTypeService $xxllncToZGWZaakTypeService)
     {
         $this->xxllncToZGWZaakTypeService = $xxllncToZGWZaakTypeService;
         parent::__construct();
-    }
+    }//end __construct()
 
+
+    /**
+     * Configures this command
+     * 
+     * @return void
+     */
     protected function configure(): void
     {
         $this
             ->setDescription('This command triggers Xxllnc xxllncToZGWZaakTypeService')
             ->setHelp('This command triggers Xxllnc xxllncToZGWZaakTypeService')
             ->addArgument('id', InputArgument::OPTIONAL, 'Casetype id to fetch from xxllnc');
-    }
+    }//end configure()
 
+    /**
+     * Executes this command
+     * 
+     * @param InputInterface  Handles input from cli
+     * @param OutputInterface Handles output from cli
+     * 
+     * @return int 0 for failure, 1 for success
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
@@ -58,5 +82,5 @@ class XxllncToZGWZaakTypeCommand extends Command
         }
 
         return Command::SUCCESS;
-    }
+    }// end execute()
 }

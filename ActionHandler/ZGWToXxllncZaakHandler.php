@@ -32,7 +32,7 @@ class ZGWToXxllncZaakHandler implements ActionHandlerInterface
     public function __construct(ZGWToXxllncZaakService $zgwToXxllncZaakService)
     {
         $this->zgwToXxllncZaakService = $zgwToXxllncZaakService;
-    }
+    }//end __construct()
 
     /**
      *  This function returns the requered configuration as a [json-schema](https://json-schema.org/) array.
@@ -49,7 +49,7 @@ class ZGWToXxllncZaakHandler implements ActionHandlerInterface
             'required'    => [],
             'properties'  => [],
         ];
-    }
+    }//end getConfiguration()
 
     /**
      * This function runs the zgw zaaktype plugin.
@@ -67,5 +67,5 @@ class ZGWToXxllncZaakHandler implements ActionHandlerInterface
     public function run(array $data, array $configuration): array
     {
         return $this->zgwToXxllncZaakService->zgwToXxllncZaakHandler($data, $configuration);
-    }
+    }//end run()
 }

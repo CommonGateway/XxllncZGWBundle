@@ -20,22 +20,46 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class XxllncToZGWZaakCommand extends Command
 {
-    protected static $defaultName = 'xxllnc:xxllncToZGWZaak:execute';
-    private XxllncToZGWZaakService  $xxllncToZGWZaakService;
 
+    /**
+     * @var static $defaultName The actual command
+     */
+    protected static $defaultName = 'xxllnc:xxllncToZGWZaak:execute';
+
+    /**
+     * @var XxllncToZGWZaakService
+     */
+    private XxllncToZGWZaakService $xxllncToZGWZaakService;
+
+    /**
+     * __construct
+     */
     public function __construct(XxllncToZGWZaakService $xxllncToZGWZaakService)
     {
         $this->xxllncToZGWZaakService = $xxllncToZGWZaakService;
         parent::__construct();
-    }
+    }//end __construct()
 
+    /**
+     * Configures this command
+     * 
+     * @return void
+     */
     protected function configure(): void
     {
         $this
             ->setDescription('This command triggers Xxllnc XxllncToZGWZaakService')
             ->setHelp('This command triggers Xxllnc XxllncToZGWZaakService');
-    }
+    }//end configure()
 
+   /**
+    * Executes this command
+    * 
+    * @param InputInterface  Handles input from cli
+    * @param OutputInterface Handles output from cli
+    * 
+    * @return int 0 for failure, 1 for success
+    */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
@@ -46,5 +70,5 @@ class XxllncToZGWZaakCommand extends Command
         }
 
         return Command::SUCCESS;
-    }
+    }// end execute()
 }
