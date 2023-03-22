@@ -2,7 +2,7 @@
 
 // src/XxllncZGWBundle.php
 
-namespace CommonGateway\XxllncZGWBundle;
+namespace CommonGateway\XxllncZGWBundle\src;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
@@ -13,4 +13,16 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
  */
 class XxllncZGWBundle extends Bundle
 {
+
+    /**
+     * Returns the path the bundle is in
+     *
+     * @return string
+     */
+    public function getPath(): string
+    {
+        return \dirname(__DIR__);
+
+    }//end getPath()
+
 }//end class
