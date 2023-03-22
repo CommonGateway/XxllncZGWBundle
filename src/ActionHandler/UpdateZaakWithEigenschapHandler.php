@@ -1,5 +1,4 @@
 <?php
-
 namespace CommonGateway\XxllncZGWBundle\ActionHandler;
 
 use App\Exception\GatewayException;
@@ -13,7 +12,8 @@ use Respect\Validation\Exceptions\ComponentException;
 /**
  * This class handles the update of a zrc zaak with zrc eigenschap.
  *
- * This ActionHandler executes the ZGWToXxllncService->updateZaakWithEigenschapHandler.
+ * This ActionHandler executes the
+ * ZGWToXxllncService->updateZaakWithEigenschapHandler.
  *
  * @author Barry Brands <barry@conduction.nl>
  *
@@ -23,13 +23,17 @@ class UpdateZaakWithEigenschapHandler implements ActionHandlerInterface
 {
 
     /**
+     * The ZGW to Xxllnc Service
+     *
      * @var ZGWToXxllncService
      */
     private ZGWToXxllncService $zgwToXxllncService;
 
 
     /**
-     * __construct
+     * Class constructor
+     *
+     * @param ZGWToXxllncService $zgwToXxllncService The ZGW to Xxllnc Service
      */
     public function __construct(ZGWToXxllncService $zgwToXxllncService)
     {
@@ -39,9 +43,10 @@ class UpdateZaakWithEigenschapHandler implements ActionHandlerInterface
 
 
     /**
-     * This function returns the requered configuration as a [json-schema](https://json-schema.org/) array.
+     * This function returns the required configuration as
+     * a [json-schema](https://json-schema.org/) array.
      *
-     * @throws array a [json-schema](https://json-schema.org/) that this  action should comply to
+     * @return array a [json-schema](https://json-schema.org/) that this action should comply to
      */
     public function getConfiguration(): array
     {
