@@ -1,6 +1,6 @@
 <?php
 
-namespace CommonGateway\XxllncZGWBundle\src\DependencyInjection;
+namespace CommonGateway\XxllncZGWBundle\DependencyInjection;
 
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;

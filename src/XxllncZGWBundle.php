@@ -1,7 +1,7 @@
 <?php
 
 // src/XxllncZGWBundle.php
-namespace CommonGateway\XxllncZGWBundle\src;
+namespace CommonGateway\XxllncZGWBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
