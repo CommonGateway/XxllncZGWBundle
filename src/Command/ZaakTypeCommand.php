@@ -26,16 +26,17 @@ class ZaakTypeCommand extends Command
      * @var static $defaultName The actual command
      */
     protected static $defaultName = 'xxllnc:zaakType:synchronize';
-    
+
     /**
      * @var Uuid
      */
     private Uuid $uuid;
-    
+
     /**
      * @var ZaakTypeService
      */
     private ZaakTypeService $zaakTypeService;
+
 
     /**
      * __construct
@@ -43,14 +44,15 @@ class ZaakTypeCommand extends Command
     public function __construct(ZaakTypeService $zaakTypeService, Uuid $uuid)
     {
         $this->zaakTypeService = $zaakTypeService;
-        $this->uuid = $uuid;
+        $this->uuid            = $uuid;
         parent::__construct();
 
     }//end __construct()
 
+
     /**
      * Configures this command
-     * 
+     *
      * @return void
      */
     protected function configure(): void
@@ -62,12 +64,13 @@ class ZaakTypeCommand extends Command
 
     }//end configure()
 
+
     /**
      * Executes this command
-     * 
+     *
      * @param InputInterface  Handles input from cli
      * @param OutputInterface Handles output from cli
-     * 
+     *
      * @return int 0 for failure, 1 for success
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -77,7 +80,7 @@ class ZaakTypeCommand extends Command
         $zaakTypeId = $input->getArgument('id');
 
         if (isset($zaakTypeId) === true && $this->uuid->isValid($zaakTypeId)) {
-            $style->info('ID is valid, trying to fetch and map casetype ' . $zaakTypeId . ' to a ZGW ZaakType');
+            $style->info('ID is valid, trying to fetch and map casetype '.$zaakTypeId.' to a ZGW ZaakType');
             if ($this->zaakTypeService->getZaakType($zaakTypeId)) {
                 return Command::FAILURE;
             }//end if
@@ -91,6 +94,7 @@ class ZaakTypeCommand extends Command
 
         return Command::SUCCESS;
 
-    }// end execute()
+    }//end execute()
+
 
 }//end class

@@ -31,6 +31,7 @@ class ZaakCommand extends Command
      */
     private ZaakService $zaakService;
 
+
     /**
      * __construct
      */
@@ -41,9 +42,10 @@ class ZaakCommand extends Command
 
     }//end __construct()
 
+
     /**
      * Configures this command
-     * 
+     *
      * @return void
      */
     protected function configure(): void
@@ -54,12 +56,13 @@ class ZaakCommand extends Command
 
     }//end configure()
 
+
     /**
      * Executes this command
-     * 
+     *
      * @param InputInterface  Handles input from cli
      * @param OutputInterface Handles output from cli
-     * 
+     *
      * @return int 0 for failure, 1 for success
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -73,6 +76,8 @@ class ZaakCommand extends Command
 
         return Command::SUCCESS;
 
-    } // end execute()
+    }//end execute()
 
+
+    // end execute()
 }//end class

@@ -26,6 +26,7 @@ class ZGWToXxllncHandler implements ActionHandlerInterface
      */
     private ZGWToXxllncService $zgwToXxllncService;
 
+
     /**
      * __construct
      */
@@ -34,6 +35,7 @@ class ZGWToXxllncHandler implements ActionHandlerInterface
         $this->zgwToXxllncService = $zgwToXxllncService;
 
     }//end __construct()
+
 
     /**
      *  This function returns the requered configuration as a [json-schema](https://json-schema.org/) array.
@@ -53,6 +55,7 @@ class ZGWToXxllncHandler implements ActionHandlerInterface
 
     }//end getConfiguration()
 
+
     /**
      * This function runs the zgw zaaktype plugin.
      *
@@ -71,5 +74,6 @@ class ZGWToXxllncHandler implements ActionHandlerInterface
         return $this->zgwToXxllncService->zgwToXxllncHandler($data, $configuration);
 
     }//end run()
+
 
 }//end class
