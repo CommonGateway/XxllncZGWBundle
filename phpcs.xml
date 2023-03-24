@@ -62,6 +62,12 @@
     <rule ref="Generic.ControlStructures.InlineControlStructure"/>
     <rule ref="Generic.Formatting.DisallowMultipleStatements"/>
     <rule ref="Generic.Formatting.SpaceAfterCast"/>
+    <rule ref="Generic.Files.LineLength">
+        <properties>
+            <property name="lineLimit" value="100"/>
+            <property name="absoluteLineLimit" value="125"/>
+        </properties>
+    </rule>
     <rule ref="Generic.NamingConventions.ConstructorName"/>
     <rule ref="Generic.PHP.DeprecatedFunctions"/>
     <rule ref="Generic.PHP.LowerCaseKeyword"/>
