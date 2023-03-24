@@ -26,10 +26,5 @@
 		"psr-4" : {
 			"CommonGateway\\XxllncZGWBundle\\" : "src/"
 		}
-	},
-    "scripts": {
-        "post-package-install": "bin/console common-gateway/xxllnc-zgw-bundle-bundle",
-        "post-package-update": "bin/console common-gateway/xxllnc-zgw-bundle-bundle",
-        "post-package-uninstall": "bin/console common-gateway/xxllnc-zgw-bundle-bundle"
-    }
+	}
 }
