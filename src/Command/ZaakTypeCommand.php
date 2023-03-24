@@ -41,10 +41,10 @@ class ZaakTypeCommand extends Command
     /**
      * __construct
      */
-    public function __construct(ZaakTypeService $zaakTypeService, Uuid $uuid)
+    public function __construct(ZaakTypeService $zaakTypeService)
     {
         $this->zaakTypeService = $zaakTypeService;
-        $this->uuid            = $uuid;
+        $this->uuid            = new Uuid();
         parent::__construct();
 
     }//end __construct()
