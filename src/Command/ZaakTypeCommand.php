@@ -23,23 +23,31 @@ class ZaakTypeCommand extends Command
 {
 
     /**
-     * @var static $defaultName The actual command
+     * The actual command
+     *
+     * @var static $defaultName
      */
     protected static $defaultName = 'xxllnc:zaakType:synchronize';
 
     /**
+     * A Uuid instance to validate against.
+     *
      * @var Uuid
      */
     private Uuid $uuid;
 
     /**
+     * The case type service
+     *
      * @var ZaakTypeService
      */
     private ZaakTypeService $zaakTypeService;
 
 
     /**
-     * __construct
+     * Class constructor
+     *
+     * @param ZaakTypeService $zaakTypeService The case type service
      */
     public function __construct(ZaakTypeService $zaakTypeService)
     {
@@ -60,7 +68,11 @@ class ZaakTypeCommand extends Command
         $this
             ->setDescription('This command triggers Xxllnc zaakTypeService')
             ->setHelp('This command triggers Xxllnc zaakTypeService')
-            ->addArgument('id', InputArgument::OPTIONAL, 'Casetype id to fetch from xxllnc');
+            ->addArgument(
+                'id',
+                InputArgument::OPTIONAL,
+                'Casetype id to fetch from xxllnc'
+            );
 
     }//end configure()
 
@@ -68,8 +80,8 @@ class ZaakTypeCommand extends Command
     /**
      * Executes this command
      *
-     * @param InputInterface  Handles input from cli
-     * @param OutputInterface Handles output from cli
+     * @param InputInterface  $input  Handles input from cli
+     * @param OutputInterface $output Handles output from cli
      *
      * @return int 0 for failure, 1 for success
      */
@@ -79,9 +91,14 @@ class ZaakTypeCommand extends Command
         $this->zaakTypeService->setStyle($style);
         $zaakTypeId = $input->getArgument('id');
 
-        if (isset($zaakTypeId) === true && $this->uuid->isValid($zaakTypeId)) {
-            $style->info('ID is valid, trying to fetch and map casetype '.$zaakTypeId.' to a ZGW ZaakType');
-            if ($this->zaakTypeService->getZaakType($zaakTypeId)) {
+        if (isset($zaakTypeId) === true
+            && $this->uuid->isValid($zaakTypeId) === true
+        ) {
+            $style->info(
+                "ID is valid, trying to fetch and
+                map casetype $zaakTypeId to a ZGW ZaakType"
+            );
+            if ($this->zaakTypeService->getZaakType($zaakTypeId) === true) {
                 return Command::FAILURE;
             }//end if
 

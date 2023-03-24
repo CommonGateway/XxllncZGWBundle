@@ -23,12 +23,16 @@ class ZGWToXxllncHandler implements ActionHandlerInterface
 
     /**
      * ZGWToXxllncService
+     *
+     * @var ZGWToXxllncService $zgwToXxllncService
      */
     private ZGWToXxllncService $zgwToXxllncService;
 
 
     /**
-     * __construct
+     * Class constructor
+     *
+     * @param ZGWToXxllncService $zgwToXxllncService The ZGW to Xxllnc Service
      */
     public function __construct(ZGWToXxllncService $zgwToXxllncService)
     {
@@ -38,9 +42,10 @@ class ZGWToXxllncHandler implements ActionHandlerInterface
 
 
     /**
-     *  This function returns the requered configuration as a [json-schema](https://json-schema.org/) array.
+     * This function returns the requered configuration as
+     * a [json-schema](https://json-schema.org/) array.
      *
-     * @throws array a [json-schema](https://json-schema.org/) that this  action should comply to
+     * @throws array a [json-schema](https://json-schema.org/) that this action should comply to
      */
     public function getConfiguration(): array
     {

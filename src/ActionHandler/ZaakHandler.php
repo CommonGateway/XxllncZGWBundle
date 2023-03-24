@@ -5,6 +5,7 @@ namespace CommonGateway\XxllncZGWBundle\ActionHandler;
 use App\Exception\GatewayException;
 use CommonGateway\CoreBundle\ActionHandler\ActionHandlerInterface;
 use CommonGateway\XxllncZGWBundle\Service\ZaakService;
+use CommonGateway\XxllncZGWBundle\Service\ZGWToXxllncService;
 use Psr\Cache\CacheException;
 use Psr\Cache\InvalidArgumentException;
 use Respect\Validation\Exceptions\ComponentException;
@@ -22,13 +23,17 @@ class ZaakHandler implements ActionHandlerInterface
 {
 
     /**
+     * The case service
+     *
      * @var ZaakService
      */
     private ZaakService $zaakService;
 
 
     /**
-     * __construct
+     * Class constructor
+     *
+     * @param ZaakService $zaakService The case service
      */
     public function __construct(ZaakService $zaakService)
     {
@@ -38,7 +43,8 @@ class ZaakHandler implements ActionHandlerInterface
 
 
     /**
-     * This function returns the requered configuration as a [json-schema](https://json-schema.org/) array.
+     * This function returns the requered configuration as a
+     * [json-schema](https://json-schema.org/) array.
      *
      * @return array a [json-schema](https://json-schema.org/) that this  action should comply to
      */

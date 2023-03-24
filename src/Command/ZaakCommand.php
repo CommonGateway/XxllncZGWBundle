@@ -22,18 +22,24 @@ class ZaakCommand extends Command
 {
 
     /**
-     * @var static $defaultName The actual command
+     * The actual command
+     *
+     * @var static $defaultName
      */
     protected static $defaultName = 'xxllnc:zaak:synchronize';
 
     /**
+     * The case service
+     *
      * @var ZaakService
      */
     private ZaakService $zaakService;
 
 
     /**
-     * __construct
+     * Class constructor
+     *
+     * @param ZaakService $zaakService The case service
      */
     public function __construct(ZaakService $zaakService)
     {
