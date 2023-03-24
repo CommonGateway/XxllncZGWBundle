@@ -1,4 +1,14 @@
 <?php
+/**
+ * This class handles the command for the synchronization of a xxllnc casetype to a zgw ztc zaaktype.
+ *
+ * This Command executes the zaakTypeService->zaakTypeHandler.
+ *
+ * @author Conduction BV <info@conduction.nl>, Barry Brands <barry@conduction.nl>
+ * @license EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * @category Command
+ */
 
 namespace CommonGateway\XxllncZGWBundle\Command;
 
@@ -10,15 +20,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-/**
- * This class handles the command for the synchronization of a xxllnc casetype to a zgw ztc zaaktype.
- *
- * This Command executes the zaakTypeService->zaakTypeHandler.
- *
- * @author Barry Brands <barry@conduction.nl>
- *
- * @category Command
- */
+
 class ZaakTypeCommand extends Command
 {
 

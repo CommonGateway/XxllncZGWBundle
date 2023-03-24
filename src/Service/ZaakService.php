@@ -1,4 +1,14 @@
 <?php
+/**
+ * This class handles the synchronizations of xxllnc cases to zgw zrc zaken.
+ *
+ * By fetching, mapping and creating synchronizations.
+ *
+ * @author Conduction BV <info@conduction.nl>, Barry Brands <barry@conduction.nl>
+ * @license EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * @category Service
+ */
 
 namespace CommonGateway\XxllncZGWBundle\Service;
 
@@ -15,15 +25,7 @@ use Exception;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 
-/**
- * This class handles the synchronizations of xxllnc cases to zgw zrc zaken.
- *
- * By fetching, mapping and creating synchronizations.
- *
- * @author Barry Brands <barry@conduction.nl>
- *
- * @category Service
- */
+
 class ZaakService
 {
 

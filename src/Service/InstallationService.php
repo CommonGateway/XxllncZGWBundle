@@ -1,4 +1,16 @@
 <?php
+/**
+ * This class handles the installation of the XxllncZGWBundle.
+ *
+ * By creating symfony objects that function as configuration for the gateway.
+ *
+ * @author Conduction BV <info@conduction.nl>, Barry Brands <barry@conduction.nl>
+ * @license EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * @category Service
+ *
+ * @todo update to new installation method (check zgwbundle as example)
+ */
 
 // src/Service/InstallationService.php
 namespace CommonGateway\XxllncZGWBundle\Service;
@@ -18,17 +30,7 @@ use Doctrine\Persistence\ObjectRepository;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-/**
- * This class handles the installation of the XxllncZGWBundle.
- *
- * By creating symfony objects that function as configuration for the gateway.
- *
- * @author Barry Brands <barry@conduction.nl>
- *
- * @category Service
- *
- * @todo update to new installation method (check zgwbundle as example)
- */
+
 class InstallationService implements InstallerInterface
 {
 
