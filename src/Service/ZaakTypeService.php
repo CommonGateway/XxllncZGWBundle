@@ -1,4 +1,14 @@
 <?php
+/**
+ * This class handles the synchronizations of xxllnc casetypes to zgw ztc zaaktypen.
+ *
+ * By fetching, mapping and creating synchronizations.
+ *
+ * @author  Conduction BV <info@conduction.nl>, Barry Brands <barry@conduction.nl>
+ * @license EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * @category Service
+ */
 
 namespace CommonGateway\XxllncZGWBundle\Service;
 
@@ -13,15 +23,7 @@ use Doctrine\Persistence\ObjectRepository;
 use Exception;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-/**
- * This class handles the synchronizations of xxllnc casetypes to zgw ztc zaaktypen.
- *
- * By fetching, mapping and creating synchronizations.
- *
- * @author Barry Brands <barry@conduction.nl>
- *
- * @category Service
- */
+
 class ZaakTypeService
 {
 
@@ -203,11 +205,11 @@ class ZaakTypeService
 
             foreach ($caseType['instance']['phases'] as $phase) {
                 // Mapping maken voor status.
-                $statusTypeArray = [];
-                isset($phase['name']) && $statusTypeArray['omschrijving'] = $phase['name'];
+                $statusTypeArray                                                               = [];
+                isset($phase['name']) && $statusTypeArray['omschrijving']                      = $phase['name'];
                 isset($phase['fields'][0]['label']) ? $statusTypeArray['omschrijvingGeneriek'] = $phase['fields'][0]['label'] : 'geen omschrijving';
                 isset($phase['fields'][0]['help']) ? $statusTypeArray['statustekst']           = $phase['fields'][0]['help'] : 'geen statustekst';
-                isset($phase['seq']) && $statusTypeArray['volgnummer'] = $phase['seq'];
+                isset($phase['seq']) && $statusTypeArray['volgnummer']                         = $phase['seq'];
 
                 if (isset($phase['fields'])) {
                     foreach ($phase['fields'] as $field) {
@@ -222,7 +224,7 @@ class ZaakTypeService
                 if (isset($phase['route']['role']['reference']) && isset($phase['route']['role']['instance']['name'])
                     && in_array(strtolower($phase['route']['role']['instance']['name']), $preventDupedRolTypen) === false
                 ) {
-                    $rolTypeArray = [
+                    $rolTypeArray                                                                          = [
                         'omschrijving'         => isset($phase['route']['role']['instance']['description']) ? $phase['route']['role']['instance']['description'] : null,
                         'omschrijvingGeneriek' => isset($phase['route']['role']['instance']['name']) ? strtolower($phase['route']['role']['instance']['name']) : null,
                     ];
@@ -260,10 +262,10 @@ class ZaakTypeService
         if (isset($caseType['instance']['results']) === true) {
             $zaakTypeArray['resultaattypen'] = [];
             foreach ($caseType['instance']['results'] as $result) {
-                $resultaatTypeArray = [];
-                $result['type'] && $resultaatTypeArray['omschrijving'] = $result['type'];
-                $result['label'] && $resultaatTypeArray['toelichting'] = $result['label'];
-                $resultaatTypeArray['selectielijstklasse'] = ($result['selection_list'] ?? 'http://localhost');
+                $resultaatTypeArray                                                             = [];
+                $result['type'] && $resultaatTypeArray['omschrijving']                          = $result['type'];
+                $result['label'] && $resultaatTypeArray['toelichting']                          = $result['label'];
+                $resultaatTypeArray['selectielijstklasse']                                      = ($result['selection_list'] ?? 'http://localhost');
                 $result['type_of_archiving'] && $resultaatTypeArray['archiefnominatie']         = $result['type_of_archiving'];
                 $result['period_of_preservation'] && $resultaatTypeArray['archiefactietermijn'] = $result['period_of_preservation'];
 
@@ -404,8 +406,8 @@ class ZaakTypeService
         $zaakTypeArray['trefwoorden']            = $caseType['instance']['subject_types'] ?? null;
 
         // Manually map subobjects.
-        $zaakTypeArray = $this->mapStatusAndRolTypen($caseType, $zaakTypeArray);
-        $zaakTypeArray = $this->mapResultaatTypen($caseType, $zaakTypeArray);
+        $zaakTypeArray              = $this->mapStatusAndRolTypen($caseType, $zaakTypeArray);
+        $zaakTypeArray              = $this->mapResultaatTypen($caseType, $zaakTypeArray);
         $zaakTypeArray['catalogus'] = $this->catalogusObject->getId()->toString();
 
         // Hydrate and persist.

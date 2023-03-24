@@ -1,4 +1,14 @@
 <?php
+/**
+ * This class handles the command for the synchronization of a xxllnc case to a zgw zrc zaak.
+ *
+ * This Command executes the zaakService->ZaakHandler.
+ *
+ * @author  Conduction BV <info@conduction.nl>, Barry Brands <barry@conduction.nl>
+ * @license EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * @category Command
+ */
 
 namespace CommonGateway\XxllncZGWBundle\Command;
 
@@ -9,15 +19,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 
-/**
- * This class handles the command for the synchronization of a xxllnc case to a zgw zrc zaak.
- *
- * This Command executes the zaakService->ZaakHandler.
- *
- * @author Barry Brands <barry@conduction.nl>
- *
- * @category Command
- */
+
 class ZaakCommand extends Command
 {
 

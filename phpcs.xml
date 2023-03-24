@@ -3,9 +3,7 @@
     <description>The coding standard for PHP_CodeSniffer itself, for more config -> for https://github.com/squizlabs/PHP_CodeSniffer/wiki/Configuration-Options.</description>
 
     <file>README.md</file>
-    <file>XxllncZGWBundle.php</file>
     <file>src</file>
-    <file>DependencyInjection</file>
 
     <arg name="basepath" value="."/>
     <arg name="colors"/>
@@ -64,6 +62,12 @@
     <rule ref="Generic.ControlStructures.InlineControlStructure"/>
     <rule ref="Generic.Formatting.DisallowMultipleStatements"/>
     <rule ref="Generic.Formatting.SpaceAfterCast"/>
+    <rule ref="Generic.Files.LineLength">
+        <properties>
+            <property name="lineLimit" value="100"/>
+            <property name="absoluteLineLimit" value="125"/>
+        </properties>
+    </rule>
     <rule ref="Generic.NamingConventions.ConstructorName"/>
     <rule ref="Generic.PHP.DeprecatedFunctions"/>
     <rule ref="Generic.PHP.LowerCaseKeyword"/>
@@ -111,12 +115,7 @@
     </rule>
 
     <!-- Have 12 chars padding maximum and always show as errors -->
-    <rule ref="Generic.Formatting.MultipleStatementAlignment">
-        <properties>
-            <property name="maxPadding" value="12"/>
-            <property name="error" value="true"/>
-        </properties>
-    </rule>
+    <rule ref="Generic.Formatting.MultipleStatementAlignment"></rule>
 
     <!-- Ban some functions -->
     <rule ref="Generic.PHP.ForbiddenFunctions">

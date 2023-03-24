@@ -1,4 +1,14 @@
 <?php
+/**
+ * This class handles the synchronization of a zgw zrc zaak to a xxllnc case.
+ *
+ * By mapping, posting and creating a synchronization.
+ *
+ * @author  Conduction BV <info@conduction.nl>, Barry Brands <barry@conduction.nl>
+ * @license EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * @category Service
+ */
 
 namespace CommonGateway\XxllncZGWBundle\Service;
 
@@ -15,15 +25,7 @@ use Doctrine\Persistence\ObjectRepository;
 use Exception;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-/**
- * This class handles the synchronization of a zgw zrc zaak to a xxllnc case.
- *
- * By mapping, posting and creating a synchronization.
- *
- * @author Barry Brands <barry@conduction.nl>
- *
- * @category Service
- */
+
 class ZGWToXxllncService
 {
 
@@ -462,7 +464,7 @@ class ZGWToXxllncService
             'id'   => '999991723',
             'type' => 'person',
         ];
-        $sourceId = $this->sendCaseToXxllnc($caseArray, $synchronization ?? null);
+        $sourceId               = $this->sendCaseToXxllnc($caseArray, $synchronization ?? null);
 
         if (($sourceId && isset($synchronization) === false) || (isset($synchronization) === true && $synchronization->getSourceId() === null)) {
             $synchronization = new Synchronization();

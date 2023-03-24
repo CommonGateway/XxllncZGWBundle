@@ -1,4 +1,14 @@
 <?php
+/**
+ * This class handles the synchronization of one or more of xxllnc cases to zgw zrc zaken.
+ *
+ * This ActionHandler executes the zaakService->zaakHandler.
+ *
+ * @author  Conduction BV <info@conduction.nl>, Barry Brands <barry@conduction.nl>
+ * @license EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * @category ActionHandler
+ */
 
 namespace CommonGateway\XxllncZGWBundle\ActionHandler;
 
@@ -10,15 +20,7 @@ use Psr\Cache\CacheException;
 use Psr\Cache\InvalidArgumentException;
 use Respect\Validation\Exceptions\ComponentException;
 
-/**
- * This class handles the synchronization of one or more of xxllnc cases to zgw zrc zaken.
- *
- * This ActionHandler executes the zaakService->zaakHandler.
- *
- * @author Barry Brands <barry@conduction.nl>
- *
- * @category ActionHandler
- */
+
 class ZaakHandler implements ActionHandlerInterface
 {
 
