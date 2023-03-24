@@ -2,7 +2,7 @@
 /**
  * This class loads all files in this bundle.
  *
- * @author Conduction BV <info@conduction.nl>, Barry Brands <barry@conduction.nl>
+ * @author  Conduction BV <info@conduction.nl>, Barry Brands <barry@conduction.nl>
  * @license EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
  * @category DependencyInjection
