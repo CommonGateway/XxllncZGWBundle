@@ -462,7 +462,7 @@ class ZGWToXxllncService
             'id'   => '999991723',
             'type' => 'person',
         ];
-        $sourceId = $this->sendCaseToXxllnc($caseArray, $synchronization ?? null);
+        $sourceId               = $this->sendCaseToXxllnc($caseArray, $synchronization ?? null);
 
         if (($sourceId && isset($synchronization) === false) || (isset($synchronization) === true && $synchronization->getSourceId() === null)) {
             $synchronization = new Synchronization();
