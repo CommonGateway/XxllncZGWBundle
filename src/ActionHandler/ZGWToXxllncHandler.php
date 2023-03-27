@@ -1,4 +1,14 @@
 <?php
+/**
+ * This class handles the synchronization of a zgw zrc zaak to a xxllnc case.
+ *
+ * This ActionHandler executes the zgwToXxllncService->zgwToXxllncHandler.
+ *
+ * @author  Conduction BV <info@conduction.nl>, Barry Brands <barry@conduction.nl>
+ * @license EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * @category ActionHandler
+ */
 
 namespace CommonGateway\XxllncZGWBundle\ActionHandler;
 
@@ -10,25 +20,21 @@ use Psr\Cache\InvalidArgumentException;
 use Respect\Validation\Exceptions\ComponentException;
 
 
-/**
- * This class handles the update of a zrc zaak with zrc eigenschap.
- *
- * This ActionHandler executes the ZGWToXxllncService->updateZaakWithEigenschapHandler.
- *
- * @author Barry Brands <barry@conduction.nl>
- *
- * @category ActionHandler
- */
-class UpdateZaakWithEigenschapHandler implements ActionHandlerInterface
+class ZGWToXxllncHandler implements ActionHandlerInterface
 {
 
     /**
-     * @var ZGWToXxllncService
+     * ZGWToXxllncService
+     *
+     * @var ZGWToXxllncService $zgwToXxllncService
      */
     private ZGWToXxllncService $zgwToXxllncService;
 
+
     /**
-     * __construct
+     * Class constructor
+     *
+     * @param ZGWToXxllncService $zgwToXxllncService The ZGW to Xxllnc Service
      */
     public function __construct(ZGWToXxllncService $zgwToXxllncService)
     {
@@ -36,26 +42,29 @@ class UpdateZaakWithEigenschapHandler implements ActionHandlerInterface
 
     }//end __construct()
 
+
     /**
-     * This function returns the requered configuration as a [json-schema](https://json-schema.org/) array.
+     * This function returns the requered configuration as
+     * a [json-schema](https://json-schema.org/) array.
      *
-     * @throws array a [json-schema](https://json-schema.org/) that this  action should comply to
+     * @throws array a [json-schema](https://json-schema.org/) that this action should comply to
      */
     public function getConfiguration(): array
     {
         return [
-            '$id'         => 'https://development.zaaksysteem.nl/schemas/UpdateZaakWithEigenschap.ActionHandler.schema.json',
+            '$id'         => 'https://development.zaaksysteem.nl/schemas/ZGWToXxllnc.ActionHandler.schema.json',
             '$schema'     => 'https://docs.commongateway.nl/schemas/ActionHandler.schema.json',
-            'title'       => 'UpdateZaakWithEigenschap',
-            'description' => 'This handler updates zgw zaak with eigenschap and saves to xxllnc',
+            'title'       => 'ZGWToXxllnc',
+            'description' => 'This handler posts zgw zaak to xxllnc',
             'required'    => [],
             'properties'  => [],
         ];
 
     }//end getConfiguration()
 
+
     /**
-     * This function runs the zgw zaak eigenschap update.
+     * This function runs the zgw zaaktype plugin.
      *
      * @param array $data          The data from the call
      * @param array $configuration The configuration of the action
@@ -69,8 +78,9 @@ class UpdateZaakWithEigenschapHandler implements ActionHandlerInterface
      */
     public function run(array $data, array $configuration): array
     {
-        return $this->zgwToXxllncService->updateZaakWithEigenschapHandler($data, $configuration);
+        return $this->zgwToXxllncService->zgwToXxllncHandler($data, $configuration);
 
     }//end run()
+
 
 }//end class

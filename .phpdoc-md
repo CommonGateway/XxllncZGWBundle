@@ -1,0 +1,14 @@
+<?php
+return (object)[
+    'rootNamespace' => 'CommonGateway\XxllncZGWBundle',
+    'destDirectory' => 'docs/classes',
+    'format' => 'github',
+    'classes' => [
+        '\CommonGateway\XxllncZGWBundle\Service\InstallationService',
+        '\CommonGateway\XxllncZGWBundle\Service\ZaakService',
+        '\CommonGateway\XxllncZGWBundle\Service\ZaakTypeService',
+        '\CommonGateway\XxllncZGWBundle\Service\ZGWToXxllncService',
+        '\CommonGateway\XxllncZGWBundle\Command\ZaakCommand',
+        '\CommonGateway\XxllncZGWBundle\Command\ZaakTypeCommand'
+    ],
+];

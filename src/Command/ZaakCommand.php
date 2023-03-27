@@ -1,4 +1,14 @@
 <?php
+/**
+ * This class handles the command for the synchronization of a xxllnc case to a zgw zrc zaak.
+ *
+ * This Command executes the zaakService->ZaakHandler.
+ *
+ * @author  Conduction BV <info@conduction.nl>, Barry Brands <barry@conduction.nl>
+ * @license EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * @category Command
+ */
 
 namespace CommonGateway\XxllncZGWBundle\Command;
 
@@ -9,30 +19,29 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 
-/**
- * This class handles the command for the synchronization of a xxllnc case to a zgw zrc zaak.
- *
- * This Command executes the zaakService->ZaakHandler.
- *
- * @author Barry Brands <barry@conduction.nl>
- *
- * @category Command
- */
+
 class ZaakCommand extends Command
 {
 
     /**
-     * @var static $defaultName The actual command
+     * The actual command
+     *
+     * @var static $defaultName
      */
     protected static $defaultName = 'xxllnc:zaak:synchronize';
 
     /**
+     * The case service
+     *
      * @var ZaakService
      */
     private ZaakService $zaakService;
 
+
     /**
-     * __construct
+     * Class constructor
+     *
+     * @param ZaakService $zaakService The case service
      */
     public function __construct(ZaakService $zaakService)
     {
@@ -41,9 +50,10 @@ class ZaakCommand extends Command
 
     }//end __construct()
 
+
     /**
      * Configures this command
-     * 
+     *
      * @return void
      */
     protected function configure(): void
@@ -54,12 +64,13 @@ class ZaakCommand extends Command
 
     }//end configure()
 
+
     /**
      * Executes this command
-     * 
+     *
      * @param InputInterface  Handles input from cli
      * @param OutputInterface Handles output from cli
-     * 
+     *
      * @return int 0 for failure, 1 for success
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -73,6 +84,8 @@ class ZaakCommand extends Command
 
         return Command::SUCCESS;
 
-    } // end execute()
+    }//end execute()
 
+
+    // end execute()
 }//end class

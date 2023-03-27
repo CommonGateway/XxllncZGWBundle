@@ -1,4 +1,14 @@
 <?php
+/**
+ * This class handles the synchronizations of xxllnc casetypes to zgw ztc zaaktypen.
+ *
+ * By fetching, mapping and creating synchronizations.
+ *
+ * @author  Conduction BV <info@conduction.nl>, Barry Brands <barry@conduction.nl>
+ * @license EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * @category Service
+ */
 
 namespace CommonGateway\XxllncZGWBundle\Service;
 
@@ -13,15 +23,7 @@ use Doctrine\Persistence\ObjectRepository;
 use Exception;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-/**
- * This class handles the synchronizations of xxllnc casetypes to zgw ztc zaaktypen.
- *
- * By fetching, mapping and creating synchronizations.
- *
- * @author Barry Brands <barry@conduction.nl>
- *
- * @category Service
- */
+
 class ZaakTypeService
 {
 
@@ -105,6 +107,7 @@ class ZaakTypeService
      */
     private array $skeletonIn;
 
+
     /**
      * __construct
      */
@@ -113,13 +116,13 @@ class ZaakTypeService
         SynchronizationService $synchronizationService,
         CallService $callService
     ) {
-        $this->entityManager = $entityManager;
+        $this->entityManager          = $entityManager;
         $this->synchronizationService = $synchronizationService;
-        $this->callService = $callService;
+        $this->callService            = $callService;
 
-        $this->objectRepo = $this->entityManager->getRepository('App:ObjectEntity');
-        $this->schemaRepo = $this->entityManager->getRepository('App:Entity');
-        $this->sourceRepo = $this->entityManager->getRepository('App:Gateway');
+        $this->objectRepo  = $this->entityManager->getRepository('App:ObjectEntity');
+        $this->schemaRepo  = $this->entityManager->getRepository('App:Entity');
+        $this->sourceRepo  = $this->entityManager->getRepository('App:Gateway');
         $this->mappingRepo = $this->entityManager->getRepository('App:Mapping');
 
         // @todo add this to a mapping.
@@ -132,8 +135,9 @@ class ZaakTypeService
             'handelingBehandelaar' => 'Hoofd beveiliging',
             'aanleiding'           => 'Er is een afspraak gemaakt met een (niet) natuurlijk persoon',
         ];
-    
+
     }//end __construct()
+
 
     /**
      * Set symfony style in order to output to the console.
@@ -141,7 +145,7 @@ class ZaakTypeService
      * @param SymfonyStyle $style
      *
      * @return self
-     * 
+     *
      * @todo change to monolog
      */
     public function setStyle(SymfonyStyle $style): self
@@ -149,8 +153,9 @@ class ZaakTypeService
         $this->style = $style;
 
         return $this;
-    
+
     }//end setStyle()
+
 
     /**
      * Fetches a xxllnc casetype and maps it to a zgw zaaktype.
@@ -174,9 +179,9 @@ class ZaakTypeService
         }
 
         return $this->caseTypeToZaakType($caseType);
-        
-    
+
     }//end getZaakType()
+
 
     /**
      * @TODO make function smaller and readable.
@@ -191,41 +196,44 @@ class ZaakTypeService
     private function mapStatusAndRolTypen(array $caseType, array $zaakTypeArray): array
     {
         $zaakTypeArray['roltypen'] = [];
-        $preventDupedRolTypen = [];
+        $preventDupedRolTypen      = [];
 
         // Manually map phases to statustypen.
         if (isset($caseType['instance']['phases'])) {
-            $zaakTypeArray['statustypen'] = [];
+            $zaakTypeArray['statustypen']   = [];
             $zaakTypeArray['eigenschappen'] = [];
 
             foreach ($caseType['instance']['phases'] as $phase) {
                 // Mapping maken voor status.
-                $statusTypeArray = [];
-                isset($phase['name']) && $statusTypeArray['omschrijving'] = $phase['name'];
+                $statusTypeArray                                                               = [];
+                isset($phase['name']) && $statusTypeArray['omschrijving']                      = $phase['name'];
                 isset($phase['fields'][0]['label']) ? $statusTypeArray['omschrijvingGeneriek'] = $phase['fields'][0]['label'] : 'geen omschrijving';
-                isset($phase['fields'][0]['help']) ? $statusTypeArray['statustekst'] = $phase['fields'][0]['help'] : 'geen statustekst';
-                isset($phase['seq']) && $statusTypeArray['volgnummer'] = $phase['seq'];
+                isset($phase['fields'][0]['help']) ? $statusTypeArray['statustekst']           = $phase['fields'][0]['help'] : 'geen statustekst';
+                isset($phase['seq']) && $statusTypeArray['volgnummer']                         = $phase['seq'];
 
                 if (isset($phase['fields'])) {
                     foreach ($phase['fields'] as $field) {
-                        isset($field['magic_string']) && $zaakTypeArray['eigenschappen'][] = ['naam' => $field['magic_string'], 'definitie' => $field['magic_string']];
+                        isset($field['magic_string']) && $zaakTypeArray['eigenschappen'][] = [
+                            'naam'      => $field['magic_string'],
+                            'definitie' => $field['magic_string'],
+                        ];
                     }
                 }//end if
 
                 // Map role to roltype.
-                if (
-                    isset($phase['route']['role']['reference']) && isset($phase['route']['role']['instance']['name']) &&
-                    in_array(strtolower($phase['route']['role']['instance']['name']), $preventDupedRolTypen) === false
+                if (isset($phase['route']['role']['reference']) && isset($phase['route']['role']['instance']['name'])
+                    && in_array(strtolower($phase['route']['role']['instance']['name']), $preventDupedRolTypen) === false
                 ) {
-                    $rolTypeArray = [
+                    $rolTypeArray                                                                          = [
                         'omschrijving'         => isset($phase['route']['role']['instance']['description']) ? $phase['route']['role']['instance']['description'] : null,
                         'omschrijvingGeneriek' => isset($phase['route']['role']['instance']['name']) ? strtolower($phase['route']['role']['instance']['name']) : null,
                     ];
                     isset($phase['route']['role']['instance']['name']) === true && $preventDupedRolTypen[] = strtolower($phase['route']['role']['instance']['name']);
 
                     // Find or create new roltype object.
-                    $rolTypeObject = $this->objectRepo->findOneBy(['externalId' => $phase['route']['role']['reference']]) ?? new ObjectEntity($this->rolTypeSchema);
-                    $rolTypeObject->setExternalId($phase['route']['role']['reference']); // use external id so we can find this object when sending case to xxllnc
+                    $rolTypeObject = ($this->objectRepo->findOneBy(['externalId' => $phase['route']['role']['reference']]) ?? new ObjectEntity($this->rolTypeSchema));
+                    $rolTypeObject->setExternalId($phase['route']['role']['reference']);
+                    // use external id so we can find this object when sending case to xxllnc
                     $rolTypeObject->hydrate($rolTypeArray);
                     $this->entityManager->persist($rolTypeObject);
                     $zaakTypeArray['roltypen'][] = $rolTypeObject;
@@ -236,8 +244,9 @@ class ZaakTypeService
         }//end if
 
         return $zaakTypeArray;
-    
+
     }//end mapStatusAndRolTypen()
+
 
     /**
      * Maps the resultaatTypen from xxllnc to zgw.
@@ -253,11 +262,11 @@ class ZaakTypeService
         if (isset($caseType['instance']['results']) === true) {
             $zaakTypeArray['resultaattypen'] = [];
             foreach ($caseType['instance']['results'] as $result) {
-                $resultaatTypeArray = [];
-                $result['type'] && $resultaatTypeArray['omschrijving'] = $result['type'];
-                $result['label'] && $resultaatTypeArray['toelichting'] = $result['label'];
-                $resultaatTypeArray['selectielijstklasse'] = $result['selection_list'] ?? 'http://localhost';
-                $result['type_of_archiving'] && $resultaatTypeArray['archiefnominatie'] = $result['type_of_archiving'];
+                $resultaatTypeArray                                                             = [];
+                $result['type'] && $resultaatTypeArray['omschrijving']                          = $result['type'];
+                $result['label'] && $resultaatTypeArray['toelichting']                          = $result['label'];
+                $resultaatTypeArray['selectielijstklasse']                                      = ($result['selection_list'] ?? 'http://localhost');
+                $result['type_of_archiving'] && $resultaatTypeArray['archiefnominatie']         = $result['type_of_archiving'];
                 $result['period_of_preservation'] && $resultaatTypeArray['archiefactietermijn'] = $result['period_of_preservation'];
 
                 $zaakTypeArray['resultaattypen'][] = $resultaatTypeArray;
@@ -265,8 +274,9 @@ class ZaakTypeService
         }//end if
 
         return $zaakTypeArray;
-    
+
     }//end mapResultaatTypen()
+
 
     /**
      * Makes sure this action has the xxllnc api source.
@@ -281,7 +291,9 @@ class ZaakTypeService
 
             return false;
         }//end if
+
     }//end getXxllncAPI()
+
 
     /**
      * Makes sure this action has the ZaakTypeSchema.
@@ -296,8 +308,9 @@ class ZaakTypeService
 
             return false;
         }//end if
-    
+
     }//end getZaakTypeSchema()
+
 
     /**
      * Makes sure this action has all the gateway objects it needs.
@@ -331,8 +344,9 @@ class ZaakTypeService
         }//end if
 
         return true;
-    
+
     }//end hasRequiredGatewayObjects()
+
 
     /**
      * Sets default values.
@@ -350,8 +364,9 @@ class ZaakTypeService
         }//end foreach
 
         return $zaakTypeArray;
-    
+
     }//end setDefaultValues()
+
 
     /**
      * Creates or updates a casetype to zaaktype.
@@ -362,10 +377,10 @@ class ZaakTypeService
      * @var Synchronization
      *
      * @return void|null
-     * 
+     *
      * @todo make function smaller and more readable.
      */
-    public function caseTypeToZaakType(array $caseType, bool $flush = true)
+    public function caseTypeToZaakType(array $caseType, bool $flush=true)
     {
         $this->hasRequiredGatewayObjects();
         isset($caseType['result']) === true && $caseType = $caseType['result'];
@@ -382,17 +397,17 @@ class ZaakTypeService
         $synchronization->setMapping($this->caseTypeMapping);
         isset($this->style) === true && $this->style->info("Mapping casetype with sourceId: {$caseType['reference']}");
         $synchronization = $this->synchronizationService->synchronize($synchronization, $caseType);
-        $zaakTypeObject = $synchronization->getObject();
-        $zaakTypeArray = $zaakTypeObject->toArray();
-        $zaakTypeArray = $this->setDefaultValues($zaakTypeArray);
+        $zaakTypeObject  = $synchronization->getObject();
+        $zaakTypeArray   = $zaakTypeObject->toArray();
+        $zaakTypeArray   = $this->setDefaultValues($zaakTypeArray);
 
         // Manually set array properties (cant map with twig).
         $zaakTypeArray['verantwoordingsrelatie'] = [$caseType['instance']['properties']['supervisor_relation']] ?? null;
-        $zaakTypeArray['trefwoorden'] = $caseType['instance']['subject_types'] ?? null;
+        $zaakTypeArray['trefwoorden']            = $caseType['instance']['subject_types'] ?? null;
 
         // Manually map subobjects.
-        $zaakTypeArray = $this->mapStatusAndRolTypen($caseType, $zaakTypeArray);
-        $zaakTypeArray = $this->mapResultaatTypen($caseType, $zaakTypeArray);
+        $zaakTypeArray              = $this->mapStatusAndRolTypen($caseType, $zaakTypeArray);
+        $zaakTypeArray              = $this->mapResultaatTypen($caseType, $zaakTypeArray);
         $zaakTypeArray['catalogus'] = $this->catalogusObject->getId()->toString();
 
         // Hydrate and persist.
@@ -402,7 +417,7 @@ class ZaakTypeService
 
         // Update catalogus with new zaaktype.
         isset($this->style) === true && $this->style->info("Updating catalogus: {$zaakTypeArray['catalogus']} with zaaktype: $zaakTypeID");
-        $linkedZaakTypen = $this->catalogusObject->getValue('zaaktypen')->toArray() ?? [];
+        $linkedZaakTypen = ($this->catalogusObject->getValue('zaaktypen')->toArray() ?? []);
         $this->catalogusObject->setValue('zaaktypen', array_merge($linkedZaakTypen, [$zaakTypeID]));
         $this->entityManager->persist($this->catalogusObject);
 
@@ -412,8 +427,9 @@ class ZaakTypeService
         isset($this->style) === true && $this->style->success("Created/updated zaaktype: $zaakTypeID");
 
         return $synchronization->getObject();
-    
+
     }//end caseTypeToZaakType()
+
 
     /**
      * Creates or updates a ZGW ZaakType from a xxllnc casetype with the use of the CoreBundle.
@@ -422,10 +438,10 @@ class ZaakTypeService
      * @param ?array $configuration Configuration from the Action where the ZaakType entity id is stored in.
      *
      * @return void|null
-     * 
+     *
      * @todo make function smaller and more readable.
      */
-    public function zaakTypeHandler(?array $data = [], ?array $configuration = [])
+    public function zaakTypeHandler(?array $data=[], ?array $configuration=[])
     {
         isset($this->style) === true && $this->style->success('zaakType triggered');
 
@@ -444,15 +460,16 @@ class ZaakTypeService
 
             return null;
         }
+
         $caseTypeCount = count($xxllncCaseTypes);
         isset($this->style) === true && $this->style->success("Fetched $caseTypeCount casetypes");
 
         $createdZaakTypeCount = 0;
-        $flushCount = 0;
+        $flushCount           = 0;
         foreach ($xxllncCaseTypes as $caseType) {
             if ($this->caseTypeToZaakType($caseType, false)) {
-                $createdZaakTypeCount = $createdZaakTypeCount + 1;
-                $flushCount = $flushCount + 1;
+                $createdZaakTypeCount = ($createdZaakTypeCount + 1);
+                $flushCount           = ($flushCount + 1);
             }//end if
 
             // Flush every 20.
@@ -461,7 +478,10 @@ class ZaakTypeService
                 $flushCount = 0;
             }//end if
         }//end foreach
+
         isset($this->style) === true && $this->style->success("Created $createdZaakTypeCount zaaktypen from the $caseTypeCount fetched casetypes");
-    
+
     }//end zaakTypeHandler()
+
+
 }//end class
