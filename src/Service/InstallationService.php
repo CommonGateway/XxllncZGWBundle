@@ -16,7 +16,6 @@
 namespace CommonGateway\XxllncZGWBundle\Service;
 
 use App\Entity\Entity;
-use App\Entity\ObjectEntity;
 use App\Entity\Translation;
 use CommonGateway\CoreBundle\Installer\InstallerInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -117,9 +116,6 @@ class InstallationService implements InstallerInterface
         if ($this->isZGWBundleInstalled() == false) {
             return;
         }
-
-        // Creates a default zgw catalogus.
-        $this->createCatalogus();
 
         // Get xllncZaakPost schema.
         $xxllncZaakPost = $this->schemaRepository->findOneBy(['name' => 'XxllncZaakPost']);
