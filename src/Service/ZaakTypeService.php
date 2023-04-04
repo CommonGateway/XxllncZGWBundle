@@ -424,8 +424,6 @@ class ZaakTypeService
         // Flush here if we are only mapping one zaaktype and not loopin through more in a parent function.
         $flush && $this->entityManager->flush();
 
-        dump(count($this->entityManager->find('App:ObjectEntity',  $this->catalogusObject->getId()->toString())->getValue('zaaktypen')));
-
         isset($this->style) === true && $this->style->success("Created/updated zaaktype: $zaakTypeID");
 
         return $synchronization->getObject();
