@@ -64,8 +64,8 @@
     <rule ref="Generic.Formatting.SpaceAfterCast"/>
     <rule ref="Generic.Files.LineLength">
         <properties>
-            <property name="lineLimit" value="100"/>
-            <property name="absoluteLineLimit" value="125"/>
+            <property name="lineLimit" value="125"/>
+            <property name="absoluteLineLimit" value="150"/>
         </properties>
     </rule>
     <rule ref="Generic.NamingConventions.ConstructorName"/>
