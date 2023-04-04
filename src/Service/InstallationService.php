@@ -162,41 +162,6 @@ class InstallationService implements InstallerInterface
 
 
     /**
-     * Creates a standard ZGW Catalogus.
-     *
-     * @return void
-     */
-    private function createCatalogus(): void
-    {
-        isset($this->style) === true && $this->style->writeln(['', '<info>Creating catalogus</info>']);
-        // Create Catalogus
-        $catalogusSchema = $this->entityManager->getRepository('App:Entity')->findOneBy(['name' => 'Catalogus']);
-        if (!$catalogusSchema instanceof Entity) {
-            isset($this->style) === true && $this->style->error('ZGW not correctly installed, no Catalogus schema found');
-        }
-
-        $catalogusObjecten = $this->entityManager->getRepository('App:ObjectEntity')->findBy(['entity' => $catalogusSchema]);
-        if (count($catalogusObjecten) < 1) {
-            $catalogusObject = new ObjectEntity($catalogusSchema);
-            $catalogusObject->hydrate(
-                [
-                    'contactpersoonBeheerNaam' => 'Conduction',
-                    'domein'                   => 'http://localhost',
-                ]
-            );
-            $this->entityManager->persist($catalogusObject);
-            isset($this->style) === true && $this->style->writeln('ObjectEntity: \'Catalogus\' created');
-
-            return;
-        }//end if
-
-        $catalogusObject = $catalogusObjecten[0];
-        isset($this->style) === true && $this->style->writeln('ObjectEntity: \'Catalogus\' found');
-
-    }//end createCatalogus()
-
-
-    /**
      * Updates attributes to simple array attributes.
      *
      * @param Entity|null $xxllncZaakPost Schema.

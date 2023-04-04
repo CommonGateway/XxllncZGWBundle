@@ -1,0 +1,8 @@
+{
+  "https://vng.opencatalogi.nl/schemas/ztc.catalogus.schema.json": [
+    {
+      "domein": "http://localhost",
+      "contactpersoonBeheerNaam": "Conduction"
+    }
+  ]
+}
