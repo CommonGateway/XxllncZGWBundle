@@ -286,7 +286,7 @@ class ZaakTypeService
     private function getXxllncAPI()
     {
         // Get xxllnc source
-        if (isset($this->xxllncAPI) === false && $this->xxllncAPI = $this->sourceRepo->findOneBy(['reference' => 'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json']) === null) {
+        if (isset($this->xxllncAPI) === false && ($this->xxllncAPI = $this->sourceRepo->findOneBy(['reference' => 'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json'])) === null) {
             isset($this->style) === true && $this->style->error('Could not find Source: Xxllnc API');
 
             return false;
@@ -303,7 +303,7 @@ class ZaakTypeService
     private function getZaakTypeSchema()
     {
         // Get ZaakType schema
-        if (isset($this->zaakTypeSchema) === false && $this->zaakTypeSchema = $this->schemaRepo->findOneBy(['name' => 'ZaakType']) === null) {
+        if (isset($this->zaakTypeSchema) === false && ($this->zaakTypeSchema = $this->schemaRepo->findOneBy(['name' => 'ZaakType'])) === null) {
             isset($this->style) === true && $this->style->error('Could not find Schema: ZaakType');
 
             return false;
@@ -323,7 +323,7 @@ class ZaakTypeService
         $this->getZaakTypeSchema();
 
         // Get ZaakType schema.
-        if (isset($this->rolTypeSchema) === false && !$this->rolTypeSchema = $this->schemaRepo->findOneBy(['name' => 'RolType'])) {
+        if (isset($this->rolTypeSchema) === false && ($this->rolTypeSchema = $this->schemaRepo->findOneBy(['name' => 'RolType'])) === null) {
             isset($this->style) === true && $this->style->error('Could not find Schema: RolType');
 
             return false;
@@ -331,13 +331,13 @@ class ZaakTypeService
 
         // Get Catalogus object.
         $catalogusSchema = $this->schemaRepo->findOneBy(['reference' => 'https://vng.opencatalogi.nl/schemas/ztc.catalogus.schema.json']);
-        if ($catalogusSchema === null || (isset($this->catalogusObject) === false && $this->catalogusObject = $this->objectRepo->findOneBy(['entity' => $catalogusSchema]) === null)) {
+        if ($catalogusSchema === null || (isset($this->catalogusObject) === false && ($this->catalogusObject = $this->objectRepo->findOneBy(['entity' => $catalogusSchema])) === null)) {
             isset($this->style) === true && $this->style->error('Could not find schema: https://vng.opencatalogi.nl/schemas/ztc.catalogus.schema.json or a catalogus object');
 
             return false;
         }//end if
 
-        if (isset($this->caseTypeMapping) === false && $this->caseTypeMapping = $this->mappingRepo->findOneBy(['reference' => 'https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseTypeToZGWZaakType.mapping.json']) === null) {
+        if (isset($this->caseTypeMapping) === false && ($this->caseTypeMapping = $this->mappingRepo->findOneBy(['reference' => 'https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseTypeToZGWZaakType.mapping.json'])) === null) {
             isset($this->style) === true && $this->style->error('No mapping found for https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseTypeToZGWZaakType.mapping.json');
 
             return false;

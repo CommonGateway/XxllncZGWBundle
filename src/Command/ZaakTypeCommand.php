@@ -18,6 +18,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Ramsey\Uuid\Uuid;
 
 
 class ZaakTypeCommand extends Command
@@ -29,13 +30,6 @@ class ZaakTypeCommand extends Command
      * @var static $defaultName
      */
     protected static $defaultName = 'xxllnc:zaakType:synchronize';
-
-    /**
-     * A Uuid instance to validate against.
-     *
-     * @var Uuid
-     */
-    private Uuid $uuid;
 
     /**
      * The case type service.
@@ -53,7 +47,6 @@ class ZaakTypeCommand extends Command
     public function __construct(ZaakTypeService $zaakTypeService)
     {
         $this->zaakTypeService = $zaakTypeService;
-        $this->uuid            = new Uuid();
         parent::__construct();
 
     }//end __construct()
@@ -93,7 +86,7 @@ class ZaakTypeCommand extends Command
         $zaakTypeId = $input->getArgument('id');
 
         if (isset($zaakTypeId) === true
-            && $this->uuid->isValid($zaakTypeId) === true
+            && Uuid::isValid($zaakTypeId) === true
         ) {
             $style->info(
                 "ID is valid, trying to fetch and
