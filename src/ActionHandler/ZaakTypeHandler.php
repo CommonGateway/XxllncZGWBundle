@@ -1,32 +1,58 @@
 <?php
+/**
+ * This class handles the synchronization of one or more of xxllnc casetypes to zgw ztc zaaktypen.
+ *
+ * This ActionHandler executes the zaakTypeService->zaakTypeHandler.
+ *
+ * @author  Conduction BV <info@conduction.nl>, Barry Brands <barry@conduction.nl>
+ * @license EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * @category ActionHandler
+ */
 
 namespace CommonGateway\XxllncZGWBundle\ActionHandler;
 
 use App\Exception\GatewayException;
 use CommonGateway\CoreBundle\ActionHandler\ActionHandlerInterface;
-use CommonGateway\XxllncZGWBundle\Service\XxllncToZGWZaakTypeService;
+use CommonGateway\XxllncZGWBundle\Service\ZaakTypeService;
 use Psr\Cache\CacheException;
 use Psr\Cache\InvalidArgumentException;
 use Respect\Validation\Exceptions\ComponentException;
 
-class XxllncToZGWZaakTypeHandler implements ActionHandlerInterface
-{
-    private XxllncToZGWZaakTypeService $xxllncToZGWZaakTypeService;
 
-    public function __construct(XxllncToZGWZaakTypeService $xxllncToZGWZaakTypeService)
-    {
-        $this->xxllncToZGWZaakTypeService = $xxllncToZGWZaakTypeService;
-    }
+class ZaakTypeHandler implements ActionHandlerInterface
+{
 
     /**
-     *  This function returns the requered configuration as a [json-schema](https://json-schema.org/) array.
+     * The case type service.
      *
-     * @throws array a [json-schema](https://json-schema.org/) that this  action should comply to
+     * @var ZaakTypeService
+     */
+    private ZaakTypeService $zaakTypeService;
+
+
+    /**
+     * Class constructor.
+     *
+     * @param ZaakTypeService $zaakTypeService The case type service
+     */
+    public function __construct(ZaakTypeService $zaakTypeService)
+    {
+        $this->zaakTypeService = $zaakTypeService;
+
+    }//end __construct()
+
+
+    /**
+     * This function returns the requered configuration as
+     * a [json-schema](https://json-schema.org/) array.
+     *
+     * @return array a [json-schema](https://json-schema.org/) that this action should comply to
      */
     public function getConfiguration(): array
     {
         return [
-            '$id'         => 'https://development.zaaksysteem.nl/schemas/XxllncToZGWZaakType.ActionHandler.schema.json',
+            '$id'         => 'https://development.zaaksysteem.nl/schemas/ZaakType.ActionHandler.schema.json',
             '$schema'     => 'https://docs.commongateway.nl/schemas/ActionHandler.schema.json',
             'title'       => 'ZGW ZaakType Action',
             'description' => 'This handler customly maps xxllnc casetype to zgw zaaktype ',
@@ -39,7 +65,9 @@ class XxllncToZGWZaakTypeHandler implements ActionHandlerInterface
                 ],
             ],
         ];
-    }
+
+    }//end getConfiguration()
+
 
     /**
      * This function runs the service for validating cases.
@@ -56,6 +84,9 @@ class XxllncToZGWZaakTypeHandler implements ActionHandlerInterface
      */
     public function run(array $data, array $configuration): array
     {
-        return $this->xxllncToZGWZaakTypeService->xxllncToZGWZaakTypeHandler($data, $configuration);
-    }
-}
+        return $this->zaakTypeService->zaakTypeHandler($data, $configuration);
+
+    }//end run()
+
+
+}//end class

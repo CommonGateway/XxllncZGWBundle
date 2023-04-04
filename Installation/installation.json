@@ -1,3 +1,30 @@
 {
-    "installationService": "CommonGateway\\XxllncZGWBundle\\Service\\InstallationService"
+    "installationService": "CommonGateway\\XxllncZGWBundle\\Service\\InstallationService",
+    "cards": {
+      "schemas": [
+        "https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json"
+      ],
+      "sources": [
+        "https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json"
+      ]
+    },
+    "actions": {
+      "handlers": [
+        {
+          "reference": "https://development.zaaksysteem.nl/action/xxllnc.Zaak.action.json",
+          "actionHandler": "CommonGateway\\XxllncZGWBundle\\ActionHandler\\ZaakHandler",
+          "listens": ["xxllnc.cronjob.trigger"]
+        },
+        {
+          "reference": "https://development.zaaksysteem.nl/action/xxllnc.ZaakType.action.json",
+          "actionHandler": "CommonGateway\\XxllncZGWBundle\\ActionHandler\\ZaakTypeHandler",
+          "listens": ["xxllnc.cronjob.trigger"]
+        },
+        {
+          "reference": "https://development.zaaksysteem.nl/action/xxllnc.ZGWZaakToXxllnc.action.json",
+          "actionHandler": "CommonGateway\\XxllncZGWBundle\\ActionHandler\\ZGWToXxllncHandler",
+          "listens": ["zgw.zaak.saved"]
+        }
+      ]
+    }
 }
