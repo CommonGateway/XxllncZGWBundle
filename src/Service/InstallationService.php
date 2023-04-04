@@ -22,7 +22,6 @@ use CommonGateway\CoreBundle\Installer\InstallerInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectRepository;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 
 class InstallationService implements InstallerInterface
@@ -55,14 +54,14 @@ class InstallationService implements InstallerInterface
 
 
     /**
-     * __construct
+     * __construct.
      */
     public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
 
-        $this->schemaRepository    = $this->entityManager->getRepository('App:Entity');
-        $this->attributeRepository = $this->entityManager->getRepository('App:Attribute');
+        $this->schemaRepository      = $this->entityManager->getRepository('App:Entity');
+        $this->attributeRepository   = $this->entityManager->getRepository('App:Attribute');
         $this->translationRepository = $this->entityManager->getRepository('App:Translation');
 
     }//end __construct()
@@ -140,7 +139,7 @@ class InstallationService implements InstallerInterface
 
 
     /**
-     * Checks if ZGWBundle is installed
+     * Checks if ZGWBundle is installed.
      *
      * If not we cant install this XxllncZGWBundle.
      *
@@ -163,7 +162,7 @@ class InstallationService implements InstallerInterface
 
 
     /**
-     * Creates a standard ZGW Catalogus
+     * Creates a standard ZGW Catalogus.
      *
      * @return void
      */
@@ -232,7 +231,7 @@ class InstallationService implements InstallerInterface
 
 
     /**
-     * Creates needed translations for xxllnc to zgw
+     * Creates needed translations for xxllnc to zgw.
      *
      * @return void
      *

@@ -24,7 +24,7 @@ class ZGWToXxllncHandler implements ActionHandlerInterface
 {
 
     /**
-     * ZGWToXxllncService
+     * ZGWToXxllncService.
      *
      * @var ZGWToXxllncService $zgwToXxllncService
      */
@@ -32,7 +32,7 @@ class ZGWToXxllncHandler implements ActionHandlerInterface
 
 
     /**
-     * Class constructor
+     * Class constructor.
      *
      * @param ZGWToXxllncService $zgwToXxllncService The ZGW to Xxllnc Service
      */

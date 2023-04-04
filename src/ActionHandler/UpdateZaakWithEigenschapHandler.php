@@ -26,7 +26,7 @@ class UpdateZaakWithEigenschapHandler implements ActionHandlerInterface
 {
 
     /**
-     * The ZGW to Xxllnc Service
+     * The ZGW to Xxllnc Service.
      *
      * @var ZGWToXxllncService
      */
@@ -34,7 +34,7 @@ class UpdateZaakWithEigenschapHandler implements ActionHandlerInterface
 
 
     /**
-     * Class constructor
+     * Class constructor.
      *
      * @param ZGWToXxllncService $zgwToXxllncService The ZGW to Xxllnc Service
      */

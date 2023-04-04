@@ -19,7 +19,7 @@ class XxllncZGWBundle extends Bundle
 
 
     /**
-     * Returns the path the bundle is in
+     * Returns the path the bundle is in.
      *
      * @return string
      */

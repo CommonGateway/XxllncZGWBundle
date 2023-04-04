@@ -24,7 +24,7 @@ class ZaakTypeHandler implements ActionHandlerInterface
 {
 
     /**
-     * The case type service
+     * The case type service.
      *
      * @var ZaakTypeService
      */
@@ -32,7 +32,7 @@ class ZaakTypeHandler implements ActionHandlerInterface
 
 
     /**
-     * Class constructor
+     * Class constructor.
      *
      * @param ZaakTypeService $zaakTypeService The case type service
      */

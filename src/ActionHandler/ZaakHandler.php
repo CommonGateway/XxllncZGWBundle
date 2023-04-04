@@ -15,7 +15,6 @@ namespace CommonGateway\XxllncZGWBundle\ActionHandler;
 use App\Exception\GatewayException;
 use CommonGateway\CoreBundle\ActionHandler\ActionHandlerInterface;
 use CommonGateway\XxllncZGWBundle\Service\ZaakService;
-use CommonGateway\XxllncZGWBundle\Service\ZGWToXxllncService;
 use Psr\Cache\CacheException;
 use Psr\Cache\InvalidArgumentException;
 use Respect\Validation\Exceptions\ComponentException;
@@ -25,7 +24,7 @@ class ZaakHandler implements ActionHandlerInterface
 {
 
     /**
-     * The case service
+     * The case service.
      *
      * @var ZaakService
      */
@@ -33,7 +32,7 @@ class ZaakHandler implements ActionHandlerInterface
 
 
     /**
-     * Class constructor
+     * Class constructor.
      *
      * @param ZaakService $zaakService The case service
      */

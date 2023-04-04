@@ -19,19 +19,18 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 
-
 class ZaakCommand extends Command
 {
 
     /**
-     * The actual command
+     * The actual command.
      *
      * @var static $defaultName
      */
     protected static $defaultName = 'xxllnc:zaak:synchronize';
 
     /**
-     * The case service
+     * The case service.
      *
      * @var ZaakService
      */
@@ -39,7 +38,7 @@ class ZaakCommand extends Command
 
 
     /**
-     * Class constructor
+     * Class constructor.
      *
      * @param ZaakService $zaakService The case service
      */
@@ -52,7 +51,7 @@ class ZaakCommand extends Command
 
 
     /**
-     * Configures this command
+     * Configures this command.
      *
      * @return void
      */
@@ -66,7 +65,7 @@ class ZaakCommand extends Command
 
 
     /**
-     * Executes this command
+     * Executes this command.
      *
      * @param InputInterface  Handles input from cli
      * @param OutputInterface Handles output from cli

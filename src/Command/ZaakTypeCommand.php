@@ -13,7 +13,6 @@
 namespace CommonGateway\XxllncZGWBundle\Command;
 
 use CommonGateway\XxllncZGWBundle\Service\ZaakTypeService;
-use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -25,7 +24,7 @@ class ZaakTypeCommand extends Command
 {
 
     /**
-     * The actual command
+     * The actual command.
      *
      * @var static $defaultName
      */
@@ -39,7 +38,7 @@ class ZaakTypeCommand extends Command
     private Uuid $uuid;
 
     /**
-     * The case type service
+     * The case type service.
      *
      * @var ZaakTypeService
      */
@@ -47,7 +46,7 @@ class ZaakTypeCommand extends Command
 
 
     /**
-     * Class constructor
+     * Class constructor.
      *
      * @param ZaakTypeService $zaakTypeService The case type service
      */
@@ -61,7 +60,7 @@ class ZaakTypeCommand extends Command
 
 
     /**
-     * Configures this command
+     * Configures this command.
      *
      * @return void
      */
@@ -80,7 +79,7 @@ class ZaakTypeCommand extends Command
 
 
     /**
-     * Executes this command
+     * Executes this command.
      *
      * @param InputInterface  $input  Handles input from cli
      * @param OutputInterface $output Handles output from cli
