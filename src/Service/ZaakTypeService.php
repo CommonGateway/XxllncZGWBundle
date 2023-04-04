@@ -380,7 +380,7 @@ class ZaakTypeService
      *
      * @todo make function smaller and more readable.
      */
-    public function caseTypeToZaakType(array $caseType, bool $flush=true)
+    public function caseTypeToZaakType(array $caseType, bool $flush = true)
     {
         $this->hasRequiredGatewayObjects();
         isset($caseType['result']) === true && $caseType = $caseType['result'];
@@ -441,7 +441,7 @@ class ZaakTypeService
      *
      * @todo make function smaller and more readable.
      */
-    public function zaakTypeHandler(?array $data=[], ?array $configuration=[])
+    public function zaakTypeHandler(?array $data = [], ?array $configuration = [])
     {
         isset($this->style) === true && $this->style->success('zaakType triggered');
 

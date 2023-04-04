@@ -493,7 +493,7 @@ class ZaakService
      *
      * @return ?array $this->data Data which we entered the function with.
      */
-    public function zaakHandler(?array $data=[], ?array $configuration=[])
+    public function zaakHandler(?array $data = [], ?array $configuration = [])
     {
         isset($this->style) === true && $this->style->success('zaak triggered');
 

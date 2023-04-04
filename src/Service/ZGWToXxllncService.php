@@ -119,7 +119,7 @@ class ZGWToXxllncService
      * @throws Exception
      * @todo   Make function smaller
      */
-    public function updateZaakWithEigenschapHandler(?array $data=[], ?array $configuration=[]): array
+    public function updateZaakWithEigenschapHandler(?array $data = [], ?array $configuration = []): array
     {
         isset($this->style) === true && $this->style->success('updateZaakWithEigenschapHandler triggered');
         $this->configuration = $configuration;
@@ -349,7 +349,7 @@ class ZGWToXxllncService
      *
      * @todo Make function smaller and more readable
      */
-    public function sendCaseToXxllnc(array $caseArray, ?Synchronization $synchronization=null)
+    public function sendCaseToXxllnc(array $caseArray, ?Synchronization $synchronization = null)
     {
         // If we have a sync with a sourceId we can do a put else post.
         if ($synchronization && $synchronization->getSourceId()) {
@@ -521,7 +521,7 @@ class ZGWToXxllncService
      *
      * @todo Make function smaller and more readable.
      */
-    public function zgwToXxllncHandler(?array $data=[], ?array $configuration=[]): array
+    public function zgwToXxllncHandler(?array $data = [], ?array $configuration = []): array
     {
         $this->data          = $data['response'];
         $this->configuration = $configuration;
