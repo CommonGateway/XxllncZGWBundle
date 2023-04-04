@@ -42,19 +42,19 @@ class InstallationService implements InstallerInterface
     private ObjectRepository $translationRepository;
     
     private const TRANSLATIONS = [
-        ["translateFrom" => "Nee", "translateTo" => false],
-        ["translateFrom" => "Ja", "translateTo" => true],
-        ["translateFrom" => "internextern", "translateTo" => "intern"],
-        ["translateFrom" => "Vernietigen (V)", "translateTo" => "vernietigen"],
-        ["translateFrom" => "Bewaren (B)", "translateTo" => "blijvend_bewaren"],
+        ['translateFrom' => 'Nee', 'translateTo' => false],
+        ['translateFrom' => 'Ja', 'translateTo' => true],
+        ['translateFrom' => 'internextern', 'translateTo' => 'intern'],
+        ['translateFrom' => 'Vernietigen (V)', 'translateTo' => 'vernietigen'],
+        ['translateFrom' => 'Bewaren (B)', 'translateTo' => 'blijvend_bewaren'],
     ];
     
     
     /**
-     * The constructor
+     * The constructor.
      *
-     * @param EntityManagerInterface $entityManager The entity manager.
-     * @param LoggerInterface $installationLogger The installation logger.
+     * @param EntityManagerInterface $entityManager      The entity manager.
+     * @param LoggerInterface        $installationLogger The installation logger.
      */
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -62,20 +62,20 @@ class InstallationService implements InstallerInterface
     ) {
         $this->entityManager = $entityManager;
         $this->logger = $installationLogger;
-    
+
         $this->translationRepository = $this->entityManager->getRepository('App:Translation');
-        
+
     }//end __construct()
     
     
     /**
-     * Every installation service should implement an install function
+     * Every installation service should implement an install function.
      *
      * @return void
      */
     public function install()
     {
-        $this->logger->debug("XxllncZGWBundle -> Install()");
+        $this->logger->debug('XxllncZGWBundle -> Install()');
         
         $this->checkDataConsistency();
 
@@ -83,13 +83,13 @@ class InstallationService implements InstallerInterface
     
     
     /**
-     * Every installation service should implement an update function
+     * Every installation service should implement an update function.
      *
      * @return void
      */
     public function update()
     {
-        $this->logger->debug("XxllncZGWBundle -> Update()");
+        $this->logger->debug('XxllncZGWBundle -> Update()');
         
         $this->checkDataConsistency();
 
@@ -97,13 +97,13 @@ class InstallationService implements InstallerInterface
     
     
     /**
-     * Every installation service should implement an uninstall function
+     * Every installation service should implement an uninstall function.
      *
      * @return void
      */
     public function uninstall()
     {
-        $this->logger->debug("XxllncZGWBundle -> Uninstall()");
+        $this->logger->debug('XxllncZGWBundle -> Uninstall()');
     
         // Do some cleanup to uninstall correctly...
 
@@ -140,18 +140,18 @@ class InstallationService implements InstallerInterface
         $xxllncZaakPost = $this->entityManager->getRepository('App:Entity')->findOneBy(['reference' => $reference]);
         if ($xxllncZaakPost === null) {
             $this->logger->error("No entity found for $reference.", ['plugin' => 'common-gateway/xxllnc-zgw-bundle']);
-            
+
             return;
         }
-        
+
         // Get xllncZaakPost -> files Attribute.
         $xxllncZaakPostFiles = $this->entityManager->getRepository('App:Attribute')->findOneBy(['entity' => $xxllncZaakPost, 'name' => 'files']);
         if ($xxllncZaakPostFiles === null) {
             $this->logger->error("No attribute 'files' found for entity: $reference.", ['plugin' => 'common-gateway/xxllnc-zgw-bundle']);
-            
+
             return;
         }
-    
+
         $xxllncZaakPostFiles->setObject(null);
         $xxllncZaakPostFiles->setMultiple(false);
         $xxllncZaakPostFiles->setType('array');
@@ -169,7 +169,7 @@ class InstallationService implements InstallerInterface
      */
     private function createTranslations(): void
     {
-        $this->logger->info("Looking for translations");
+        $this->logger->info('Looking for translations');
         
         foreach ($this::TRANSLATIONS as $translation) {
             $translation['translationTable'] = 'caseTypeTable1';
@@ -190,19 +190,19 @@ class InstallationService implements InstallerInterface
     {
         $translation = $this->translationRepository->findOneBy(['translateFrom' => $data['translateFrom'], 'translationTable' => $data['translationTable']]);
         if ($translation !== null) {
-            $this->logger->debug("Translation found", ['id' => $translation->getId()->toString()]);
-            
+            $this->logger->debug('Translation found', ['id' => $translation->getId()->toString()]);
+
             return;
         }
-        
+
         $translation = new Translation();
         $translation->setTranslationTable($data['translationTable']);
         $translation->setTranslateFrom($data['translateFrom']);
         $translation->setTranslateTo($data['translateTo']);
         $translation->setLanguage($data['language']);
         $this->entityManager->persist($translation);
-        
-        $this->logger->debug("Translation created", ['id' => $translation->getId()->toString()]);
-        
+
+        $this->logger->debug('Translation created', ['id' => $translation->getId()->toString()]);
+
     }//end createTranslation()
 }//end class
