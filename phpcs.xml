@@ -44,6 +44,7 @@
             <properties>
                 <property name="equalsSpacing" value="1"/>
             </properties>
+    </rule>
     <rule ref="Squiz.Operators.ComparisonOperatorUsage"/>
     <rule ref="Squiz.PHP.DisallowInlineIf"/>
     <rule ref="Squiz.Scope.MethodScope"/>
