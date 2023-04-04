@@ -509,16 +509,17 @@ class ZGWToXxllncService
         return true;
 
     }//end hasRequiredGatewayObjects()
-
-
+    
+    
     /**
      * Creates or updates a ZGW Zaak from a xxllnc casetype with the use of mapping.
      *
-     * @param ?array $data          Data from the handler where the xxllnc casetype is in.
+     * @param ?array $data Data from the handler where the xxllnc casetype is in.
      * @param ?array $configuration Configuration from the Action where the Zaak entity id is stored in.
      *
      * @return array $this->data Data which we entered the function with.
      *
+     * @throws Exception
      * @todo Make function smaller and more readable.
      */
     public function zgwToXxllncHandler(?array $data = [], ?array $configuration = []): array
