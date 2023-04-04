@@ -106,8 +106,8 @@ class ZGWToXxllncService
         return $this;
 
     }//end setStyle()
-    
-    
+
+
     /**
      * Updates zgw zrc zaak with zrc eigenschap.
      *
@@ -117,9 +117,9 @@ class ZGWToXxllncService
      * @return array
      *
      * @throws Exception
-     * @todo Make function smaller
+     * @todo   Make function smaller
      */
-    public function updateZaakWithEigenschapHandler(?array $data = [], ?array $configuration = []): array
+    public function updateZaakWithEigenschapHandler(?array $data=[], ?array $configuration=[]): array
     {
         isset($this->style) === true && $this->style->success('updateZaakWithEigenschapHandler triggered');
         $this->configuration = $configuration;
@@ -337,19 +337,19 @@ class ZGWToXxllncService
     // $xxllncZaakArray = $this->mapZGWToXxllnc($casetypeId, $zaakTypeObject, $zaakArray, $xxllncZaakPostEntity, false);
     // return ['response' => $xxllncZaakArray, 'entity' => $xxllncZaakPostEntity->getId()->toString()];
     // }
-    
-    
+
+
     /**
      * Saves case to xxllnc by POST or PUT request.
      *
-     * @param array $caseArray Case object.
+     * @param array                $caseArray       Case object.
      * @param Synchronization|null $synchronization Earlier created synchronization object.
      *
      * @return bool True if succesfully saved to xxllnc
      *
      * @todo Make function smaller and more readable
      */
-    public function sendCaseToXxllnc(array $caseArray, ?Synchronization $synchronization = null)
+    public function sendCaseToXxllnc(array $caseArray, ?Synchronization $synchronization=null)
     {
         // If we have a sync with a sourceId we can do a put else post.
         if ($synchronization && $synchronization->getSourceId()) {
@@ -406,18 +406,18 @@ class ZGWToXxllncService
         return $caseId ?? false;
 
     }//end sendCaseToXxllnc()
-    
-    
+
+
     /**
      * Maps zgw zaak to xxllnc case.
      *
-     * @param string $casetypeId The caseType id.
-     * @param ObjectEntity $zaakTypeObject ZGW ZaakType object.
-     * @param array $zaakArrayObject The data array of a zaak Object.
+     * @param  string       $casetypeId      The caseType id.
+     * @param  ObjectEntity $zaakTypeObject  ZGW ZaakType object.
+     * @param  array        $zaakArrayObject The data array of a zaak Object.
      * @return array $this->data Data which we entered the function with.
      *
      * @throws Exception
-     * @todo Make function smaller and more readable.
+     * @todo   Make function smaller and more readable.
      */
     public function mapZGWToXxllnc(string $casetypeId, ObjectEntity $zaakTypeObject, array $zaakArrayObject): array
     {
@@ -521,7 +521,7 @@ class ZGWToXxllncService
      *
      * @todo Make function smaller and more readable.
      */
-    public function zgwToXxllncHandler(?array $data = [], ?array $configuration = []): array
+    public function zgwToXxllncHandler(?array $data=[], ?array $configuration=[]): array
     {
         $this->data          = $data['response'];
         $this->configuration = $configuration;
