@@ -8,5 +8,5 @@
     "throws": [
         "xxllnc.cronjob.trigger"
     ],
-    "isEnabled": true
+    "isEnabled": false
 }
