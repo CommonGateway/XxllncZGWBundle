@@ -1,9 +1,6 @@
 {
     "installationService": "CommonGateway\\XxllncZGWBundle\\Service\\InstallationService",
     "cards": {
-      "schemas": [
-        "https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json"
-      ],
       "sources": [
         "https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json"
       ]
