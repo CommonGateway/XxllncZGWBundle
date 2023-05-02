@@ -18,6 +18,7 @@ use App\Entity\Mapping;
 use App\Entity\ObjectEntity;
 use App\Service\SynchronizationService;
 use CommonGateway\CoreBundle\Service\CallService;
+use CommonGateway\CoreBundle\Service\CacheService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectRepository;
 use Exception;
@@ -36,6 +37,11 @@ class ZaakTypeService
      * @var CallService
      */
     private CallService $callService;
+
+    /**
+     * @var CacheService
+     */
+    private CacheService $cacheService;
 
     /**
      * @var SynchronizationService
@@ -114,11 +120,13 @@ class ZaakTypeService
     public function __construct(
         EntityManagerInterface $entityManager,
         SynchronizationService $synchronizationService,
-        CallService $callService
+        CallService $callService,
+        CacheService $cacheService
     ) {
         $this->entityManager          = $entityManager;
         $this->synchronizationService = $synchronizationService;
         $this->callService            = $callService;
+        $this->cacheService           = $cacheService;
 
         $this->objectRepo  = $this->entityManager->getRepository('App:ObjectEntity');
         $this->schemaRepo  = $this->entityManager->getRepository('App:Entity');
@@ -422,7 +430,10 @@ class ZaakTypeService
         $this->entityManager->persist($this->catalogusObject);
 
         // Flush here if we are only mapping one zaaktype and not loopin through more in a parent function.
-        $flush && $this->entityManager->flush();
+        if ($flush === true) {
+            $this->entityManager->flush();
+            $this->cacheService->cacheObject($zaakTypeObject);
+        }
 
         isset($this->style) === true && $this->style->success("Created/updated zaaktype: $zaakTypeID");
 
