@@ -65,7 +65,7 @@ class ZGWToXxllncService
     private ObjectRepository $sourceRepo;
 
     /**
-     * @var Schema|null
+     * @var Source|null
      */
     private ?Source $xxllncAPI;
 
@@ -124,9 +124,9 @@ class ZGWToXxllncService
         isset($this->style) === true && $this->style->success('updateZaakWithEigenschapHandler triggered');
         $this->configuration = $configuration;
 
-        $caseId     = explode('/', $data['response']['zaak']);
-        $caseId     = end($caseId);
-        $zaakObject = $this->entityManager->find('App:ObjectEntity', $caseId);
+
+        var_dump('test');die;
+        $zaakObject = $this->entityManager->find('App:ObjectEntity', $data['response']['_id']);
         $zaakArray  = $zaakObject->toArray();
 
         $this->hasRequiredGatewayObjects();
@@ -370,7 +370,7 @@ class ZGWToXxllncService
             ];
         }//end if
 
-        // If we have dont have a sync or sourceId we can do a put.
+        // If we have dont have a sync or sourceId we can do a post.
         if ($synchronization === null || ($synchronization && $synchronization->getSourceId() !== null)) {
             $method          = 'POST';
             $endpoint        = '/case/create';
@@ -392,6 +392,7 @@ class ZGWToXxllncService
         }//end if
 
         // Send the POST/PUT request to xxllnc.
+        var_dump(json_encode($caseArray));die;
         try {
             isset($this->style) === true && $this->style->info($logMessage);
             $response = $this->callService->call($this->xxllncAPI, $endpoint, $method, ['form_params' => $caseArray]);
@@ -399,9 +400,11 @@ class ZGWToXxllncService
             $caseId   = $result['result']['reference'] ?? null;
         } catch (Exception $e) {
             isset($this->style) === true && $this->style->error("Failed to $method case, message:  {$e->getMessage()}");
+            var_dump($e->getMessage());
 
             return false;
         }//end try
+            var_dump($caseId);die;
 
         return $caseId ?? false;
 
@@ -466,6 +469,7 @@ class ZGWToXxllncService
             'id'   => '999991723',
             'type' => 'person',
         ];
+
         $sourceId               = $this->sendCaseToXxllnc($caseArray, $synchronization ?? null);
 
         if (($sourceId && isset($synchronization) === false) || (isset($synchronization) === true && $synchronization->getSourceId() === null)) {
@@ -493,14 +497,14 @@ class ZGWToXxllncService
     private function hasRequiredGatewayObjects(): bool
     {
         // Get XxllncZaak schema.
-        if (isset($this->xxllncZaakSchema) === false && $this->xxllncZaakSchema = $this->schemaRepo->findOneBy(['reference' => 'https://development.zaaksysteem.nl/schema/xxllnc.zaakPost.schema.json']) === null) {
+        if (isset($this->xxllncZaakSchema) === false && ($this->xxllncZaakSchema = $this->schemaRepo->findOneBy(['reference' => 'https://development.zaaksysteem.nl/schema/xxllnc.zaakPost.schema.json'])) === null) {
             isset($this->style) && $this->style->error('Could not find Schema: https://development.zaaksysteem.nl/schema/xxllnc.zaakPost.schema.json');
 
             return false;
         }
 
         // Get xxllnc source.
-        if (isset($this->xxllncAPI) === false && $this->xxllncAPI = $this->sourceRepo->findOneBy(['reference' => 'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json']) === null) {
+        if (isset($this->xxllncAPI) === false && ($this->xxllncAPI = $this->sourceRepo->findOneBy(['reference' => 'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json'])) === null) {
             isset($this->style) && $this->style->error('Could not find Source: https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json');
 
             return false;
@@ -527,33 +531,42 @@ class ZGWToXxllncService
         $this->data          = $data['response'];
         $this->configuration = $configuration;
 
+        var_dump('test2');
+
         isset($this->style) === true && $this->style->success('zgwToXxllnc triggered');
 
         $this->hasRequiredGatewayObjects();
 
         if (isset($this->data['zaaktype']) === false) {
+            var_dump("isset($this->data['zaaktype']) === false");die;
             return ['response' => []];
         }
 
-        if (isset($this->data['embedded']['zaaktype']['_self']['id']) === false) {
+        var_dump($this->data['zaaktype']);
+        if (isset($this->data['embedded']['zaaktype']['_self']['id']) === false &&
+            isset($this->data['zaaktype']) === false) {
+            var_dump("isset($this->data['embedded']['zaaktype']['_self']['id']) === false");die;
             return ['response' => []];
         }
 
-        $zaakTypeId     = $this->data['embedded']['zaaktype']['_self']['id'];
+        $zaakTypeId     = substr($this->data['zaaktype'], strrpos($this->data['zaaktype'], '/') + 1) ?? $this->data['embedded']['zaaktype']['_self']['id'];
         $zaakTypeObject = $this->entityManager->find('App:ObjectEntity', $zaakTypeId);
         $casetypeId     = $zaakTypeObject->getSynchronizations()[0]->getSourceId() ?? null;
         // Return here cause if the zaaktype is created through this gateway, we cant sync it to xxllnc because it doesn't exist there
         if (isset($casetypeId) === false) {
+            var_dump("isset($casetypeId) === false");die;
             return $this->data;
         }
 
         if (isset($this->data['_self']['id']) === false) {
+            var_dump("isset($this->data['_self']['id']) === false");die;
             return ['response' => []];
         }
 
         $zaakArrayObject = $this->entityManager->find('App:ObjectEntity', $this->data['_self']['id']);
 
         if (isset($zaakArrayObject) === false) {
+            var_dump("isset($zaakArrayObject) === false");die;
             return ['response' => []];
         }
 
