@@ -124,8 +124,8 @@ class ZGWToXxllncService
         isset($this->style) === true && $this->style->success('updateZaakWithEigenschapHandler triggered');
         $this->configuration = $configuration;
 
-
-        var_dump('test');die;
+        var_dump('test');
+        die;
         $zaakObject = $this->entityManager->find('App:ObjectEntity', $data['response']['_id']);
         $zaakArray  = $zaakObject->toArray();
 
@@ -403,6 +403,9 @@ class ZGWToXxllncService
             return false;
         }//end try
 
+            var_dump($caseId);
+        die;
+
         return $caseId ?? false;
 
     }//end sendCaseToXxllnc()
@@ -467,7 +470,7 @@ class ZGWToXxllncService
             'type' => 'person',
         ];
 
-        $sourceId               = $this->sendCaseToXxllnc($caseArray, $synchronization ?? null);
+        $sourceId = $this->sendCaseToXxllnc($caseArray, $synchronization ?? null);
 
         if (($sourceId && isset($synchronization) === false) || (isset($synchronization) === true && $synchronization->getSourceId() === null)) {
             $synchronization = new Synchronization();
@@ -541,7 +544,7 @@ class ZGWToXxllncService
             return ['response' => []];
         }
 
-        $zaakTypeId     = substr($this->data['zaaktype'], strrpos($this->data['zaaktype'], '/') + 1) ?? $this->data['embedded']['zaaktype']['_self']['id'];
+        $zaakTypeId     = (substr($this->data['zaaktype'], (strrpos($this->data['zaaktype'], '/') + 1)) ?? $this->data['embedded']['zaaktype']['_self']['id']);
         $zaakTypeObject = $this->entityManager->find('App:ObjectEntity', $zaakTypeId);
         $casetypeId     = $zaakTypeObject->getSynchronizations()[0]->getSourceId() ?? null;
         // Return here cause if the zaaktype is created through this gateway, we cant sync it to xxllnc because it doesn't exist there
