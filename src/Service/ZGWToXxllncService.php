@@ -392,7 +392,6 @@ class ZGWToXxllncService
         }//end if
 
         // Send the POST/PUT request to xxllnc.
-        var_dump(json_encode($caseArray));die;
         try {
             isset($this->style) === true && $this->style->info($logMessage);
             $response = $this->callService->call($this->xxllncAPI, $endpoint, $method, ['form_params' => $caseArray]);
@@ -400,11 +399,9 @@ class ZGWToXxllncService
             $caseId   = $result['result']['reference'] ?? null;
         } catch (Exception $e) {
             isset($this->style) === true && $this->style->error("Failed to $method case, message:  {$e->getMessage()}");
-            var_dump($e->getMessage());
 
             return false;
         }//end try
-            var_dump($caseId);die;
 
         return $caseId ?? false;
 
@@ -531,21 +528,16 @@ class ZGWToXxllncService
         $this->data          = $data['response'];
         $this->configuration = $configuration;
 
-        var_dump('test2');
-
         isset($this->style) === true && $this->style->success('zgwToXxllnc triggered');
 
         $this->hasRequiredGatewayObjects();
 
         if (isset($this->data['zaaktype']) === false) {
-            var_dump("isset($this->data['zaaktype']) === false");die;
             return ['response' => []];
         }
 
-        var_dump($this->data['zaaktype']);
         if (isset($this->data['embedded']['zaaktype']['_self']['id']) === false &&
             isset($this->data['zaaktype']) === false) {
-            var_dump("isset($this->data['embedded']['zaaktype']['_self']['id']) === false");die;
             return ['response' => []];
         }
 
@@ -554,19 +546,16 @@ class ZGWToXxllncService
         $casetypeId     = $zaakTypeObject->getSynchronizations()[0]->getSourceId() ?? null;
         // Return here cause if the zaaktype is created through this gateway, we cant sync it to xxllnc because it doesn't exist there
         if (isset($casetypeId) === false) {
-            var_dump("isset($casetypeId) === false");die;
             return $this->data;
         }
 
         if (isset($this->data['_self']['id']) === false) {
-            var_dump("isset($this->data['_self']['id']) === false");die;
             return ['response' => []];
         }
 
         $zaakArrayObject = $this->entityManager->find('App:ObjectEntity', $this->data['_self']['id']);
 
         if (isset($zaakArrayObject) === false) {
-            var_dump("isset($zaakArrayObject) === false");die;
             return ['response' => []];
         }
 
@@ -574,7 +563,7 @@ class ZGWToXxllncService
 
         $xxllncZaakArrayObject = $this->mapZGWToXxllnc($casetypeId, $zaakTypeObject, $zaakArrayObject);
 
-        return ['response' => $zaakArrayObject];
+        return ['response' => []];
 
     }//end zgwToXxllncHandler()
 

@@ -80,7 +80,6 @@ class ZGWToXxllncHandler implements ActionHandlerInterface
     {
         // return $data;
         // // Todo: Temporary fix, because this handler function breaks:
-        var_dump('tes1');
         return $this->zgwToXxllncService->zgwToXxllncHandler($data, $configuration);
 
     }//end run()

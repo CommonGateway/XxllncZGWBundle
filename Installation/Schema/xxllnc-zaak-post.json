@@ -1,7 +1,7 @@
 {
     "$id": "https://development.zaaksysteem.nl/schema/xxllnc.zaakPost.schema.json",
     "$schema": "https://docs.commongateway.nl/schemas/Entity.schema.json",
-    "version": "0.3",
+    "version": "0.4",
     "title": "XxllncZaakPost",
     "type": "object",
     "properties": {
@@ -19,146 +19,28 @@
             "$ref": "https://development.zaaksysteem.nl/schema/xxllnc.zaakRequestor.schema.json"
         },
         "values": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "name": {
-                        "type": "string"
-                    },
-                    "value": {
-                        "type": "string"
-                    }
-                }
-            }
+            "type": "array"
         },
         "open": {
             "type": "boolean"
         },
         "route": {
-            "type": "object",
-            "properties": {
-                "group_id": {
-                    "type": "integer"
-                },
-                "role_id": {
-                    "type": "integer"
-                }
-            }
+            "type": "array"
         },
         "contact_details": {
-            "type": "object",
-            "properties": {
-                "phone_number": {
-                    "type": "string"
-                },
-                "mobile_number": {
-                    "type": "string"
-                },
-                "email_address": {
-                    "type": "string"
-                }
-            }
+            "type": "array"
         },
         "confidentiality": {
             "type": "string"
         },
         "subjects": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "subject": {
-                        "type": "object",
-                        "properties": {
-                            "type": {
-                                "type": "string"
-                            },
-                            "reference": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "role": {
-                        "type": "string"
-                    },
-                    "magic_string_prefix": {
-                        "type": "string"
-                    },
-                    "pip_authorized": {
-                        "type": "boolean"
-                    },
-                    "send_auth_notification": {
-                        "type": "boolean"
-                    }
-                }
-            }
+            "type": "array"
         },
         "number": {
             "type": "integer"
         },
         "files": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "reference": {
-                        "type": "string"
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "number": {
-                        "type": "integer"
-                    },
-                    "metadata": {
-                        "type": "object",
-                        "properties": {
-                            "reference": {
-                                "type": "string"
-                            },
-                            "type": {
-                                "type": "string"
-                            },
-                            "instance": {
-                                "type": "object",
-                                "properties": {
-                                    "appearance": {
-                                        "type": "string"
-                                    },
-                                    "category": {
-                                        "type": "string"
-                                    },
-                                    "description": {
-                                        "type": "string"
-                                    },
-                                    "origin": {
-                                        "type": "string"
-                                    },
-                                    "origin_date": {
-                                        "type": "string"
-                                    },
-                                    "pronom_format": {
-                                        "type": "string"
-                                    },
-                                    "structure": {
-                                        "type": "string"
-                                    },
-                                    "trust_level": {
-                                        "type": "string"
-                                    },
-                                    "status": {
-                                        "type": "string"
-                                    },
-                                    "creation_date": {
-                                        "type": "string"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            "type": "array"
         }
     }
 }
