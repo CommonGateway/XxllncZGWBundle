@@ -78,8 +78,7 @@ class ZGWToXxllncHandler implements ActionHandlerInterface
      */
     public function run(array $data, array $configuration): array
     {
-        // return $data;
-        // // Todo: Temporary fix, because this handler function breaks:
+        
         return $this->zgwToXxllncService->zgwToXxllncHandler($data, $configuration);
 
     }//end run()
