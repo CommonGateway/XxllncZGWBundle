@@ -433,8 +433,7 @@ class ZaakTypeService
         if ($flush === true) {
             $this->entityManager->flush();
             $this->cacheService->cacheObject($zaakTypeObject);
-        } 
-
+        }
 
         isset($this->style) === true && $this->style->success("Created/updated zaaktype: $zaakTypeID");
 
