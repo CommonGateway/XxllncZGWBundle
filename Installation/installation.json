@@ -20,7 +20,10 @@
         {
           "reference": "https://development.zaaksysteem.nl/action/xxllnc.ZGWZaakToXxllnc.action.json",
           "actionHandler": "CommonGateway\\XxllncZGWBundle\\ActionHandler\\ZGWToXxllncHandler",
-          "listens": ["zgw.zaak.saved"]
+          "listens": ["commongateway.object.create", "commongateway.object.update"],
+          "conditions": {
+            "==": [{"var": "entity"}, "https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json"]
+          }
         }
       ]
     }

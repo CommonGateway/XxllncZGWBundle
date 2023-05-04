@@ -22,7 +22,7 @@ use Respect\Validation\Exceptions\ComponentException;
 
 
 
-class UpdateZaakWithEigenschapHandler implements ActionHandlerInterface
+class UpdateZaakHandler implements ActionHandlerInterface
 {
 
     /**
@@ -80,7 +80,7 @@ class UpdateZaakWithEigenschapHandler implements ActionHandlerInterface
      */
     public function run(array $data, array $configuration): array
     {
-        return $this->zgwToXxllncService->updateZaakWithEigenschapHandler($data, $configuration);
+        return $this->zgwToXxllncService->updateZaakHandler($data, $configuration);
 
     }//end run()
 
