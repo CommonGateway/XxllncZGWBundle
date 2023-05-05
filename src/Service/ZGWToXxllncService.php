@@ -52,7 +52,7 @@ class ZGWToXxllncService
     /**
      * @var array
      */
-    private array $data;
+    public array $data;
 
     /**
      * @var ObjectRepository
@@ -132,7 +132,7 @@ class ZGWToXxllncService
         // eigenschappen to values
         if (isset($zaakArrayObject['eigenschappen']) === true) {
             foreach ($zaakArrayObject['eigenschappen'] as $zaakEigenschap) {
-                if (isset($zaakEigenschap['eigenschap']) === true && in_array($zaakEigenschap['eigenschap']['_self']['id'], $eigenschapIds)) {
+                if (isset($zaakEigenschap['eigenschap']) === true && in_array($zaakEigenschap['eigenschap']['_self']['id'], $eigenschapIds) === true) {
                     $xxllncZaakArray['values'][$zaakEigenschap['eigenschap']['definitie']] = [$zaakEigenschap['waarde']];
                 }
             }
@@ -215,6 +215,45 @@ class ZGWToXxllncService
                 }
             }
         }//end if
+
+        return $xxllncZaakArray;
+
+    }//end mapPostRollen()
+
+
+    private function getFileObjects(ObjectEntity $zaakObject)
+    {
+        $attribute = $this->entityManager->getRepository('App:Attribute')->findOneBy([
+            'name'   => 'object',
+            'entity' => $this->schemaRepo->findOneBy(['reference' => 'https://vng.opencatalogi.nl/schemas/drc.objectInformatieObject.schema.json'])
+        ]);
+
+        $values = $this->entityManager->getRepository('App:Value')->findBy([
+            'attribute' => $attribute,
+            'object'    => $zaakObject
+        ]);
+
+        $fileObjects = [];
+        foreach ($values as $value) {
+            $fileObjects[] = $value->getObject();
+        }
+
+        return $fileObjects;
+
+    }//end getFileObjects
+
+
+    /**
+     * Maps a file from zgw to xxllnc.
+     *
+     * @param array $xxllncZaakArray               This is the Xxllnc Zaak array.
+     *
+     * @return array $xxllncZaakArray This is the Xxllnc Zaak array with the added eigenschappen.
+     */
+    private function mapPostFileObjects(array $xxllncZaakArray, array $zaakArrayObject): array
+    {
+        $zaakObject = $this->entityManager->find('App:ObjectEntity', $zaakArra)
+        $fileObjects = $this->getFileObjects();
 
         return $xxllncZaakArray;
 
@@ -393,7 +432,10 @@ class ZGWToXxllncService
         // Manually map subobjects
         $caseArray = $this->mapPostEigenschappen($caseArray, $zaakArrayObject, $zaakTypeObject);
         $caseArray = $this->mapPostInfoObjecten($caseArray, $zaakArrayObject);
+        $caseArray = $this->mapPostFileObjects($caseArray, $zaakArrayObject);
+
         // $caseArray = $this->mapPostRollen($caseArray, $zaakArrayObject); // disabled for now.
+
         $caseObject = $this->getCaseObject($zaakArrayObject);
 
         $caseObject->hydrate($caseArray);
@@ -477,7 +519,7 @@ class ZGWToXxllncService
      *
      * @return array empty
      */
-    private function syncZaakToXxllnc(): array
+    public function syncZaakToXxllnc(): array
     {
         isset($this->style) === true && $this->style->success('function syncZaakToXxllnc triggered');
 
