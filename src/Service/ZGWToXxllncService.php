@@ -223,15 +223,19 @@ class ZGWToXxllncService
 
     private function getFileObjects(ObjectEntity $zaakObject)
     {
-        $attribute = $this->entityManager->getRepository('App:Attribute')->findOneBy([
-            'name'   => 'object',
-            'entity' => $this->schemaRepo->findOneBy(['reference' => 'https://vng.opencatalogi.nl/schemas/drc.objectInformatieObject.schema.json'])
-        ]);
+        $attribute = $this->entityManager->getRepository('App:Attribute')->findOneBy(
+            [
+                'name'   => 'object',
+                'entity' => $this->schemaRepo->findOneBy(['reference' => 'https://vng.opencatalogi.nl/schemas/drc.objectInformatieObject.schema.json']),
+            ]
+        );
 
-        $values = $this->entityManager->getRepository('App:Value')->findBy([
-            'attribute' => $attribute,
-            'object'    => $zaakObject
-        ]);
+        $values = $this->entityManager->getRepository('App:Value')->findBy(
+            [
+                'attribute' => $attribute,
+                'object'    => $zaakObject,
+            ]
+        );
 
         $fileObjects = [];
         foreach ($values as $value) {
@@ -240,24 +244,24 @@ class ZGWToXxllncService
 
         return $fileObjects;
 
-    }//end getFileObjects
+    }//end getFileObjects()
 
 
     /**
      * Maps a file from zgw to xxllnc.
      *
-     * @param array $xxllncZaakArray               This is the Xxllnc Zaak array.
+     * @param array $xxllncZaakArray This is the Xxllnc Zaak array.
      *
      * @return array $xxllncZaakArray This is the Xxllnc Zaak array with the added eigenschappen.
      */
     private function mapPostFileObjects(array $xxllncZaakArray, array $zaakArrayObject): array
     {
-        $zaakObject = $this->entityManager->find('App:ObjectEntity', $zaakArra)
+        $zaakObject  = $this->entityManager->find('App:ObjectEntity', $zaakArra)
         $fileObjects = $this->getFileObjects();
 
         return $xxllncZaakArray;
 
-    }//end mapPostRollen()
+    }//end mapPostFileObjects()
 
 
     /**
@@ -435,7 +439,6 @@ class ZGWToXxllncService
         $caseArray = $this->mapPostFileObjects($caseArray, $zaakArrayObject);
 
         // $caseArray = $this->mapPostRollen($caseArray, $zaakArrayObject); // disabled for now.
-
         $caseObject = $this->getCaseObject($zaakArrayObject);
 
         $caseObject->hydrate($caseArray);

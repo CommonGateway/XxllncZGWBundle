@@ -86,9 +86,9 @@ class DocumentService
         CallService $callService,
         ZGWToXxllncService $zgwToXxllncService
     ) {
-        $this->entityManager        = $entityManager;
-        $this->callService          = $callService;
-        $this->zgwToXxllncService   = $zgwToXxllncService;
+        $this->entityManager      = $entityManager;
+        $this->callService        = $callService;
+        $this->zgwToXxllncService = $zgwToXxllncService;
 
         $this->schemaRepo = $this->entityManager->getRepository('App:Entity');
         $this->sourceRepo = $this->entityManager->getRepository('App:Gateway');
@@ -97,57 +97,59 @@ class DocumentService
 
 
     /**
-     * 
+     *
      * @return string|false $documentNumber Document number else false.
      */
     private function getZaakObject()
     {
 
         return $zaakObject;
-    }
+
+    }//end getZaakObject()
 
 
     /**
-     * 
+     *
      * @return string|false $documentNumber Document number else false.
      */
     private function reserveDocumentNumber()
     {
         // Send the POST request to xxllnc.
         try {
-            $response         = $this->callService->call($this->xxllncAPI, '/document/reserve_number', 'POST');
-            $result           = $this->callService->decodeResponse($this->xxllncAPI, $response);
-            $documentNumber   = $result['result']['reference'] ?? null;
+            $response       = $this->callService->call($this->xxllncAPI, '/document/reserve_number', 'POST');
+            $result         = $this->callService->decodeResponse($this->xxllncAPI, $response);
+            $documentNumber = $result['result']['reference'] ?? null;
         } catch (Exception $e) {
-
             return false;
         }//end try
 
         return $documentNumber ?? false;
-    }
+
+    }//end reserveDocumentNumber()
 
 
     /**
      * Gets first sync object for objectinformatieobject or creates new one.
-     * 
+     *
      * @return Synchronization
      */
     private function getSynchronization(ObjectEntity $infoObject): Synchronization
     {
         $synchronizations = $this->entityManager->getRepository('App:Synchronization')->findBy(['object' => $infoObject]);
         if (empty($synchronizations) === true) {
-             return new Synchronization(
+            return new Synchronization(
                 $this->sourceRepo->findOneBy(['reference' => 'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json']),
                 $infoObject->getEntity()
             );
         } else {
             return $synchronizations->first();
         }
-    }
+
+    }//end getSynchronization()
 
 
     /**
-     * Reserves a document number at xxllnc api, creates a synchronization object with 
+     * Reserves a document number at xxllnc api, creates a synchronization object with
      * that number, so we can later add this objectinformatieobject to the case we send to xxllnc api.
      *
      * @param ?array $data          Data from the handler where the xxllnc casetype is in.
@@ -172,10 +174,10 @@ class DocumentService
         $this->entityManager->flush();
 
         $this->zgwToXxllncService->data = $zaakObject->toArray();
-        
+
         return ['response' => $this->zgwToXxllncService->syncZaakToXxllnc()];
 
-    }//end zgwToXxllncHandler()
+    }//end fileToXxllncHandler()
 
 
 }//end class
