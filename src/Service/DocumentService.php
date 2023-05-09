@@ -62,8 +62,8 @@ class DocumentService
         EntityManagerInterface $entityManager,
         CallService $callService
     ) {
-        $this->entityManager      = $entityManager;
-        $this->callService        = $callService;
+        $this->entityManager = $entityManager;
+        $this->callService   = $callService;
 
         $this->sourceRepo = $this->entityManager->getRepository('App:Gateway');
 
@@ -78,8 +78,8 @@ class DocumentService
     {
         // Send the POST request to xxllnc.
         try {
-            $response       = $this->callService->call($this->xxllncAPI, '/document/reserve_number', 'POST');
-            $result         = $this->callService->decodeResponse($this->xxllncAPI, $response);
+            $response = $this->callService->call($this->xxllncAPI, '/document/reserve_number', 'POST');
+            $result   = $this->callService->decodeResponse($this->xxllncAPI, $response);
             var_dump($result);
             $documentNumber = $result['result']['reference'] ?? null;
         } catch (Exception $e) {
@@ -114,7 +114,7 @@ class DocumentService
 
     /**
      * Gets sync for zaakInformatieObject and gets documentNumber from xxllnc if needed.
-     * 
+     *
      * @param ObjectEntity $zaakInformatieObject
      */
     public function checkDocumentNumber(ObjectEntity $zaakInformatieObject)
