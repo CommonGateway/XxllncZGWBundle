@@ -15,7 +15,7 @@ namespace CommonGateway\XxllncZGWBundle\ActionHandler;
 
 use App\Exception\GatewayException;
 use CommonGateway\CoreBundle\ActionHandler\ActionHandlerInterface;
-use CommonGateway\XxllncZGWBundle\Service\DocumentService;
+use CommonGateway\XxllncZGWBundle\Service\ZGWToXxllncService;
 use Psr\Cache\CacheException;
 use Psr\Cache\InvalidArgumentException;
 use Respect\Validation\Exceptions\ComponentException;
@@ -28,9 +28,9 @@ class FileToXxllncHandler implements ActionHandlerInterface
     /**
      * The ZGW to Xxllnc Service.
      *
-     * @var DocumentService
+     * @var ZGWToXxllncService
      */
-    private DocumentService $documentService;
+    private ZGWToXxllncService $zgwToXxllncService;
 
 
     /**
@@ -38,9 +38,9 @@ class FileToXxllncHandler implements ActionHandlerInterface
      *
      * @param DocumentService $documentService The ZGW to Xxllnc Service
      */
-    public function __construct(DocumentService $documentService)
+    public function __construct(ZGWToXxllncService $zgwToXxllncService)
     {
-        $this->documentService = $documentService;
+        $this->zgwToXxllncService = $zgwToXxllncService;
 
     }//end __construct()
 
@@ -80,7 +80,7 @@ class FileToXxllncHandler implements ActionHandlerInterface
      */
     public function run(array $data, array $configuration): array
     {
-        return $this->documentService->fileToXxllncHandler($data, $configuration);
+        return $this->zgwToXxllncService->fileToXxllncHandler($data, $configuration);
 
     }//end run()
 

@@ -28,7 +28,7 @@
         {
             "name": "FileToXxllncAction",
             "reference": "https://development.zaaksysteem.nl/action/xxllnc.FileToXxllnc.action.json",
-            "actionHandler": "CommonGateway\\ZGWBundle\\ActionHandler\\FileToXxllncHandler",
+            "actionHandler": "CommonGateway\\XxllncZGWBundle\\ActionHandler\\FileToXxllncHandler",
             "listens": ["commongateway.object.create", "commongateway.object.update"],
             "conditions": {
                 "==": [{"var": "entity"}, "https://vng.opencatalogi.nl/schemas/zrc.zaakInformatieObject.schema.json"]

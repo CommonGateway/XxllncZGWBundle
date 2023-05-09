@@ -12,7 +12,6 @@
 
 namespace CommonGateway\XxllncZGWBundle\Service;
 
-use App\Entity\Entity as Schema;
 use App\Entity\Gateway as Source;
 use App\Entity\ObjectEntity;
 use App\Entity\Synchronization;
@@ -20,8 +19,6 @@ use CommonGateway\CoreBundle\Service\CallService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectRepository;
 use Exception;
-use Symfony\Component\Console\Style\SymfonyStyle;
-use CommonGateway\XxllncZGWBundle\Service\ZGWToXxllncService;
 
 
 class DocumentService
@@ -38,16 +35,6 @@ class DocumentService
     private CallService $callService;
 
     /**
-     * @var ZGWToXxllncService
-     */
-    private ZGWToXxllncService $zgwToXxllncService;
-
-    /**
-     * @var SymfonyStyle
-     */
-    private SymfonyStyle $style;
-
-    /**
      * @var array
      */
     private array $configuration;
@@ -60,22 +47,12 @@ class DocumentService
     /**
      * @var ObjectRepository
      */
-    private ObjectRepository $schemaRepo;
-
-    /**
-     * @var ObjectRepository
-     */
     private ObjectRepository $sourceRepo;
 
     /**
      * @var Source|null
      */
-    private ?Source $xxllncAPI;
-
-    /**
-     * @var Schema|null
-     */
-    private ?Schema $xxllncZaakSchema;
+    public ?Source $xxllncAPI;
 
 
     /**
@@ -83,29 +60,14 @@ class DocumentService
      */
     public function __construct(
         EntityManagerInterface $entityManager,
-        CallService $callService,
-        ZGWToXxllncService $zgwToXxllncService
+        CallService $callService
     ) {
         $this->entityManager      = $entityManager;
         $this->callService        = $callService;
-        $this->zgwToXxllncService = $zgwToXxllncService;
 
-        $this->schemaRepo = $this->entityManager->getRepository('App:Entity');
         $this->sourceRepo = $this->entityManager->getRepository('App:Gateway');
 
     }//end __construct()
-
-
-    /**
-     *
-     * @return string|false $documentNumber Document number else false.
-     */
-    private function getZaakObject()
-    {
-
-        return $zaakObject;
-
-    }//end getZaakObject()
 
 
     /**
@@ -118,8 +80,10 @@ class DocumentService
         try {
             $response       = $this->callService->call($this->xxllncAPI, '/document/reserve_number', 'POST');
             $result         = $this->callService->decodeResponse($this->xxllncAPI, $response);
+            var_dump($result);
             $documentNumber = $result['result']['reference'] ?? null;
         } catch (Exception $e) {
+            var_dump($e->getMessage());
             return false;
         }//end try
 
@@ -149,35 +113,24 @@ class DocumentService
 
 
     /**
-     * Reserves a document number at xxllnc api, creates a synchronization object with
-     * that number, so we can later add this objectinformatieobject to the case we send to xxllnc api.
-     *
-     * @param ?array $data          Data from the handler where the xxllnc casetype is in.
-     * @param ?array $configuration Configuration from the Action where the Zaak entity id is stored in.
-     *
-     * @return array $this->data Data which we entered the function with.
+     * Gets sync for zaakInformatieObject and gets documentNumber from xxllnc if needed.
+     * 
+     * @param ObjectEntity $zaakInformatieObject
      */
-    public function fileToXxllncHandler(?array $data = [], ?array $configuration = []): array
+    public function checkDocumentNumber(ObjectEntity $zaakInformatieObject)
     {
-        $this->data          = $data['response'];
-        $this->configuration = $configuration;
+        $synchronization = $this->getSynchronization($zaakInformatieObject);
 
-        $objectInformatieObject = $this->entityManager->find('App:ObjectEntity', $this->data['_self']['id']);
-        $zaakObject             = $objectInformatieObject->getValue('object');
+        if ($synchronization->getSourceId() === null) {
+            $documentNumber = $this->reserveDocumentNumber();
+            var_dump($documentNumber);
+            $synchronization->setSourceId($documentNumber);
 
-        $synchronization = $this->getSynchronization($objectInformatieObject);
+            $this->entityManager->persist($synchronization);
+            $this->entityManager->flush();
+        }
 
-        $documentNumber = $this->reserveDocumentNumber();
-        $synchronization->setSourceId($documentNumber);
-
-        $this->entityManager->persist($synchronization);
-        $this->entityManager->flush();
-
-        $this->zgwToXxllncService->data = $zaakObject->toArray();
-
-        return ['response' => $this->zgwToXxllncService->syncZaakToXxllnc()];
-
-    }//end fileToXxllncHandler()
+    }//end checkDocumentNumber()
 
 
 }//end class

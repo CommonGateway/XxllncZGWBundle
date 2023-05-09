@@ -40,6 +40,11 @@ class ZGWToXxllncService
     private CallService $callService;
 
     /**
+     * @var DocumentService
+     */
+    private DocumentService $documentService;
+
+    /**
      * @var SymfonyStyle
      */
     private SymfonyStyle $style;
@@ -80,10 +85,12 @@ class ZGWToXxllncService
      */
     public function __construct(
         EntityManagerInterface $entityManager,
-        CallService $callService
+        CallService $callService,
+        DocumentService $documentService
     ) {
-        $this->entityManager = $entityManager;
-        $this->callService   = $callService;
+        $this->entityManager     = $entityManager;
+        $this->callService       = $callService;
+        $this->documentService   = $documentService;
 
         $this->schemaRepo = $this->entityManager->getRepository('App:Entity');
         $this->sourceRepo = $this->entityManager->getRepository('App:Gateway');
@@ -223,23 +230,34 @@ class ZGWToXxllncService
 
     private function getFileObjects(ObjectEntity $zaakObject)
     {
+        // Get attribute for the value we need to fetch.
         $attribute = $this->entityManager->getRepository('App:Attribute')->findOneBy(
             [
-                'name'   => 'object',
-                'entity' => $this->schemaRepo->findOneBy(['reference' => 'https://vng.opencatalogi.nl/schemas/drc.objectInformatieObject.schema.json']),
+                'name'   => 'zaak',
+                'entity' => $this->schemaRepo->findOneBy(['reference' => 'https://vng.opencatalogi.nl/schemas/zrc.zaakInformatieObject.schema.json']),
             ]
         );
 
+        // Get values so we can get the zaakinformatieobjecten from this zaak.
         $values = $this->entityManager->getRepository('App:Value')->findBy(
             [
-                'attribute' => $attribute,
-                'object'    => $zaakObject,
+                'attribute'       => $attribute,
+                'stringValue'    => $zaakObject,
             ]
         );
 
+        // Loop through valeus and get object of each value.
         $fileObjects = [];
+
+        var_dump(count($values));
+        $this->documentService->xxllncAPI = $this->xxllncAPI;
         foreach ($values as $value) {
-            $fileObjects[] = $value->getObject();
+            // Make sure this zaakInformatieObject has a xxllnc documentNumber so we can send it to xxllnc.
+            $this->documentService->checkDocumentNumber($value->getObjectEntity());
+            
+            // Get object again because new Synchronization might be added that we need.
+            $fileObjects[] = $this->entityManager->find('App:ObjectEntity', $value->getObjectEntity()->getId()->toString());
+            return $fileObjects;
         }
 
         return $fileObjects;
@@ -256,8 +274,38 @@ class ZGWToXxllncService
      */
     private function mapPostFileObjects(array $xxllncZaakArray, array $zaakArrayObject): array
     {
-        $zaakObject  = $this->entityManager->find('App:ObjectEntity', $zaakArra)
-        $fileObjects = $this->getFileObjects();
+        $zaakObject  = $this->entityManager->find('App:ObjectEntity', $zaakArrayObject['_self']['id']);
+        var_dump('getfielobjects');
+        $fileObjects = $this->getFileObjects($zaakObject);
+
+        if (empty($fileObjects) === false) {
+            $xxllncZaakArray['files'] = [];
+        }
+        foreach ($fileObjects as $fileObject) {
+            var_dump(get_class($fileObject));
+            if ($fileObject->getSynchronizations()->first() && $fileObject->getSynchronizations()->first()->getSourceId()) {
+                $xxllncZaakArray['files'][] = [
+                    'reference' => $fileObject->getSynchronizations()->first()->getSourceId(),
+                    'name'      => $fileObject->getValue('titel'),
+                    'metadata'  => [
+                        'reference' => null,
+                        'type'      => 'metadata',
+                        'instance'  => [
+                            'appearance'    => $fileObject->getValue('beschrijving'),
+                            'category'      => 'Zaak document',
+                            'description'   => $fileObject->getValue('beschrijving'),
+                            'origin'        => 'Inkomend',
+                            'origin_date'   => $fileObject->getValue('registratiedatum'),
+                            'pronom_format' => $fileObject->getValue('informatieobject')->getValue('formaat'),
+                            'structure'     => 'text',
+                            'trust_level'   => $fileObject->getValue('informatieobject')->getValue('integriteit')->getValue('waarde'),
+                            'status'        => $fileObject->getValue('status'),
+                            'creation_date' => $fileObject->getValue('registratiedatum')
+                        ]
+                    ]
+                ];
+            }
+        }//end foreach
 
         return $xxllncZaakArray;
 
@@ -317,6 +365,8 @@ class ZGWToXxllncService
 
         // Method is always POST in the xxllnc api for creating and updating.
         $method = 'POST';
+
+        var_dump(json_encode($caseArray));die;
 
         // Send the POST/PUT request to xxllnc.
         try {
@@ -436,6 +486,7 @@ class ZGWToXxllncService
         // Manually map subobjects
         $caseArray = $this->mapPostEigenschappen($caseArray, $zaakArrayObject, $zaakTypeObject);
         $caseArray = $this->mapPostInfoObjecten($caseArray, $zaakArrayObject);
+        var_dump($zaakArrayObject['_self']['id']);
         $caseArray = $this->mapPostFileObjects($caseArray, $zaakArrayObject);
 
         // $caseArray = $this->mapPostRollen($caseArray, $zaakArrayObject); // disabled for now.
@@ -557,6 +608,29 @@ class ZGWToXxllncService
         return [];
 
     }//end syncZaakToXxllnc()
+
+
+    /**
+     * Triggers case update to xxllnc.
+     *
+     * @param ?array $data          Data from the handler where the xxllnc casetype is in.
+     * @param ?array $configuration Configuration from the Action where the Zaak entity id is stored in.
+     *
+     * @return array $this->data Data which we entered the function with.
+     */
+    public function fileToXxllncHandler(?array $data = [], ?array $configuration = []): array
+    {
+        $this->data          = $data['response'];
+        $this->configuration = $configuration;
+
+        $zaakInformatieObject   = $this->entityManager->find('App:ObjectEntity', $this->data['_self']['id']);
+        $zaakObject             = $zaakInformatieObject->getValue('zaak');
+
+        $this->data = $zaakObject->toArray();
+
+        return ['response' => $this->syncZaakToXxllnc()];
+
+    }//end fileToXxllncHandler()
 
 
     /**
