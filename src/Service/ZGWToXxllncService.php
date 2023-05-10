@@ -515,6 +515,63 @@ class ZGWToXxllncService
 
 
     /**
+     * Maps the Besluit to a xxllnc case, post it, and creates a realtion to the actual case.
+     * We create a sub case for the Besluit because the xxllnc api does not have a Besluit variant. 
+     */
+    private function syncBesluitToXxllnc()
+    {
+        if (isset($this->data['zaak']) === false) {
+            var_dump('syncBesluitToXxllnc returned, no zaak set');
+
+            return [];
+        }
+        if (isset($this->data['besluit']['besluittype']) === false) {
+            var_dump('syncBesluitToXxllnc returned, no zaak set');
+
+            return [];
+        }
+        $zaakObject = $this->entityManager->find('App:ObjectEntity', $this->data['zaak']['_self']['id']);
+        $zaakArrayObject = $zaakObject->toArray();
+
+        $besluitTypeObject = $this->entityManager->find('App:ObjectEntity', $this->data['besluit']['besluittype']['_self']['id']);
+        if ($besluitTypeObject === null) {
+            var_dump('syncBesluitToXxllnc returned, no besluitType set on besluit');
+
+            return [];
+        }
+
+        // If set we already synced the Zaak to xxllnc as a case.
+        if ($besluitTypeObject->getSyncronizations() && $besluitTypeObject->getSyncronizations()->first() && $besluitTypeObject->getSyncronizations()->first()->getSourceId()) {
+            $besluitCaseTypeId = $besluitTypeObject->getSyncronizations()->first()->getSourceId();
+        } else {
+            var_dump('syncBesluitToXxllnc returned, the current besluittype had no source id so it did not came from the xxllnc api.');
+
+            return [];
+        }
+
+        // If set we already synced the Zaak to xxllnc as a case.
+        if ($zaakObject->getSyncronizations() && $zaakObject->getSyncronizations()->first() && $zaakObject->getSyncronizations()->first()->getSourceId()) {
+            $caseSourceId = $zaakObject->getSyncronizations()->first()->getSourceId();
+        }
+
+        // If the Zaak hasn't been send to xxllnc yet, do it now.
+        if (isset($caseSourceId) === false) {
+            // @TODO Lets expect the case has been synced already for now...
+            // @TODO Make it possible to sync zaak from here 
+            // $this->syncZaakToXxllnc();
+        }
+        var_dump('test syncBesluitToXxllnc');die;
+        // @todo check if the Zaak of this Besluit is already synced to xxllnc, if so, skip the 2 below todo's.
+        // @todo if not check if this zaak has a zaaktype that has been synced from xxllnc and check that the zaaktype has a besluittype that has been synced from xxllnc as a casetype and also has a sync.
+        // @todo if the Zaak is elligible to send to xxllnc but has not yet send it first as a case.
+        // @todo then bij the above todos you should have a synced case for the zaak, now map the besluit to a case, with as casetype the besluittype (also synced from xxllnc), post it, and create a relation the the normal case to /case/id/add_relation.
+
+        return [];
+
+    }//end syncBesluitToXxllnc()
+
+
+    /**
      * Updates xxllnc case synchronization when zaak sub objects are created through their own endpoints.
      *
      * @param array|null $data
@@ -549,6 +606,27 @@ class ZGWToXxllncService
         return ['response' => $this->syncZaakToXxllnc()];
 
     }//end updateZaakHandler()
+
+
+    /**
+     * Creates or updates a ZGW Besluit as a xxllnc related case to the main case.
+     *
+     * @param ?array $data          Data from the handler where the xxllnc casetype is in.
+     * @param ?array $configuration Configuration from the Action where the Zaak entity id is stored in.
+     *
+     * @return array $this->data Data which we entered the function with.
+     *
+     * @throws Exception
+     * @todo   Make function smaller and more readable.
+     */
+    public function besluitToXxllncHandler(?array $data = [], ?array $configuration = []): array
+    {
+        $this->data          = $data['response'];
+        $this->configuration = $configuration;
+
+        return ['response' => $this->syncBesluitToXxllnc()];
+
+    }//end zgwToXxllncHandler()
 
 
     /**
