@@ -1,8 +1,8 @@
 <?php
 /**
- * This class handles the command for the synchronization of a xxllnc casetype to a zgw ztc zaaktype.
+ * This class handles the command for the synchronization of a xxllnc casetype to a zgw ztc zaaktype (or besluittype).
  *
- * This Command executes the zaakTypeService->zaakTypeHandler.
+ * This Command executes the zaakTypeService->getZaakType.
  *
  * @author  Conduction BV <info@conduction.nl>, Barry Brands <barry@conduction.nl>
  * @license EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -66,7 +66,9 @@ class ZaakTypeCommand extends Command
                 'id',
                 InputArgument::OPTIONAL,
                 'Casetype id to fetch from xxllnc'
-            );
+            )
+            // We also sync besluitType through this command. 
+            ->setAliases(['xxllnc:besluitType:synchronize']);
 
     }//end configure()
 
@@ -83,16 +85,18 @@ class ZaakTypeCommand extends Command
     {
         $style = new SymfonyStyle($input, $output);
         $this->zaakTypeService->setStyle($style);
-        $zaakTypeId = $input->getArgument('id');
+        
+        // ObjectType could be a BesluitType or ZaakType.
+        $objectTypeId = $input->getArgument('id');
 
-        if (isset($zaakTypeId) === true
-            && Uuid::isValid($zaakTypeId) === true
+        if (isset($objectTypeId) === true
+            && Uuid::isValid($objectTypeId) === true
         ) {
             $style->info(
                 "ID is valid, trying to fetch and
-                map casetype $zaakTypeId to a ZGW ZaakType"
+                map casetype $objectTypeId to a ZGW ZaakType (or BesluitType)"
             );
-            if ($this->zaakTypeService->getZaakType($zaakTypeId) === true) {
+            if ($this->zaakTypeService->getZaakType($objectTypeId) === true) {
                 return Command::FAILURE;
             }//end if
 
