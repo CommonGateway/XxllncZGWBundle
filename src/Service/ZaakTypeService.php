@@ -96,6 +96,11 @@ class ZaakTypeService
     /**
      * @var Schema|null
      */
+    private ?Schema $besluitTypeSchema;
+
+    /**
+     * @var Schema|null
+     */
     private ?Schema $rolTypeSchema;
 
     /**
@@ -186,6 +191,14 @@ class ZaakTypeService
             return null;
         }
 
+        // If this is a besluittype disguised as a casetype, create a ZGW BesluitType.
+        if ($this->isBesluitType($caseType) === true) {
+            isset($this->style) === true && $this->style->info("CaseType seen as a BesluitType, creating a BesluitType.");
+
+            return $this->caseTypeToBesluitType($caseType);
+        }
+
+        // Else create a normal ZGW ZaakType.
         return $this->caseTypeToZaakType($caseType);
 
     }//end getZaakType()
@@ -311,8 +324,25 @@ class ZaakTypeService
     private function getZaakTypeSchema()
     {
         // Get ZaakType schema
-        if (isset($this->zaakTypeSchema) === false && ($this->zaakTypeSchema = $this->schemaRepo->findOneBy(['name' => 'ZaakType'])) === null) {
+        if (isset($this->zaakTypeSchema) === false && ($this->zaakTypeSchema = $this->schemaRepo->findOneBy(['reference' => 'https://vng.opencatalogi.nl/schemas/ztc.zaakType.schema.json'])) === null) {
             isset($this->style) === true && $this->style->error('Could not find Schema: ZaakType');
+
+            return false;
+        }//end if
+
+    }//end getZaakTypeSchema()
+
+
+    /**
+     * Makes sure this action has the ZaakTypeSchema.
+     *
+     * @return bool|null false if some object couldn't be fetched.
+     */
+    private function getBesluitTypeSchema()
+    {
+        // Get ZaakType schema
+        if (isset($this->besluitTypeSchema) === false && ($this->besluitTypeSchema = $this->schemaRepo->findOneBy(['reference' => 'https://vng.opencatalogi.nl/schemas/ztc.besluitType.schema.json'])) === null) {
+            isset($this->style) === true && $this->style->error('Could not find Schema: BesluitType');
 
             return false;
         }//end if
@@ -329,9 +359,10 @@ class ZaakTypeService
     {
         $this->getXxllncAPI();
         $this->getZaakTypeSchema();
+        $this->getBesluitTypeSchema();
 
         // Get ZaakType schema.
-        if (isset($this->rolTypeSchema) === false && ($this->rolTypeSchema = $this->schemaRepo->findOneBy(['name' => 'RolType'])) === null) {
+        if (isset($this->rolTypeSchema) === false && ($this->rolTypeSchema = $this->schemaRepo->findOneBy(['reference' => 'https://vng.opencatalogi.nl/schemas/ztc.rolType.schema.json'])) === null) {
             isset($this->style) === true && $this->style->error('Could not find Schema: RolType');
 
             return false;
@@ -443,6 +474,66 @@ class ZaakTypeService
 
 
     /**
+     * Creates or updates a casetype to besluittype.
+     *
+     * @param array $caseType CaseType from the Xxllnc API
+     * @param bool  $flush    Do we need to flush here
+     *
+     * @var Synchronization
+     *
+     * @return void|null
+     */
+    public function caseTypeToBesluitType(array $caseType, bool $flush = true)
+    {
+        $this->hasRequiredGatewayObjects();
+        isset($caseType['result']) === true && $caseType = $caseType['result'];
+
+        isset($this->style) === true && $this->style->success("BesluitType code triggered, please finish this code when possible.");
+        
+        return true;
+    }
+
+    /**
+     * Checks if we have to flush or not.
+     * 
+     * @param $persistCount How many objects are persisted.
+     * 
+     * @return int $persistCount How many objects are persisted, resets each 20 for optimization.
+     */
+    private function flush(int $persistCount): int
+    {
+        $persistCount = ($persistCount + 1);
+
+        // Flush every 20.
+        if ($persistCount == 20) {
+            $this->entityManager->flush();
+            $persistCount = 0;
+        }
+
+        return $persistCount;
+
+    }//end flush()
+
+
+    /**
+     * Checks if the casetype is a besluittype disguised as a casetype.
+     * 
+     * @param array $caseType A xxllnc casetype (potential besluittype).
+     * 
+     * @return bool true if casetype is a besluittype.
+     */
+    private function isBesluitType(array $caseType): bool
+    {
+        if (in_array($caseType['instance']['title'], ['besluit namen @todo']) === true) {
+            return true;
+        }
+
+        return false;
+
+    }//end isBesluitType()
+
+
+    /**
      * Creates or updates a ZGW ZaakType from a xxllnc casetype with the use of the CoreBundle.
      *
      * @param ?array $data          Data from the handler where the xxllnc casetype is in.
@@ -458,6 +549,7 @@ class ZaakTypeService
 
         // Get schemas, sources and other gateway objects.
         if ($this->hasRequiredGatewayObjects() === false) {
+
             return null;
         }//end if
 
@@ -476,20 +568,24 @@ class ZaakTypeService
         isset($this->style) === true && $this->style->success("Fetched $caseTypeCount casetypes");
 
         $createdZaakTypeCount = 0;
-        $flushCount           = 0;
+        $createdBesluitTypeCount = 0;
+        $persistCount           = 0;
         foreach ($xxllncCaseTypes as $caseType) {
+            if ($this->isBesluitType($caseType) === true && $this->caseTypeToBesluitType($caseType, false)) {
+                $createdBesluitTypeCount = ($createdBesluitTypeCount + 1);
+                $persistCount            = $this->flush($persistCount);
+                continue;
+            }
+
             if ($this->caseTypeToZaakType($caseType, false)) {
                 $createdZaakTypeCount = ($createdZaakTypeCount + 1);
-                $flushCount           = ($flushCount + 1);
-            }//end if
+                $persistCount         = $this->flush($persistCount);
+                continue;
+            }
 
-            // Flush every 20.
-            if ($flushCount == 20) {
-                $this->entityManager->flush();
-                $flushCount = 0;
-            }//end if
         }//end foreach
 
+        isset($this->style) === true && $this->style->success("Created $createdBesluitTypeCount besluittypen from the $caseTypeCount fetched casetypes");
         isset($this->style) === true && $this->style->success("Created $createdZaakTypeCount zaaktypen from the $caseTypeCount fetched casetypes");
 
     }//end zaakTypeHandler()
