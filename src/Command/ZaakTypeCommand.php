@@ -67,7 +67,7 @@ class ZaakTypeCommand extends Command
                 InputArgument::OPTIONAL,
                 'Casetype id to fetch from xxllnc'
             )
-            // We also sync besluitType through this command. 
+            // We also sync besluitType through this command.
             ->setAliases(['xxllnc:besluitType:synchronize']);
 
     }//end configure()
@@ -85,7 +85,7 @@ class ZaakTypeCommand extends Command
     {
         $style = new SymfonyStyle($input, $output);
         $this->zaakTypeService->setStyle($style);
-        
+
         // ObjectType could be a BesluitType or ZaakType.
         $objectTypeId = $input->getArgument('id');
 

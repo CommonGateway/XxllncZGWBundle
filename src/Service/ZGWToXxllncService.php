@@ -303,10 +303,8 @@ class ZGWToXxllncService
     public function sendCaseRelationForBesluit(string $caseSourceId, string $besluitCaseSourceId)
     {
         $logMessage = "Posting relation for case (besluit): $besluitCaseSourceId to normal case: $caseSourceId";
-        $endpoint = "/case/$caseSourceId/relation/add";
-        $body = [
-            'related_id' => $besluitCaseSourceId
-        ];
+        $endpoint   = "/case/$caseSourceId/relation/add";
+        $body       = ['related_id' => $besluitCaseSourceId];
 
         // Send the POST/PUT request to xxllnc.
         try {
@@ -345,12 +343,12 @@ class ZGWToXxllncService
         ];
 
         switch ($type) {
-            case 'zaak': 
-                $array['zgwZaak']    = $zaakArrayObject['_self']['id'];
-                break;
-            case 'besluit': 
-                $array['zgwBesluit'] = $zaakArrayObject['_self']['id'];
-                break;
+        case 'zaak':
+            $array['zgwZaak'] = $zaakArrayObject['_self']['id'];
+            break;
+        case 'besluit':
+            $array['zgwBesluit'] = $zaakArrayObject['_self']['id'];
+            break;
         }//end switch
 
         return $array;
@@ -463,9 +461,9 @@ class ZGWToXxllncService
     /**
      * Maps zgw besluit to xxllnc case.
      *
-     * @param  string       $besluitCaseTypeId   The besluitTypeId.
-     * @param  array        $besluitArrayObject  ZGW Besluit array.
-     * 
+     * @param string $besluitCaseTypeId  The besluitTypeId.
+     * @param array  $besluitArrayObject ZGW Besluit array.
+     *
      * @return array $this->data Data which we entered the function with.
      *
      * @throws Exception
@@ -507,7 +505,7 @@ class ZGWToXxllncService
 
         return $caseArray;
 
-    }//end mapZGWToXxllnc()
+    }//end mapBesluitToXxllnc()
 
 
     /**
@@ -608,7 +606,7 @@ class ZGWToXxllncService
 
     /**
      * Maps the Besluit to a xxllnc case, post it, and creates a realtion to the actual case.
-     * We create a sub case for the Besluit because the xxllnc api does not have a Besluit variant. 
+     * We create a sub case for the Besluit because the xxllnc api does not have a Besluit variant.
      */
     private function syncBesluitToXxllnc()
     {
@@ -617,12 +615,14 @@ class ZGWToXxllncService
 
             return [];
         }
+
         if (isset($this->data['besluit']['besluittype']) === false) {
             var_dump('syncBesluitToXxllnc returned, no zaak set');
 
             return [];
         }
-        $zaakObject = $this->entityManager->find('App:ObjectEntity', $this->data['zaak']['_self']['id']);
+
+        $zaakObject      = $this->entityManager->find('App:ObjectEntity', $this->data['zaak']['_self']['id']);
         $zaakArrayObject = $zaakObject->toArray();
 
         $besluitTypeObject = $this->entityManager->find('App:ObjectEntity', $this->data['besluit']['besluittype']['_self']['id']);
@@ -649,7 +649,7 @@ class ZGWToXxllncService
         // If the Zaak hasn't been send to xxllnc yet, do it now.
         if (isset($caseSourceId) === false) {
             // @TODO Lets expect the case has been synced already for now...
-            // @TODO Make it possible to sync zaak from here 
+            // @TODO Make it possible to sync zaak from here
             // $this->syncZaakToXxllnc();
         }
 
@@ -657,12 +657,12 @@ class ZGWToXxllncService
 
         // Link normal case and besluit case at xxllnc api.
         $this->sendCaseRelationForBesluit($caseSourceId, $besluitCaseSourceId);
-        var_dump('test syncBesluitToXxllnc');die;
+        var_dump('test syncBesluitToXxllnc');
+        die;
         // @todo check if the Zaak of this Besluit is already synced to xxllnc, if so, skip the 2 below todo's.
         // @todo if not check if this zaak has a zaaktype that has been synced from xxllnc and check that the zaaktype has a besluittype that has been synced from xxllnc as a casetype and also has a sync.
         // @todo if the Zaak is elligible to send to xxllnc but has not yet send it first as a case.
         // @todo then bij the above todos you should have a synced case for the zaak, now map the besluit to a case, with as casetype the besluittype (also synced from xxllnc), post it, and create a relation the the normal case to /case/id/add_relation.
-
         return [];
 
     }//end syncBesluitToXxllnc()
@@ -723,7 +723,7 @@ class ZGWToXxllncService
 
         return ['response' => $this->syncBesluitToXxllnc()];
 
-    }//end zgwToXxllncHandler()
+    }//end besluitToXxllncHandler()
 
 
     /**

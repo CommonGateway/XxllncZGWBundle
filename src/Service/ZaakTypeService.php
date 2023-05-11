@@ -347,7 +347,7 @@ class ZaakTypeService
             return false;
         }//end if
 
-    }//end getZaakTypeSchema()
+    }//end getBesluitTypeSchema()
 
 
     /**
@@ -489,15 +489,17 @@ class ZaakTypeService
         isset($caseType['result']) === true && $caseType = $caseType['result'];
 
         isset($this->style) === true && $this->style->success("BesluitType code triggered, please finish this code when possible.");
-        
+
         return true;
-    }
+
+    }//end caseTypeToBesluitType()
+
 
     /**
      * Checks if we have to flush or not.
-     * 
+     *
      * @param $persistCount How many objects are persisted.
-     * 
+     *
      * @return int $persistCount How many objects are persisted, resets each 20 for optimization.
      */
     private function flush(int $persistCount): int
@@ -517,9 +519,9 @@ class ZaakTypeService
 
     /**
      * Checks if the casetype is a besluittype disguised as a casetype.
-     * 
+     *
      * @param array $caseType A xxllnc casetype (potential besluittype).
-     * 
+     *
      * @return bool true if casetype is a besluittype.
      */
     private function isBesluitType(array $caseType): bool
@@ -549,7 +551,6 @@ class ZaakTypeService
 
         // Get schemas, sources and other gateway objects.
         if ($this->hasRequiredGatewayObjects() === false) {
-
             return null;
         }//end if
 
@@ -567,9 +568,9 @@ class ZaakTypeService
         $caseTypeCount = count($xxllncCaseTypes);
         isset($this->style) === true && $this->style->success("Fetched $caseTypeCount casetypes");
 
-        $createdZaakTypeCount = 0;
+        $createdZaakTypeCount    = 0;
         $createdBesluitTypeCount = 0;
-        $persistCount           = 0;
+        $persistCount            = 0;
         foreach ($xxllncCaseTypes as $caseType) {
             if ($this->isBesluitType($caseType) === true && $this->caseTypeToBesluitType($caseType, false)) {
                 $createdBesluitTypeCount = ($createdBesluitTypeCount + 1);
@@ -582,7 +583,6 @@ class ZaakTypeService
                 $persistCount         = $this->flush($persistCount);
                 continue;
             }
-
         }//end foreach
 
         isset($this->style) === true && $this->style->success("Created $createdBesluitTypeCount besluittypen from the $caseTypeCount fetched casetypes");
