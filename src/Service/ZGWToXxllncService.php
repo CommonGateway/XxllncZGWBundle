@@ -291,6 +291,7 @@ class ZGWToXxllncService
         $method = 'POST';
 
         $this->logger->info("$method a case to xxllnc (Zaak ID: $zaakId)", ['mapped case' => $caseArray]);
+        $this->logger->info(\Safe\json_encode($caseArray));
 
         // Send the POST/PUT request to xxllnc.
         try {
