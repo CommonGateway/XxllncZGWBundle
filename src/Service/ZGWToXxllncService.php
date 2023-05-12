@@ -463,11 +463,7 @@ class ZGWToXxllncService
         }
 
         // Unset empty keys.
-        foreach ($caseArray as $key => $property) {
-            if (isset($caseArray[$key]) === false || empty($caseArray[$key]) === true) {
-                unset($caseArray[$key]);
-            }
-        }
+        $caseArray = array_filter($caseArray);
 
 
         $sourceId = $this->sendCaseToXxllnc($caseArray, $synchronization);
