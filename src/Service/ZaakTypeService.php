@@ -192,6 +192,22 @@ class ZaakTypeService
 
 
     /**
+     * Maps a simple informatieobjecttype.
+     * 
+     * @param array $field xxllnc field.
+     * 
+     * @return array InformatieObjectType.
+     */
+    private function mapInformatieObjectType (array $field): array
+    {
+        return [
+            'omschrijving'                 => $field['original_label'] ?? $field['label'] ?? $field['magic_string'],
+            'vertrouwelijkheidaanduiding'  => 'openbaar'
+        ];
+    }//end mapInformatieObjectType()
+
+
+    /**
      * @TODO make function smaller and readable.
      *
      * Maps the statusTypen and rolTypen from xxllnc to zgw.
@@ -210,6 +226,7 @@ class ZaakTypeService
         if (isset($caseType['instance']['phases'])) {
             $zaakTypeArray['statustypen']   = [];
             $zaakTypeArray['eigenschappen'] = [];
+            $zaakTypeArray['informatieobjecttypen'] = [];
 
             foreach ($caseType['instance']['phases'] as $phase) {
                 // Mapping maken voor status.
@@ -221,11 +238,18 @@ class ZaakTypeService
 
                 if (isset($phase['fields'])) {
                     foreach ($phase['fields'] as $field) {
+                        // If type file map informatieobjecttype
+                        if ($field['type'] === 'file') {
+                            $zaakTypeArray['informatieobjecttypen'][] = $this->mapInformatieObjectType($field);
+                            continue;
+                        }
+
+                        // If normal magic string map eigenschap.
                         isset($field['magic_string']) && $zaakTypeArray['eigenschappen'][] = [
                             'naam'      => $field['magic_string'],
                             'definitie' => $field['magic_string'],
                         ];
-                    }
+                    }//end foreach
                 }//end if
 
                 // Map role to roltype.
