@@ -219,12 +219,19 @@ class ZaakTypeService
                 isset($phase['fields'][0]['help']) ? $statusTypeArray['statustekst']           = $phase['fields'][0]['help'] : 'geen statustekst';
                 isset($phase['seq']) && $statusTypeArray['volgnummer']                         = $phase['seq'];
 
+                // @TODO should be possible to move to a mapping.
                 if (isset($phase['fields'])) {
                     foreach ($phase['fields'] as $field) {
-                        isset($field['magic_string']) && $zaakTypeArray['eigenschappen'][] = [
-                            'naam'      => $field['magic_string'],
-                            'definitie' => $field['magic_string'],
-                        ];
+                        if (isset($field['magic_string'])) {
+                            $zaakTypeArray['eigenschappen'][] = [
+                                'naam'      => $field['magic_string'],
+                                'definitie' => $field['original_label'] ?? $field['label'] ?? $field['magic_string'],
+                                'specificatie' => [
+                                    'formaat'       => $field['type'],
+                                    'kardinaliteit' => (string) $field['limit_values'] ?? "1"
+                                ]
+                            ];
+                        }
                     }
                 }//end if
 
