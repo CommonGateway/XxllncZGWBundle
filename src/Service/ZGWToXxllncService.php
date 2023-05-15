@@ -121,7 +121,7 @@ class ZGWToXxllncService
     /**
      * Gets the eigenschappen from a zaaktype and creates a simpler array.
      *
-     * @param ObjectEntity $zaakTypeObject  These is the ZGW ZaakType.
+     * @param ObjectEntity $zaakTypeObject These is the ZGW ZaakType.
      *
      * @return array $zaakTypeEigenschappen This is the Xxllnc Zaak array with the added eigenschappen.
      */
@@ -138,6 +138,7 @@ class ZGWToXxllncService
         }
 
         return $eigenschappen;
+
     }//end getEigenschappen()
 
 
@@ -159,8 +160,8 @@ class ZGWToXxllncService
         if (isset($zaakArrayObject['eigenschappen']) === true) {
             foreach ($zaakArrayObject['eigenschappen'] as $zaakEigenschap) {
                 if (isset($zaakEigenschap['eigenschap']['naam']) === true && isset($eigenschapIds[$zaakEigenschap['eigenschap']['_self']['id']]) === true
-                && $eigenschapIds[$zaakEigenschap['eigenschap']['_self']['id']] === $zaakEigenschap['naam']) {
-
+                    && $eigenschapIds[$zaakEigenschap['eigenschap']['_self']['id']] === $zaakEigenschap['naam']
+                ) {
                     // If formaat is checkbox set the waarde in a array that is in a array :/.
                     if (isset($zaakEigenschap['eigenschap']['specificatie']['formaat']) === true && $zaakEigenschap['eigenschap']['specificatie']['formaat'] === 'checkbox') {
                         $xxllncZaakArray['values'][$zaakEigenschap['eigenschap']['naam']] = [[$zaakEigenschap['waarde']]];
