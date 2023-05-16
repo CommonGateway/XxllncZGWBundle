@@ -226,16 +226,17 @@ class ZaakTypeService
 
     /**
      * Checks if we need to set a empty array if the value is not set.
-     * 
-     * @param array $zaakTypeArray ZGW ZaakType.
-     * @param string $key To check.
-     * 
+     *
+     * @param array  $zaakTypeArray ZGW ZaakType.
+     * @param string $key           To check.
+     *
      * @return mixed Empty array if not set.
      */
     private function setArrayIfNotSet(array $zaakTypeArray, string $key)
     {
-        return $zaakTypeArray[$key] ?? [];
-    }// setArrayIfNotSet()
+        return ($zaakTypeArray[$key] ?? []);
+
+    }//end setArrayIfNotSet()
 
 
     /**
@@ -255,9 +256,9 @@ class ZaakTypeService
 
         // Manually map phases to statustypen.
         if (isset($caseType['instance']['phases'])) {
-            $zaakTypeArray['statustypen'] = $this->setArrayIfNotSet($zaakTypeArray, 'statustypen');
+            $zaakTypeArray['statustypen']           = $this->setArrayIfNotSet($zaakTypeArray, 'statustypen');
             $zaakTypeArray['informatieobjecttypen'] = $this->setArrayIfNotSet($zaakTypeArray, 'informatieobjecttypen');
-            $zaakTypeArray['eigenschappen'] = $this->setArrayIfNotSet($zaakTypeArray, 'eigenschappen');
+            $zaakTypeArray['eigenschappen']         = $this->setArrayIfNotSet($zaakTypeArray, 'eigenschappen');
 
             // Phases are ZTC StatusTypen.
             foreach ($caseType['instance']['phases'] as $phase) {
@@ -266,9 +267,9 @@ class ZaakTypeService
                 $statusTypeObject->setExternalId($phase['id']);
                 $newStatusTypeArray = [
                     'omschrijving'         => $phase['name'] ?? null,
-                    'omschrijvingGeneriek' => $phase['fields'][0]['label'] ?? 'geen omschrijving',
-                    'statustekst'          => $phase['fields'][0]['help'] ?? 'geen statustekst',
-                    'volgnummer'           => $phase['seq'] ?? null
+                    'omschrijvingGeneriek' => ($phase['fields'][0]['label'] ?? 'geen omschrijving'),
+                    'statustekst'          => ($phase['fields'][0]['help'] ?? 'geen statustekst'),
+                    'volgnummer'           => $phase['seq'] ?? null,
                 ];
 
                 // Use external id so we can find this object when resyncing.
@@ -279,23 +280,22 @@ class ZaakTypeService
                 // Fields can be mapped to ZTC Eigencshappen or ZTC InformatieObjectTypen.
                 if (isset($phase['fields'])) {
                     foreach ($phase['fields'] as $field) {
-
                         // If type file map informatieobjecttype.
                         if ($field['type'] === 'file') {
                             $subObject = ($this->objectRepo->findOneBy(['externalId' => $field['id'], 'entity' => $this->infoObjectTypeSchema]) ?? new ObjectEntity($this->infoObjectTypeSchema));
                             $subObject->setExternalId($field['id']);
                             $subObjectArray = $this->mapInformatieObjectType($field);
-                            $subObjectType = 'informatieobjecttypen';
+                            $subObjectType  = 'informatieobjecttypen';
                         }
-                        // else its a eigenschap. 
-                        elseif (isset($field['magic_string']) === true) {
+                        // else its a eigenschap.
+                        else if (isset($field['magic_string']) === true) {
                             $subObject = ($this->objectRepo->findOneBy(['externalId' => $field['id'], 'entity' => $this->eigenschapSchema]) ?? new ObjectEntity($this->eigenschapSchema));
                             $subObject->setExternalId($field['id']);
                             $subObjectArray = [
                                 'naam'      => $field['magic_string'],
                                 'definitie' => $field['magic_string'],
                             ];
-                            $subObjectType = 'eigenschappen';
+                            $subObjectType  = 'eigenschappen';
                         } else {
                             continue;
                         }
@@ -304,7 +304,6 @@ class ZaakTypeService
                         $subObject->hydrate($subObjectArray);
                         $this->entityManager->persist($subObject);
                         $zaakTypeArray[$subObjectType][] = $subObject;
-
                     }//end foreach
                 }//end if
 
@@ -326,7 +325,6 @@ class ZaakTypeService
                     $this->entityManager->persist($rolTypeObject);
                     $zaakTypeArray['roltypen'][] = $rolTypeObject;
                 }//end if
-
             }//end foreach
         }//end if
 

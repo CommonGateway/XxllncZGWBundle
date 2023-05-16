@@ -485,7 +485,7 @@ class ZaakService
         $zaakObject->hydrate($zaakArray);
         $this->entityManager->persist($zaakObject);
         $zaakID = $zaakObject->getId()->toString();
-        
+
         // Flush here if we are only mapping one zaaktype and not loopin through more in a parent function.
         if ($flush === true) {
             $this->entityManager->flush();
@@ -534,7 +534,7 @@ class ZaakService
         try {
             isset($this->style) === true && $this->style->info("Fetching case: $caseID");
             $response = $this->callService->call($this->xxllncAPI, "/case/$caseID", 'GET', [], false, false);
-            $case = $this->callService->decodeResponse($this->xxllncAPI, $response);
+            $case     = $this->callService->decodeResponse($this->xxllncAPI, $response);
         } catch (Exception $e) {
             isset($this->style) === true && $this->style->error("Failed to fetch case: $caseID, message:  {$e->getMessage()}");
 
@@ -543,7 +543,7 @@ class ZaakService
 
         return $this->caseToZaak($case['result']);
 
-    }//end getZaakType()
+    }//end getZaak()
 
 
     /**
