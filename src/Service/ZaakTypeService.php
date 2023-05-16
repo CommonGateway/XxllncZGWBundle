@@ -488,6 +488,7 @@ class ZaakTypeService
         // Flush here if we are only mapping one zaaktype and not loopin through more in a parent function.
         if ($flush === true) {
             $this->entityManager->flush();
+            $this->entityManager->flush();
             $this->cacheService->cacheObject($zaakTypeObject);
         }
 
