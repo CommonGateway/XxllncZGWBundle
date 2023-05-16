@@ -15,6 +15,7 @@ namespace CommonGateway\XxllncZGWBundle\Service;
 use App\Entity\Entity as Schema;
 use App\Entity\Gateway as Source;
 use App\Entity\Mapping;
+use App\Entity\User;
 use App\Entity\ObjectEntity;
 use App\Service\SynchronizationService;
 use CommonGateway\CoreBundle\Service\CallService;
@@ -97,6 +98,21 @@ class ZaakTypeService
      * @var Schema|null
      */
     private ?Schema $rolTypeSchema;
+
+    /**
+     * @var Schema|null
+     */
+    private ?Schema $statusTypeSchema;
+
+    /**
+     * @var Schema|null
+     */
+    private ?Schema $eigenschapSchema;
+
+    /**
+     * @var Schema|null
+     */
+    private ?Schema $infoObjectTypeSchema;
 
     /**
      * @var Mapping|null
@@ -209,6 +225,20 @@ class ZaakTypeService
 
 
     /**
+     * Checks if we need to set a empty array if the value is not set.
+     * 
+     * @param array $zaakTypeArray ZGW ZaakType.
+     * @param string $key To check.
+     * 
+     * @return mixed Empty array if not set.
+     */
+    private function setArrayIfNotSet(array $zaakTypeArray, string $key)
+    {
+        return $zaakTypeArray[$key] ?? [];
+    }// setArrayIfNotSet()
+
+
+    /**
      * @TODO make function smaller and readable.
      *
      * Maps the statusTypen and rolTypen from xxllnc to zgw.
@@ -225,31 +255,56 @@ class ZaakTypeService
 
         // Manually map phases to statustypen.
         if (isset($caseType['instance']['phases'])) {
-            $zaakTypeArray['statustypen']           = [];
-            $zaakTypeArray['eigenschappen']         = [];
-            $zaakTypeArray['informatieobjecttypen'] = [];
+            $zaakTypeArray['statustypen'] = $this->setArrayIfNotSet($zaakTypeArray, 'statustypen');
+            $zaakTypeArray['informatieobjecttypen'] = $this->setArrayIfNotSet($zaakTypeArray, 'informatieobjecttypen');
+            $zaakTypeArray['eigenschappen'] = $this->setArrayIfNotSet($zaakTypeArray, 'eigenschappen');
 
+            // Phases are ZTC StatusTypen.
             foreach ($caseType['instance']['phases'] as $phase) {
-                // Mapping maken voor status.
-                $statusTypeArray                                                               = [];
-                isset($phase['name']) && $statusTypeArray['omschrijving']                      = $phase['name'];
-                isset($phase['fields'][0]['label']) ? $statusTypeArray['omschrijvingGeneriek'] = $phase['fields'][0]['label'] : 'geen omschrijving';
-                isset($phase['fields'][0]['help']) ? $statusTypeArray['statustekst']           = $phase['fields'][0]['help'] : 'geen statustekst';
-                isset($phase['seq']) && $statusTypeArray['volgnummer']                         = $phase['seq'];
+                // Find or create new roltype object.
+                $statusTypeObject = ($this->objectRepo->findOneBy(['externalId' => $phase['id'], 'entity' => $this->statusTypeSchema]) ?? new ObjectEntity($this->statusTypeSchema));
+                $statusTypeObject->setExternalId($phase['id']);
+                $newStatusTypeArray = [
+                    'omschrijving'         => $phase['name'] ?? null,
+                    'omschrijvingGeneriek' => $phase['fields'][0]['label'] ?? 'geen omschrijving',
+                    'statustekst'          => $phase['fields'][0]['help'] ?? 'geen statustekst',
+                    'volgnummer'           => $phase['seq'] ?? null
+                ];
 
+                // Use external id so we can find this object when resyncing.
+                $statusTypeObject->hydrate($newStatusTypeArray);
+                $this->entityManager->persist($statusTypeObject);
+                $zaakTypeArray['statustypen'][] = $statusTypeObject;
+
+                // Fields can be mapped to ZTC Eigencshappen or ZTC InformatieObjectTypen.
                 if (isset($phase['fields'])) {
                     foreach ($phase['fields'] as $field) {
-                        // If type file map informatieobjecttype
+
+                        // If type file map informatieobjecttype.
                         if ($field['type'] === 'file') {
-                            $zaakTypeArray['informatieobjecttypen'][] = $this->mapInformatieObjectType($field);
+                            $subObject = ($this->objectRepo->findOneBy(['externalId' => $field['id'], 'entity' => $this->infoObjectTypeSchema]) ?? new ObjectEntity($this->infoObjectTypeSchema));
+                            $subObject->setExternalId($field['id']);
+                            $subObjectArray = $this->mapInformatieObjectType($field);
+                            $subObjectType = 'informatieobjecttypen';
+                        }
+                        // else its a eigenschap. 
+                        elseif (isset($field['magic_string']) === true) {
+                            $subObject = ($this->objectRepo->findOneBy(['externalId' => $field['id'], 'entity' => $this->eigenschapSchema]) ?? new ObjectEntity($this->eigenschapSchema));
+                            $subObject->setExternalId($field['id']);
+                            $subObjectArray = [
+                                'naam'      => $field['magic_string'],
+                                'definitie' => $field['magic_string'],
+                            ];
+                            $subObjectType = 'eigenschappen';
+                        } else {
                             continue;
                         }
 
-                        // If normal magic string map eigenschap.
-                        isset($field['magic_string']) && $zaakTypeArray['eigenschappen'][] = [
-                            'naam'      => $field['magic_string'],
-                            'definitie' => $field['magic_string'],
-                        ];
+                        // Use external id so we can find this object when resyncing.
+                        $subObject->hydrate($subObjectArray);
+                        $this->entityManager->persist($subObject);
+                        $zaakTypeArray[$subObjectType][] = $subObject;
+
                     }//end foreach
                 }//end if
 
@@ -264,7 +319,7 @@ class ZaakTypeService
                     isset($phase['route']['role']['instance']['name']) === true && $preventDupedRolTypen[] = strtolower($phase['route']['role']['instance']['name']);
 
                     // Find or create new roltype object.
-                    $rolTypeObject = ($this->objectRepo->findOneBy(['externalId' => $phase['route']['role']['reference']]) ?? new ObjectEntity($this->rolTypeSchema));
+                    $rolTypeObject = ($this->objectRepo->findOneBy(['externalId' => $phase['route']['role']['reference'], 'entity' => $this->rolTypeSchema]) ?? new ObjectEntity($this->rolTypeSchema));
                     $rolTypeObject->setExternalId($phase['route']['role']['reference']);
                     // use external id so we can find this object when sending case to xxllnc
                     $rolTypeObject->hydrate($rolTypeArray);
@@ -272,7 +327,6 @@ class ZaakTypeService
                     $zaakTypeArray['roltypen'][] = $rolTypeObject;
                 }//end if
 
-                $zaakTypeArray['statustypen'][] = $statusTypeArray;
             }//end foreach
         }//end if
 
@@ -355,9 +409,30 @@ class ZaakTypeService
         $this->getXxllncAPI();
         $this->getZaakTypeSchema();
 
-        // Get ZaakType schema.
-        if (isset($this->rolTypeSchema) === false && ($this->rolTypeSchema = $this->schemaRepo->findOneBy(['name' => 'RolType'])) === null) {
+        // Get RolType schema.
+        if (isset($this->rolTypeSchema) === false && ($this->rolTypeSchema = $this->schemaRepo->findOneBy(['reference' => 'https://vng.opencatalogi.nl/schemas/ztc.rolType.schema.json'])) === null) {
             isset($this->style) === true && $this->style->error('Could not find Schema: RolType');
+
+            return false;
+        }//end if
+
+        // Get StatusType schema.
+        if (isset($this->statusTypeSchema) === false && ($this->statusTypeSchema = $this->schemaRepo->findOneBy(['reference' => 'https://vng.opencatalogi.nl/schemas/ztc.statusType.schema.json'])) === null) {
+            isset($this->style) === true && $this->style->error('Could not find Schema: StatusType');
+
+            return false;
+        }//end if
+
+        // Get Eigenschap schema.
+        if (isset($this->eigenschapSchema) === false && ($this->eigenschapSchema = $this->schemaRepo->findOneBy(['reference' => 'https://vng.opencatalogi.nl/schemas/ztc.eigenschap.schema.json'])) === null) {
+            isset($this->style) === true && $this->style->error('Could not find Schema: Eigenschap');
+
+            return false;
+        }//end if
+
+        // Get InformatieObjectType schema.
+        if (isset($this->infoObjectTypeSchema) === false && ($this->infoObjectTypeSchema = $this->schemaRepo->findOneBy(['reference' => 'https://vng.opencatalogi.nl/schemas/ztc.informatieObjectType.schema.json'])) === null) {
+            isset($this->style) === true && $this->style->error('Could not find Schema: Eigenschap');
 
             return false;
         }//end if
