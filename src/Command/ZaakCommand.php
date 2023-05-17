@@ -17,6 +17,8 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Console\Input\InputArgument;
+use Ramsey\Uuid\Uuid;
 
 
 class ZaakCommand extends Command
@@ -59,7 +61,12 @@ class ZaakCommand extends Command
     {
         $this
             ->setDescription('This command triggers Xxllnc ZaakService')
-            ->setHelp('This command triggers Xxllnc ZaakService');
+            ->setHelp('This command triggers Xxllnc ZaakService')
+            ->addArgument(
+                'id',
+                InputArgument::OPTIONAL,
+                'Casetype id to fetch from xxllnc'
+            );
 
     }//end configure()
 
@@ -76,10 +83,25 @@ class ZaakCommand extends Command
     {
         $style = new SymfonyStyle($input, $output);
         $this->zaakService->setStyle($style);
+        $zaakId = $input->getArgument('id');
+
+        if (isset($zaakId) === true
+            && Uuid::isValid($zaakId) === true
+        ) {
+            $style->info(
+                "ID is valid, trying to fetch and
+                map casetype $zaakId to a ZGW Zaak"
+            );
+            if ($this->zaakService->getZaak($zaakId) === true) {
+                return Command::FAILURE;
+            }//end if
+
+            return Command::SUCCESS;
+        }//end if
 
         if ($this->zaakService->zaakHandler() === null) {
             return Command::FAILURE;
-        }
+        }//end if
 
         return Command::SUCCESS;
 

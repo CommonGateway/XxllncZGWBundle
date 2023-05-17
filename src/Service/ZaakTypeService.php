@@ -205,6 +205,9 @@ class ZaakTypeService
     private function mapStatusAndRolTypen(array $caseType, array $zaakTypeArray): array
     {
         $rolTypeSchema = $this->gatewayResourceService->getSchema('https://vng.opencatalogi.nl/schemas/ztc.rolType.schema.json', 'common-gateway/xxllnc-zgw-bundle');
+        $statusTypeSchema = $this->gatewayResourceService->getSchema('https://vng.opencatalogi.nl/schemas/ztc.statusType.schema.json', 'common-gateway/xxllnc-zgw-bundle');
+        $infoObjectTypeSchema = $this->gatewayResourceService->getSchema('https://vng.opencatalogi.nl/schemas/ztc.informatieObjectType.schema.json', 'common-gateway/xxllnc-zgw-bundle');
+        $eigenschapSchema = $this->gatewayResourceService->getSchema('https://vng.opencatalogi.nl/schemas/ztc.eigenschap.schema.json', 'common-gateway/xxllnc-zgw-bundle');
 
         $zaakTypeArray['roltypen'] = [];
         $preventDupedRolTypen      = [];
@@ -212,30 +215,53 @@ class ZaakTypeService
         // Manually map phases to statustypen.
         if (isset($caseType['instance']['phases'])) {
             $zaakTypeArray['statustypen']           = [];
-            $zaakTypeArray['eigenschappen']         = [];
             $zaakTypeArray['informatieobjecttypen'] = [];
+            $zaakTypeArray['eigenschappen']         = [];
 
+            // Phases are ZTC StatusTypen.
             foreach ($caseType['instance']['phases'] as $phase) {
-                // Mapping maken voor status.
-                $statusTypeArray                                                               = [];
-                isset($phase['name']) && $statusTypeArray['omschrijving']                      = $phase['name'];
-                isset($phase['fields'][0]['label']) ? $statusTypeArray['omschrijvingGeneriek'] = $phase['fields'][0]['label'] : 'geen omschrijving';
-                isset($phase['fields'][0]['help']) ? $statusTypeArray['statustekst']           = $phase['fields'][0]['help'] : 'geen statustekst';
-                isset($phase['seq']) && $statusTypeArray['volgnummer']                         = $phase['seq'];
+                // Find or create new roltype object.
+                $statusTypeObject = ($this->objectRepo->findOneBy(['externalId' => $phase['id'], 'entity' => $statusTypeSchema]) ?? new ObjectEntity($statusTypeSchema));
+                $statusTypeObject->setExternalId($phase['id']);
+                $newStatusTypeArray = [
+                    'omschrijving'         => $phase['name'] ?? null,
+                    'omschrijvingGeneriek' => ($phase['fields'][0]['label'] ?? 'geen omschrijving'),
+                    'statustekst'          => ($phase['fields'][0]['help'] ?? 'geen statustekst'),
+                    'volgnummer'           => $phase['seq'] ?? null,
+                ];
 
+                // Use external id so we can find this object when resyncing.
+                $statusTypeObject->hydrate($newStatusTypeArray);
+                $this->entityManager->persist($statusTypeObject);
+                $zaakTypeArray['statustypen'][] = $statusTypeObject;
+
+                // Fields can be mapped to ZTC Eigencshappen or ZTC InformatieObjectTypen.
                 if (isset($phase['fields'])) {
                     foreach ($phase['fields'] as $field) {
-                        // If type file map informatieobjecttype
+                        // If type file map informatieobjecttype.
                         if ($field['type'] === 'file') {
-                            $zaakTypeArray['informatieobjecttypen'][] = $this->mapInformatieObjectType($field);
+                            $subObject = ($this->objectRepo->findOneBy(['externalId' => $field['id'], 'entity' => $infoObjectTypeSchema]) ?? new ObjectEntity($infoObjectTypeSchema));
+                            $subObject->setExternalId($field['id']);
+                            $subObjectArray = $this->mapInformatieObjectType($field);
+                            $subObjectType  = 'informatieobjecttypen';
+                        }
+                        // else its a eigenschap.
+                        else if (isset($field['magic_string']) === true) {
+                            $subObject = ($this->objectRepo->findOneBy(['externalId' => $field['id'], 'entity' => $eigenschapSchema]) ?? new ObjectEntity($eigenschapSchema));
+                            $subObject->setExternalId($field['id']);
+                            $subObjectArray = [
+                                'naam'      => $field['magic_string'],
+                                'definitie' => $field['magic_string'],
+                            ];
+                            $subObjectType  = 'eigenschappen';
+                        } else {
                             continue;
                         }
 
-                        // If normal magic string map eigenschap.
-                        isset($field['magic_string']) && $zaakTypeArray['eigenschappen'][] = [
-                            'naam'      => $field['magic_string'],
-                            'definitie' => $field['magic_string'],
-                        ];
+                        // Use external id so we can find this object when resyncing.
+                        $subObject->hydrate($subObjectArray);
+                        $this->entityManager->persist($subObject);
+                        $zaakTypeArray[$subObjectType][] = $subObject;
                     }//end foreach
                 }//end if
 
@@ -250,15 +276,13 @@ class ZaakTypeService
                     isset($phase['route']['role']['instance']['name']) === true && $preventDupedRolTypen[] = strtolower($phase['route']['role']['instance']['name']);
 
                     // Find or create new roltype object.
-                    $rolTypeObject = ($this->objectRepo->findOneBy(['externalId' => $phase['route']['role']['reference']]) ?? new ObjectEntity($rolTypeSchema));
+                    $rolTypeObject = ($this->objectRepo->findOneBy(['externalId' => $phase['route']['role']['reference'], 'entity' => $rolTypeSchema]) ?? new ObjectEntity($rolTypeSchema));
                     $rolTypeObject->setExternalId($phase['route']['role']['reference']);
                     // use external id so we can find this object when sending case to xxllnc
                     $rolTypeObject->hydrate($rolTypeArray);
                     $this->entityManager->persist($rolTypeObject);
                     $zaakTypeArray['roltypen'][] = $rolTypeObject;
                 }//end if
-
-                $zaakTypeArray['statustypen'][] = $statusTypeArray;
             }//end foreach
         }//end if
 
