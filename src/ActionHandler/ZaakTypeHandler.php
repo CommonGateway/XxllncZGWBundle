@@ -21,12 +21,14 @@ use Respect\Validation\Exceptions\ComponentException;
 
 class ZaakTypeHandler implements ActionHandlerInterface
 {
+
     /**
      * The case type service.
      *
      * @var ZaakTypeService
      */
     private ZaakTypeService $zaakTypeService;
+
 
     /**
      * Class constructor.
@@ -36,7 +38,9 @@ class ZaakTypeHandler implements ActionHandlerInterface
     public function __construct(ZaakTypeService $zaakTypeService)
     {
         $this->zaakTypeService = $zaakTypeService;
+
     }//end __construct()
+
 
     /**
      * This function returns the requered configuration as
@@ -60,7 +64,9 @@ class ZaakTypeHandler implements ActionHandlerInterface
                 ],
             ],
         ];
+
     }//end getConfiguration()
+
 
     /**
      * This function runs the service for validating cases.
@@ -78,5 +84,8 @@ class ZaakTypeHandler implements ActionHandlerInterface
     public function run(array $data, array $configuration): array
     {
         return $this->zaakTypeService->zaakTypeHandler($data, $configuration);
+
     }//end run()
+
+
 }//end class

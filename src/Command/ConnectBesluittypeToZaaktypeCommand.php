@@ -22,6 +22,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ConnectBesluittypeToZaaktypeCommand extends Command
 {
+
     /**
      * The actual command.
      *
@@ -36,6 +37,7 @@ class ConnectBesluittypeToZaaktypeCommand extends Command
      */
     private ZaakTypeService $zaakTypeService;
 
+
     /**
      * Class constructor.
      *
@@ -45,7 +47,9 @@ class ConnectBesluittypeToZaaktypeCommand extends Command
     {
         $this->zaakTypeService = $zaakTypeService;
         parent::__construct();
+
     }//end __construct()
+
 
     /**
      * Configures this command.
@@ -64,7 +68,9 @@ class ConnectBesluittypeToZaaktypeCommand extends Command
             )
             // We also sync besluitType through this command.
             ->setAliases(['xxllnc:besluitType:synchronize']);
+
     }//end configure()
+
 
     /**
      * Executes this command.
@@ -101,5 +107,8 @@ class ConnectBesluittypeToZaaktypeCommand extends Command
         }//end if
 
         return Command::SUCCESS;
+
     }//end execute()
+
+
 }//end class

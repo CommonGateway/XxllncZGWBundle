@@ -21,12 +21,14 @@ use Respect\Validation\Exceptions\ComponentException;
 
 class BesluitToXxllncHandler implements ActionHandlerInterface
 {
+
     /**
      * ZGWToXxllncService.
      *
      * @var ZGWToXxllncService
      */
     private ZGWToXxllncService $zgwToXxllncService;
+
 
     /**
      * Class constructor.
@@ -36,7 +38,9 @@ class BesluitToXxllncHandler implements ActionHandlerInterface
     public function __construct(ZGWToXxllncService $zgwToXxllncService)
     {
         $this->zgwToXxllncService = $zgwToXxllncService;
+
     }//end __construct()
+
 
     /**
      * This function returns the requered configuration as
@@ -54,7 +58,9 @@ class BesluitToXxllncHandler implements ActionHandlerInterface
             'required'    => [],
             'properties'  => [],
         ];
+
     }//end getConfiguration()
+
 
     /**
      * This function runs the zgw zaaktype plugin.
@@ -72,5 +78,8 @@ class BesluitToXxllncHandler implements ActionHandlerInterface
     public function run(array $data, array $configuration): array
     {
         return $this->zgwToXxllncService->besluitToXxllncHandler($data, $configuration);
+
     }//end run()
+
+
 }//end class
