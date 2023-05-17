@@ -195,7 +195,7 @@ class ZaakService
             $zaakTypeObjectEntity->setValue('eigenschappen', $eigenschappen);
             $this->entityManager->persist($zaakTypeObjectEntity);
             $this->entityManager->flush();
-        }
+        }//end if
 
         $zaakTypeArray = $zaakTypeObjectEntity->toArray();
 
@@ -210,7 +210,7 @@ class ZaakService
                     ];
                 }
             }
-        }
+        }//end foreach
 
         return $zaakArray;
 

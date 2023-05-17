@@ -15,7 +15,6 @@ namespace CommonGateway\XxllncZGWBundle\Service;
 use App\Entity\Entity as Schema;
 use App\Entity\Gateway as Source;
 use App\Entity\Mapping;
-use App\Entity\User;
 use App\Entity\ObjectEntity;
 use App\Service\SynchronizationService;
 use CommonGateway\CoreBundle\Service\CallService;
