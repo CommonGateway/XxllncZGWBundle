@@ -247,9 +247,14 @@ class ZaakTypeService
                         else if (isset($field['magic_string']) === true) {
                             $subObject = ($this->objectRepo->findOneBy(['externalId' => $field['id'], 'entity' => $eigenschapSchema]) ?? new ObjectEntity($eigenschapSchema));
                             $subObject->setExternalId($field['id']);
+                            // @TODO convert to a mapping object.
                             $subObjectArray = [
                                 'naam'      => $field['magic_string'],
-                                'definitie' => $field['magic_string'],
+                                'definitie' => $field['original_label'] ?? $field['label'] ?? $field['magic_string'],
+                                'specificatie' => [
+                                    'formaat'       => $field['type'],
+                                    'kardinaliteit' => (string) $field['limit_values'] ?? "1"
+                                ]
                             ];
                             $subObjectType  = 'eigenschappen';
                         } else {
