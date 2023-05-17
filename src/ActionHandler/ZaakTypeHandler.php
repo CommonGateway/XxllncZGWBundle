@@ -19,7 +19,6 @@ use Psr\Cache\CacheException;
 use Psr\Cache\InvalidArgumentException;
 use Respect\Validation\Exceptions\ComponentException;
 
-
 class ZaakTypeHandler implements ActionHandlerInterface
 {
 

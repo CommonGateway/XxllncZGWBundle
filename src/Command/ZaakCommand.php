@@ -13,13 +13,12 @@
 namespace CommonGateway\XxllncZGWBundle\Command;
 
 use CommonGateway\XxllncZGWBundle\Service\ZaakService;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Console\Input\InputArgument;
-use Ramsey\Uuid\Uuid;
-
 
 class ZaakCommand extends Command
 {
@@ -27,7 +26,7 @@ class ZaakCommand extends Command
     /**
      * The actual command.
      *
-     * @var static $defaultName
+     * @var static
      */
     protected static $defaultName = 'xxllnc:zaak:synchronize';
 

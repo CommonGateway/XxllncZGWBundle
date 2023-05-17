@@ -11,6 +11,7 @@
  */
 
 // src/Service/InstallationService.php
+
 namespace CommonGateway\XxllncZGWBundle\Service;
 
 use App\Entity\Entity;
@@ -20,27 +21,25 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectRepository;
 use Psr\Log\LoggerInterface;
 
-
 class InstallationService implements InstallerInterface
 {
-
     /**
      * @var EntityManagerInterface
      */
     private EntityManagerInterface $entityManager;
-    
+
     /**
      * The installation logger.
      *
      * @var LoggerInterface
      */
     private LoggerInterface $logger;
-    
+
     /**
      * @var ObjectRepository
      */
     private ObjectRepository $translationRepository;
-    
+
     private const TRANSLATIONS = [
         ['translateFrom' => 'Nee', 'translateTo' => false],
         ['translateFrom' => 'Ja', 'translateTo' => true],
@@ -48,8 +47,7 @@ class InstallationService implements InstallerInterface
         ['translateFrom' => 'Vernietigen (V)', 'translateTo' => 'vernietigen'],
         ['translateFrom' => 'Bewaren (B)', 'translateTo' => 'blijvend_bewaren'],
     ];
-    
-    
+
     /**
      * The constructor.
      *
@@ -64,10 +62,8 @@ class InstallationService implements InstallerInterface
         $this->logger = $installationLogger;
 
         $this->translationRepository = $this->entityManager->getRepository('App:Translation');
-
     }//end __construct()
-    
-    
+
     /**
      * Every installation service should implement an install function.
      *
@@ -76,12 +72,10 @@ class InstallationService implements InstallerInterface
     public function install()
     {
         $this->logger->debug('XxllncZGWBundle -> Install()');
-        
-        $this->checkDataConsistency();
 
+        $this->checkDataConsistency();
     }//end install()
-    
-    
+
     /**
      * Every installation service should implement an update function.
      *
@@ -90,12 +84,10 @@ class InstallationService implements InstallerInterface
     public function update()
     {
         $this->logger->debug('XxllncZGWBundle -> Update()');
-        
-        $this->checkDataConsistency();
 
+        $this->checkDataConsistency();
     }//end update()
-    
-    
+
     /**
      * Every installation service should implement an uninstall function.
      *
@@ -104,11 +96,9 @@ class InstallationService implements InstallerInterface
     public function uninstall()
     {
         $this->logger->debug('XxllncZGWBundle -> Uninstall()');
-    
+
         // Do some cleanup to uninstall correctly...
-
     }//end uninstall()
-
 
     /**
      * Checks if we need to create/update objects.
@@ -124,9 +114,7 @@ class InstallationService implements InstallerInterface
         $this->createTranslations();
 
         $this->entityManager->flush();
-
     }//end checkDataConsistency()
-
 
     /**
      * Updates attributes to simple array attributes.
@@ -156,9 +144,7 @@ class InstallationService implements InstallerInterface
         $xxllncZaakPostFiles->setMultiple(false);
         $xxllncZaakPostFiles->setType('array');
         $this->entityManager->persist($xxllncZaakPostFiles);
-
     }//end updateAttributes()
-
 
     /**
      * Creates needed translations for xxllnc to zgw.
@@ -170,15 +156,14 @@ class InstallationService implements InstallerInterface
     private function createTranslations(): void
     {
         $this->logger->info('Looking for translations');
-        
+
         foreach ($this::TRANSLATIONS as $translation) {
             $translation['translationTable'] = 'caseTypeTable1';
             $translation['language'] = 'nl';
             $this->createTranslation($translation);
         }
-
     }//end createTranslations()
-    
+
     /**
      * Create a single translation needed for xxllnc to zgw.
      *
@@ -203,6 +188,5 @@ class InstallationService implements InstallerInterface
         $this->entityManager->persist($translation);
 
         $this->logger->debug('Translation created', ['id' => $translation->getId()->toString()]);
-
     }//end createTranslation()
 }//end class
