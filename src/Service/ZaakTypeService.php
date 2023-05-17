@@ -222,22 +222,6 @@ class ZaakTypeService
 
     }//end mapInformatieObjectType()
 
-
-    /**
-     * Checks if we need to set a empty array if the value is not set.
-     *
-     * @param array  $zaakTypeArray ZGW ZaakType.
-     * @param string $key           To check.
-     *
-     * @return mixed Empty array if not set.
-     */
-    private function setArrayIfNotSet(array $zaakTypeArray, string $key)
-    {
-        return ($zaakTypeArray[$key] ?? []);
-
-    }//end setArrayIfNotSet()
-
-
     /**
      * @TODO make function smaller and readable.
      *
@@ -255,9 +239,9 @@ class ZaakTypeService
 
         // Manually map phases to statustypen.
         if (isset($caseType['instance']['phases'])) {
-            $zaakTypeArray['statustypen']           = $this->setArrayIfNotSet($zaakTypeArray, 'statustypen');
-            $zaakTypeArray['informatieobjecttypen'] = $this->setArrayIfNotSet($zaakTypeArray, 'informatieobjecttypen');
-            $zaakTypeArray['eigenschappen']         = $this->setArrayIfNotSet($zaakTypeArray, 'eigenschappen');
+            $zaakTypeArray['statustypen']           = [];
+            $zaakTypeArray['informatieobjecttypen'] = [];
+            $zaakTypeArray['eigenschappen']         = [];
 
             // Phases are ZTC StatusTypen.
             foreach ($caseType['instance']['phases'] as $phase) {
