@@ -13,21 +13,19 @@
 namespace CommonGateway\XxllncZGWBundle\Command;
 
 use CommonGateway\XxllncZGWBundle\Service\ZaakService;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Console\Input\InputArgument;
-use Ramsey\Uuid\Uuid;
-
 
 class ZaakCommand extends Command
 {
-
     /**
      * The actual command.
      *
-     * @var static $defaultName
+     * @var static
      */
     protected static $defaultName = 'xxllnc:zaak:synchronize';
 
@@ -38,7 +36,6 @@ class ZaakCommand extends Command
      */
     private ZaakService $zaakService;
 
-
     /**
      * Class constructor.
      *
@@ -48,9 +45,7 @@ class ZaakCommand extends Command
     {
         $this->zaakService = $zaakService;
         parent::__construct();
-
     }//end __construct()
-
 
     /**
      * Configures this command.
@@ -67,9 +62,7 @@ class ZaakCommand extends Command
                 InputArgument::OPTIONAL,
                 'Casetype id to fetch from xxllnc'
             );
-
     }//end configure()
-
 
     /**
      * Executes this command.
@@ -104,9 +97,7 @@ class ZaakCommand extends Command
         }//end if
 
         return Command::SUCCESS;
-
     }//end execute()
-
 
     // end execute()
 }//end class

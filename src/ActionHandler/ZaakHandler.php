@@ -19,17 +19,14 @@ use Psr\Cache\CacheException;
 use Psr\Cache\InvalidArgumentException;
 use Respect\Validation\Exceptions\ComponentException;
 
-
 class ZaakHandler implements ActionHandlerInterface
 {
-
     /**
      * The case service.
      *
      * @var ZaakService
      */
     private ZaakService $zaakService;
-
 
     /**
      * Class constructor.
@@ -39,9 +36,7 @@ class ZaakHandler implements ActionHandlerInterface
     public function __construct(ZaakService $zaakService)
     {
         $this->zaakService = $zaakService;
-
     }//end __construct()
-
 
     /**
      * This function returns the requered configuration as a
@@ -65,9 +60,7 @@ class ZaakHandler implements ActionHandlerInterface
                 ],
             ],
         ];
-
     }//end getConfiguration()
-
 
     /**
      * This function runs the service for validating cases.
@@ -85,8 +78,5 @@ class ZaakHandler implements ActionHandlerInterface
     public function run(array $data, array $configuration): array
     {
         return $this->zaakService->zaakHandler($data, $configuration);
-
     }//end run()
-
-
 }//end class

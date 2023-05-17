@@ -13,21 +13,19 @@
 namespace CommonGateway\XxllncZGWBundle\Command;
 
 use CommonGateway\XxllncZGWBundle\Service\ZaakTypeService;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Ramsey\Uuid\Uuid;
-
 
 class ConnectBesluittypeToZaaktypeCommand extends Command
 {
-
     /**
      * The actual command.
      *
-     * @var static $defaultName
+     * @var static
      */
     protected static $defaultName = 'xxllnc:zaakType:connect:besluittype';
 
@@ -38,7 +36,6 @@ class ConnectBesluittypeToZaaktypeCommand extends Command
      */
     private ZaakTypeService $zaakTypeService;
 
-
     /**
      * Class constructor.
      *
@@ -48,9 +45,7 @@ class ConnectBesluittypeToZaaktypeCommand extends Command
     {
         $this->zaakTypeService = $zaakTypeService;
         parent::__construct();
-
     }//end __construct()
-
 
     /**
      * Configures this command.
@@ -69,9 +64,7 @@ class ConnectBesluittypeToZaaktypeCommand extends Command
             )
             // We also sync besluitType through this command.
             ->setAliases(['xxllnc:besluitType:synchronize']);
-
     }//end configure()
-
 
     /**
      * Executes this command.
@@ -108,8 +101,5 @@ class ConnectBesluittypeToZaaktypeCommand extends Command
         }//end if
 
         return Command::SUCCESS;
-
     }//end execute()
-
-
 }//end class
