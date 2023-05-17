@@ -661,5 +661,103 @@ class ZaakTypeService
 
     }//end zaakTypeHandler()
 
+    /**
+     * Connects besluittype to the zaaktype
+     *
+     * @param ObjectEntity $zaaktype The zgw zaaktype
+     *
+     * @return void
+     */
+    private function connectBesluittypeToZaaktype(ObjectEntity $caseType): void
+    {
+        $besluittypeSchema = $this->gatewayResourceService->getSchema('https://vng.opencatalogi.nl/schemas/ztc.besluitType.schema.json', 'common-gateway/xxllnc-zgw-bundle');
+        $besluittypeObjects = $this->objectRepo->findBy(['entity' => $besluittypeSchema]);
 
+        if (isset($this->style) === true) {
+            $this->style->info("Get the besluittypen we want to add to the casetype with id: {$caseType->getId()->toString()}");
+        }
+
+        // Get the ids of the besluittypen we want to add to the given zaaktype.
+        $besluittypeIds = [];
+        foreach ($besluittypeObjects as $besluittypeObject) {
+            if (in_array($besluittypeObject->getValue('omschrijving'), ['Besluit ', 'Besluit Toegekend', 'Besluit Afgewezen']) === true) {
+                $besluittypeIds[] = $besluittypeObject->getId()->toString();
+            }
+        }
+
+        if (isset($this->style) === true) {
+            $this->style->info("Get the besluittypen from the casetype with id: {$caseType->getId()->toString()}");
+        }
+
+        // Get the ids of the besluittypen from the given zaaktype.
+        $linkedBesluittypeIds = [];
+        if (($besluittypen = $caseType->getValue('besluittypen')) !== false) {
+            foreach ($besluittypen as $item) {
+                $linkedBesluittypeIds[] = $item->getId()->toString();
+            }
+        }
+
+        // Merge the besluittype from the zaaktypes with the besluittypen we want to add.
+        $mergedBesluittypen = array_merge($linkedBesluittypeIds, $besluittypeIds);
+        // Remove duplicate values from array.
+        $mergedBesluittypen = array_unique($mergedBesluittypen);
+
+        if (isset($this->style) === true) {
+            $this->style->info("Set the besluittypen to the casetype with id: {$caseType->getId()->toString()}");
+        }
+
+        $caseType->setValue('besluittypen', $mergedBesluittypen);
+        $this->entityManager->persist($caseType);
+        $this->entityManager->flush();
+        $this->entityManager->flush();// The besluittype are only visable with the second flush.
+    }
+
+    /**
+     * Creates or updates a ZGW ZaakType from a xxllnc casetype with the use of the CoreBundle.
+     *
+     * @param ?array $data          Data from the handler where the xxllnc casetype is in.
+     * @param ?array $configuration Configuration from the Action where the ZaakType entity id is stored in.
+     *
+     * @return void|null
+     *
+     * @todo make function smaller and more readable.
+     */
+    public function connectBesluittypeToZaaktypeHandler(?array $data = [], ?array $configuration = [], ?string $zaaktypeId = null)
+    {
+        $zaaktypeSchema = $this->gatewayResourceService->getSchema('https://vng.opencatalogi.nl/schemas/ztc.zaakType.schema.json', 'common-gateway/xxllnc-zgw-bundle');
+
+        if ($zaaktypeId !== null) {
+            if (isset($this->style) === true) {
+                $this->style->info("Get zaaktype with id: $zaaktypeId");
+            }
+            
+            // Get the zaaktype with the given id.
+            $zaaktypeObject = $this->objectRepo->find($zaaktypeId);
+
+            if ($zaaktypeObject instanceof ObjectEntity === false) {
+                return null;
+            }
+
+            // Connects besluittypen to the zaaktype.
+            $this->connectBesluittypeToZaaktype($zaaktypeObject);
+        }// end if
+
+        if ($zaaktypeId === null) {
+            if (isset($this->style) === true) {
+                $this->style->info("Get all zaaktype");
+            }
+            
+            // Get all zaaktype objects.
+            $zaaktypeObjects = $this->objectRepo->findBy(['entity' => $zaaktypeSchema]);
+            foreach ($zaaktypeObjects as $zaaktypeObject) {
+                if ($zaaktypeObject instanceof ObjectEntity === false) {
+                    continue;
+                }
+
+                // Connects besluittypen to the zaaktype.
+                $this->connectBesluittypeToZaaktype($zaaktypeObject);
+            }
+        }// end if
+    }
+    
 }//end class
