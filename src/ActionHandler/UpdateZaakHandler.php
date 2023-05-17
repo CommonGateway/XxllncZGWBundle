@@ -22,12 +22,14 @@ use Respect\Validation\Exceptions\ComponentException;
 
 class UpdateZaakHandler implements ActionHandlerInterface
 {
+
     /**
      * The ZGW to Xxllnc Service.
      *
      * @var ZGWToXxllncService
      */
     private ZGWToXxllncService $zgwToXxllncService;
+
 
     /**
      * Class constructor.
@@ -37,7 +39,9 @@ class UpdateZaakHandler implements ActionHandlerInterface
     public function __construct(ZGWToXxllncService $zgwToXxllncService)
     {
         $this->zgwToXxllncService = $zgwToXxllncService;
+
     }//end __construct()
+
 
     /**
      * This function returns the required configuration as
@@ -55,7 +59,9 @@ class UpdateZaakHandler implements ActionHandlerInterface
             'required'    => [],
             'properties'  => [],
         ];
+
     }//end getConfiguration()
+
 
     /**
      * This function runs the zgw zaak eigenschap update.
@@ -73,5 +79,8 @@ class UpdateZaakHandler implements ActionHandlerInterface
     public function run(array $data, array $configuration): array
     {
         return $this->zgwToXxllncService->updateZaakHandler($data, $configuration);
+
     }//end run()
+
+
 }//end class

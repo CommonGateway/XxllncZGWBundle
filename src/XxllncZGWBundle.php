@@ -9,13 +9,14 @@
  */
 
 // src/XxllncZGWBundle.php
-
 namespace CommonGateway\XxllncZGWBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class XxllncZGWBundle extends Bundle
 {
+
+
     /**
      * Returns the path the bundle is in.
      *
@@ -24,5 +25,8 @@ class XxllncZGWBundle extends Bundle
     public function getPath(): string
     {
         return \dirname(__DIR__);
+
     }//end getPath()
+
+
 }//end class

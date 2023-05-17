@@ -22,6 +22,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ZaakCommand extends Command
 {
+
     /**
      * The actual command.
      *
@@ -36,6 +37,7 @@ class ZaakCommand extends Command
      */
     private ZaakService $zaakService;
 
+
     /**
      * Class constructor.
      *
@@ -45,7 +47,9 @@ class ZaakCommand extends Command
     {
         $this->zaakService = $zaakService;
         parent::__construct();
+
     }//end __construct()
+
 
     /**
      * Configures this command.
@@ -62,7 +66,9 @@ class ZaakCommand extends Command
                 InputArgument::OPTIONAL,
                 'Casetype id to fetch from xxllnc'
             );
+
     }//end configure()
+
 
     /**
      * Executes this command.
@@ -97,7 +103,9 @@ class ZaakCommand extends Command
         }//end if
 
         return Command::SUCCESS;
+
     }//end execute()
+
 
     // end execute()
 }//end class
