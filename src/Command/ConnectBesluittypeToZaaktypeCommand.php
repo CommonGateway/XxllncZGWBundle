@@ -67,7 +67,7 @@ class ConnectBesluittypeToZaaktypeCommand extends Command
                 'Casetype id to fetch from xxllnc'
             )
             // We also sync besluitType through this command.
-            ->setAliases(['xxllnc:besluitType:synchronize']);
+            ->setAliases(['xxllnc:besluitType:connect']);
 
     }//end configure()
 
@@ -85,15 +85,14 @@ class ConnectBesluittypeToZaaktypeCommand extends Command
         $style = new SymfonyStyle($input, $output);
         $this->zaakTypeService->setStyle($style);
 
-        // ObjectType could be a BesluitType or ZaakType.
+        // ObjectType is a ZaakType.
         $objectTypeId = $input->getArgument('id');
 
         if (isset($objectTypeId) === true
             && Uuid::isValid($objectTypeId) === true
         ) {
             $style->info(
-                "ID is valid, trying to fetch and
-                map casetype $objectTypeId to a ZGW ZaakType (or BesluitType)"
+                "ID is valid, trying to connect besluittype to the casetype  with id: $objectTypeId"
             );
             if ($this->zaakTypeService->connectBesluittypeToZaaktypeHandler($objectTypeId) === true) {
                 return Command::FAILURE;
