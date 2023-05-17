@@ -19,14 +19,13 @@ use Psr\Cache\CacheException;
 use Psr\Cache\InvalidArgumentException;
 use Respect\Validation\Exceptions\ComponentException;
 
-
 class ZGWToXxllncHandler implements ActionHandlerInterface
 {
 
     /**
      * ZGWToXxllncService.
      *
-     * @var ZGWToXxllncService $zgwToXxllncService
+     * @var ZGWToXxllncService
      */
     private ZGWToXxllncService $zgwToXxllncService;
 
@@ -78,7 +77,6 @@ class ZGWToXxllncHandler implements ActionHandlerInterface
      */
     public function run(array $data, array $configuration): array
     {
-
         return $this->zgwToXxllncService->zgwToXxllncHandler($data, $configuration);
 
     }//end run()

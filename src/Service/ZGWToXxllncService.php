@@ -109,7 +109,7 @@ class ZGWToXxllncService
      * @return self
      */
     public function setStyle(SymfonyStyle $style): self
-    // @TODO change to monolog
+        // @TODO change to monolog
     {
         $this->style = $style;
 
