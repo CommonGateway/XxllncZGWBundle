@@ -1,0 +1,13 @@
+{
+  "title": "XxllncInformatieObjectTypeToZGWInformatieObjectType",
+  "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncInformatieObjectTypeToZGWInformatieObjectType.mapping.json",
+  "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
+  "version": "0.0.1",
+  "passTrough": false,
+  "mapping": {
+    "omschrijving": "original_label",
+    "vertrouwelijkheidaanduiding": "public"
+  },
+  "unset": {},
+  "cast": {}
+}
