@@ -222,6 +222,7 @@ class ZaakTypeService
 
     }//end mapInformatieObjectType()
 
+
     /**
      * @TODO make function smaller and readable.
      *
