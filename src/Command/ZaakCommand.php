@@ -83,16 +83,16 @@ class ZaakCommand extends Command
     {
         $style = new SymfonyStyle($input, $output);
         $this->zaakService->setStyle($style);
-        $zaakTypeId = $input->getArgument('id');
+        $zaakId = $input->getArgument('id');
 
-        if (isset($zaakTypeId) === true
-            && Uuid::isValid($zaakTypeId) === true
+        if (isset($zaakId) === true
+            && Uuid::isValid($zaakId) === true
         ) {
             $style->info(
                 "ID is valid, trying to fetch and
-                map casetype $zaakTypeId to a ZGW ZaakType"
+                map casetype $zaakId to a ZGW Zaak"
             );
-            if ($this->zaakService->getZaak($zaakTypeId) === true) {
+            if ($this->zaakService->getZaak($zaakId) === true) {
                 return Command::FAILURE;
             }//end if
 
