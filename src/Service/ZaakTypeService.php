@@ -249,12 +249,12 @@ class ZaakTypeService
                             $subObject->setExternalId($field['id']);
                             // @TODO convert to a mapping object.
                             $subObjectArray = [
-                                'naam'      => $field['magic_string'],
-                                'definitie' => $field['original_label'] ?? $field['label'] ?? $field['magic_string'],
+                                'naam'         => $field['magic_string'],
+                                'definitie'    => ($field['original_label'] ?? $field['label'] ?? $field['magic_string']),
                                 'specificatie' => [
                                     'formaat'       => $field['type'],
-                                    'kardinaliteit' => (string) $field['limit_values'] ?? "1"
-                                ]
+                                    'kardinaliteit' => ((string) $field['limit_values'] ?? "1"),
+                                ],
                             ];
                             $subObjectType  = 'eigenschappen';
                         } else {
