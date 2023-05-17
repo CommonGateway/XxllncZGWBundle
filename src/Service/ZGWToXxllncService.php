@@ -241,7 +241,7 @@ class ZGWToXxllncService
      */
     public function sendCaseToXxllnc(array $caseArray, ?Synchronization $synchronization = null)
     {
-        $zaakOrBesluitId = $caseArray['zgwZaak'] ?? $caseArray['zgwBesluit'];
+        $zaakOrBesluitId = ($caseArray['zgwZaak'] ?? $caseArray['zgwBesluit']);
         // If we have a sync with a sourceId we can do a PUT.
         if ($synchronization && $synchronization->getSourceId()) {
             $endpoint        = "/case/{$synchronization->getSourceId()}/update";
@@ -344,7 +344,7 @@ class ZGWToXxllncService
      * @param array  $zaakArrayObject
      * @param string $caseTypeId
      * @param string $bsn
-     * @param string $type besluit or case
+     * @param string $type            besluit or case
      *
      * @return array $caseArray
      */
@@ -367,12 +367,12 @@ class ZGWToXxllncService
         ];
 
         switch ($type) {
-            case 'zaak':
-                $array['zgwZaak'] = $zaakArrayObject['_self']['id'];
-                break;
-            case 'besluit':
-                $array['zgwBesluit'] = $zaakArrayObject['_self']['id'];
-                break;
+        case 'zaak':
+            $array['zgwZaak'] = $zaakArrayObject['_self']['id'];
+            break;
+        case 'besluit':
+            $array['zgwBesluit'] = $zaakArrayObject['_self']['id'];
+            break;
         }//end switch
 
         return $array;
@@ -390,12 +390,12 @@ class ZGWToXxllncService
     private function getCaseObject(array $zaakArrayObject, string $type = 'case')
     {
         switch ($type) {
-            case 'case': 
-                $name = 'zgwZaak';
-                break;
-            case 'besluit':
-                $name = 'zgwBesluit';
-                break;
+        case 'case':
+            $name = 'zgwZaak';
+            break;
+        case 'besluit':
+            $name = 'zgwBesluit';
+            break;
         }
 
         // Get needed attribute so we can find the already existing case object
@@ -735,6 +735,7 @@ class ZGWToXxllncService
 
             return [];
         }
+
         var_dump('test syncBesluitToXxllnc');
         exit;
         return [];
