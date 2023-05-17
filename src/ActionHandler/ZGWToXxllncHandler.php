@@ -19,17 +19,14 @@ use Psr\Cache\CacheException;
 use Psr\Cache\InvalidArgumentException;
 use Respect\Validation\Exceptions\ComponentException;
 
-
 class ZGWToXxllncHandler implements ActionHandlerInterface
 {
-
     /**
      * ZGWToXxllncService.
      *
-     * @var ZGWToXxllncService $zgwToXxllncService
+     * @var ZGWToXxllncService
      */
     private ZGWToXxllncService $zgwToXxllncService;
-
 
     /**
      * Class constructor.
@@ -39,9 +36,7 @@ class ZGWToXxllncHandler implements ActionHandlerInterface
     public function __construct(ZGWToXxllncService $zgwToXxllncService)
     {
         $this->zgwToXxllncService = $zgwToXxllncService;
-
     }//end __construct()
-
 
     /**
      * This function returns the requered configuration as
@@ -59,9 +54,7 @@ class ZGWToXxllncHandler implements ActionHandlerInterface
             'required'    => [],
             'properties'  => [],
         ];
-
     }//end getConfiguration()
-
 
     /**
      * This function runs the zgw zaaktype plugin.
@@ -78,10 +71,6 @@ class ZGWToXxllncHandler implements ActionHandlerInterface
      */
     public function run(array $data, array $configuration): array
     {
-
         return $this->zgwToXxllncService->zgwToXxllncHandler($data, $configuration);
-
     }//end run()
-
-
 }//end class
