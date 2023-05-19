@@ -93,7 +93,7 @@ class ZGWToXxllncService
      */
     public function __construct(
         EntityManagerInterface $entityManager,
-        DocumentService $documentService
+        DocumentService $documentService,
         LoggerInterface $pluginLogger
     ) {
         $this->entityManager   = $entityManager;
