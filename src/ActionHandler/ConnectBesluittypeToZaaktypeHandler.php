@@ -1,8 +1,8 @@
 <?php
 /**
- * This class handles the synchronization of one or more of xxllnc cases to zgw zrc zaken.
+ * This class handles the synchronization of one or more of xxllnc casetypes to zgw ztc zaaktypen.
  *
- * This ActionHandler executes the zaakService->zaakHandler.
+ * This ActionHandler executes the zaakTypeService->zaakTypeHandler.
  *
  * @author  Conduction BV <info@conduction.nl>, Barry Brands <barry@conduction.nl>
  * @license EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -14,52 +14,52 @@ namespace CommonGateway\XxllncZGWBundle\ActionHandler;
 
 use App\Exception\GatewayException;
 use CommonGateway\CoreBundle\ActionHandler\ActionHandlerInterface;
-use CommonGateway\XxllncZGWBundle\Service\ZaakService;
+use CommonGateway\XxllncZGWBundle\Service\ZaakTypeService;
 use Psr\Cache\CacheException;
 use Psr\Cache\InvalidArgumentException;
 use Respect\Validation\Exceptions\ComponentException;
 
-class ZaakHandler implements ActionHandlerInterface
+class ConnectBesluittypeToZaaktypeHandler implements ActionHandlerInterface
 {
 
     /**
-     * The case service.
+     * The case type service.
      *
-     * @var ZaakService
+     * @var ZaakTypeService
      */
-    private ZaakService $zaakService;
+    private ZaakTypeService $zaakTypeService;
 
 
     /**
      * Class constructor.
      *
-     * @param ZaakService $zaakService The case service
+     * @param ZaakTypeService $zaakTypeService The case type service
      */
-    public function __construct(ZaakService $zaakService)
+    public function __construct(ZaakTypeService $zaakTypeService)
     {
-        $this->zaakService = $zaakService;
+        $this->zaakTypeService = $zaakTypeService;
 
     }//end __construct()
 
 
     /**
-     * This function returns the requered configuration as a
-     * [json-schema](https://json-schema.org/) array.
+     * This function returns the requered configuration as
+     * a [json-schema](https://json-schema.org/) array.
      *
-     * @return array a [json-schema](https://json-schema.org/) that this  action should comply to
+     * @return array a [json-schema](https://json-schema.org/) that this action should comply to
      */
     public function getConfiguration(): array
     {
         return [
-            '$id'         => 'https://development.zaaksysteem.nl/schemas/Zaak.ActionHandler.schema.json',
+            '$id'         => 'https://development.zaaksysteem.nl/schemas/ZaakType.ActionHandler.schema.json',
             '$schema'     => 'https://docs.commongateway.nl/schemas/ActionHandler.schema.json',
-            'title'       => 'ZaakAction',
-            'description' => 'This handler customly maps xxllnc case to zgw zaak',
-            'required'    => ['zaakEntityId'],
+            'title'       => 'ZGW ZaakType Action',
+            'description' => 'This handler customly maps xxllnc casetype to zgw zaaktype ',
+            'required'    => ['zaakTypeEntityId'],
             'properties'  => [
                 'zaakTypeEntityId' => [
                     'type'        => 'string',
-                    'description' => 'The UUID of the Zaak Entity on the gateway',
+                    'description' => 'The UUID of the case entitEntity on the gateway',
                     'example'     => '',
                 ],
             ],
@@ -83,7 +83,7 @@ class ZaakHandler implements ActionHandlerInterface
      */
     public function run(array $data, array $configuration): array
     {
-        return $this->zaakService->zaakHandler($data, $configuration);
+        return $this->zaakTypeService->connectBesluittypeToZaaktypeHandler($data, $configuration);
 
     }//end run()
 

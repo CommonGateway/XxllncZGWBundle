@@ -18,12 +18,27 @@
           "listens": ["xxllnc.cronjob.trigger"]
         },
         {
+          "reference": "https://development.zaaksysteem.nl/action/xxllnc.ConnectBesluittypeToZaaktypeHandler.action.json",
+          "actionHandler": "CommonGateway\\XxllncZGWBundle\\ActionHandler\\ConnectBesluittypeToZaaktypeHandler",
+          "listens": ["xxllnc.cronjob.trigger"],
+          "priority": 1
+        },
+        {
           "reference": "https://development.zaaksysteem.nl/action/xxllnc.ZGWZaakToXxllnc.action.json",
           "actionHandler": "CommonGateway\\XxllncZGWBundle\\ActionHandler\\ZGWToXxllncHandler",
           "listens": ["commongateway.object.create", "commongateway.object.update"],
           "conditions": {
             "==": [{"var": "entity"}, "https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json"]
           }
+        },
+        {
+            "name": "BesluitToXxllncAction",
+            "reference": "https://development.zaaksysteem.nl/action/xxllnc.BesluitToXxllnc.action.json",
+            "actionHandler": "CommonGateway\\XxllncZGWBundle\\ActionHandler\\BesluitToXxllncHandler",
+            "listens": ["commongateway.object.create", "commongateway.object.update"],
+            "conditions": {
+                "==": [{"var": "entity"}, "https://vng.opencatalogi.nl/schemas/zrc.zaakBesluit.schema.json"]
+            }
         },
         {
             "name": "FileToXxllncAction",

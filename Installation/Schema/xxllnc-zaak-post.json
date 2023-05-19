@@ -1,7 +1,7 @@
 {
     "$id": "https://development.zaaksysteem.nl/schema/xxllnc.zaakPost.schema.json",
     "$schema": "https://docs.commongateway.nl/schemas/Entity.schema.json",
-    "version": "0.4",
+    "version": "0.5",
     "title": "XxllncZaakPost",
     "type": "object",
     "properties": {
@@ -9,9 +9,17 @@
             "type": "string"
         },
         "zgwZaak": {
+            "description": "ID of the ZGW Zaak this case will be mapped from.",
+            "type": "string"
+        },
+        "zgwBesluit": {
+            "description": "ID of the ZGW Besluit this case will be mapped from.",
             "type": "string"
         },
         "source": {
+            "type": "string"
+        },
+        "date_of_registration": {
             "type": "string"
         },
         "requestor": {

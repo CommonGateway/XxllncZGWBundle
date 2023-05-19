@@ -18,13 +18,12 @@ use App\Entity\Mapping;
 use App\Entity\ObjectEntity;
 use App\Entity\Synchronization;
 use App\Service\SynchronizationService;
+use CommonGateway\CoreBundle\Service\CacheService;
 use CommonGateway\CoreBundle\Service\CallService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectRepository;
 use Exception;
 use Symfony\Component\Console\Style\SymfonyStyle;
-
-
 
 class ZaakService
 {
@@ -48,6 +47,11 @@ class ZaakService
      * @var CallService
      */
     private CallService $callService;
+
+    /**
+     * @var CacheService
+     */
+    private CacheService $cacheService;
 
     /**
      * @var ZaakTypeService
@@ -119,12 +123,14 @@ class ZaakService
         EntityManagerInterface $entityManager,
         SynchronizationService $synchronizationService,
         CallService $callService,
-        ZaakTypeService $zaakTypeService
+        ZaakTypeService $zaakTypeService,
+        CacheService $cacheService
     ) {
         $this->entityManager          = $entityManager;
         $this->synchronizationService = $synchronizationService;
         $this->callService            = $callService;
         $this->zaakTypeService        = $zaakTypeService;
+        $this->cacheService           = $cacheService;
 
         $this->objectRepo          = $this->entityManager->getRepository('App:ObjectEntity');
         $this->schemaRepo          = $this->entityManager->getRepository('App:Entity');
@@ -187,7 +193,7 @@ class ZaakService
             $zaakTypeObjectEntity->setValue('eigenschappen', $eigenschappen);
             $this->entityManager->persist($zaakTypeObjectEntity);
             $this->entityManager->flush();
-        }
+        }//end if
 
         $zaakTypeArray = $zaakTypeObjectEntity->toArray();
 
@@ -202,7 +208,7 @@ class ZaakService
                     ];
                 }
             }
-        }
+        }//end foreach
 
         return $zaakArray;
 
@@ -457,7 +463,7 @@ class ZaakService
      *
      * @return void|null
      */
-    public function caseToZaak(array $case)
+    public function caseToZaak(array $case, bool $flush = true)
     {
         $this->checkId($case);
         $zaakTypeObject = $this->checkZaakType($case);
@@ -478,11 +484,64 @@ class ZaakService
         $this->entityManager->persist($zaakObject);
         $zaakID = $zaakObject->getId()->toString();
 
+        // Flush here if we are only mapping one zaaktype and not loopin through more in a parent function.
+        if ($flush === true) {
+            $this->entityManager->flush();
+            $this->entityManager->flush();
+            $this->cacheService->cacheObject($zaakObject);
+        }
+
         isset($this->style) === true && $this->style->success("Created/updated zaak: $zaakID");
 
         return $synchronization->getObject();
 
     }//end caseToZaak()
+
+
+    /**
+     * Makes sure this action has the xxllnc api source.
+     *
+     * @return bool|null false if some object couldn't be fetched.
+     */
+    private function getXxllncAPI()
+    {
+        // Get xxllnc source
+        if (isset($this->xxllncAPI) === false && ($this->xxllncAPI = $this->sourceRepo->findOneBy(['reference' => 'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json'])) === null) {
+            isset($this->style) === true && $this->style->error('Could not find Source: Xxllnc API');
+
+            return false;
+        }//end if
+
+    }//end getXxllncAPI()
+
+
+    /**
+     * Fetches a xxllnc case and maps it to a zgw zaak.
+     *
+     * @param string $caseID This is the xxllnc case id.
+     *
+     * @return object|null $zaakTypeObject Fetched and mapped ZGW ZaakType.
+     */
+    public function getZaak(string $caseID)
+    {
+        $this->getXxllncAPI();
+        if (!$this->hasRequiredGatewayObjects()) {
+            return null;
+        }
+
+        try {
+            isset($this->style) === true && $this->style->info("Fetching case: $caseID");
+            $response = $this->callService->call($this->xxllncAPI, "/case/$caseID", 'GET', [], false, false);
+            $case     = $this->callService->decodeResponse($this->xxllncAPI, $response);
+        } catch (Exception $e) {
+            isset($this->style) === true && $this->style->error("Failed to fetch case: $caseID, message:  {$e->getMessage()}");
+
+            return null;
+        }
+
+        return $this->caseToZaak($case['result']);
+
+    }//end getZaak()
 
 
     /**
@@ -528,6 +587,7 @@ class ZaakService
 
             // Flush every 20
             if ($flushCount == 20) {
+                $this->entityManager->flush();
                 $this->entityManager->flush();
                 $flushCount = 0;
             }//end if

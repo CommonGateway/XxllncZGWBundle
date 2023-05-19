@@ -20,7 +20,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class ZaakTypeCommand extends Command
+class ConnectBesluittypeToZaaktypeCommand extends Command
 {
 
     /**
@@ -28,7 +28,7 @@ class ZaakTypeCommand extends Command
      *
      * @var static
      */
-    protected static $defaultName = 'xxllnc:zaakType:synchronize';
+    protected static $defaultName = 'xxllnc:zaakType:connect:besluittype';
 
     /**
      * The case type service.
@@ -67,7 +67,7 @@ class ZaakTypeCommand extends Command
                 'Casetype id to fetch from xxllnc'
             )
             // We also sync besluitType through this command.
-            ->setAliases(['xxllnc:besluitType:synchronize']);
+            ->setAliases(['xxllnc:besluitType:connect']);
 
     }//end configure()
 
@@ -85,24 +85,23 @@ class ZaakTypeCommand extends Command
         $style = new SymfonyStyle($input, $output);
         $this->zaakTypeService->setStyle($style);
 
-        // ObjectType could be a BesluitType or ZaakType.
+        // ObjectType is a ZaakType.
         $objectTypeId = $input->getArgument('id');
 
         if (isset($objectTypeId) === true
             && Uuid::isValid($objectTypeId) === true
         ) {
             $style->info(
-                "ID is valid, trying to fetch and
-                map casetype $objectTypeId to a ZGW ZaakType (or BesluitType)"
+                "ID is valid, trying to connect besluittype to the casetype  with id: $objectTypeId"
             );
-            if ($this->zaakTypeService->getZaakType($objectTypeId) === true) {
+            if ($this->zaakTypeService->connectBesluittypeToZaaktypeHandler($objectTypeId) === true) {
                 return Command::FAILURE;
             }//end if
 
             return Command::SUCCESS;
         }//end if
 
-        if ($this->zaakTypeService->zaakTypeHandler() === null) {
+        if ($this->zaakTypeService->connectBesluittypeToZaaktypeHandler() === null) {
             return Command::FAILURE;
         }//end if
 
