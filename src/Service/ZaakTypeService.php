@@ -249,12 +249,12 @@ class ZaakTypeService
                             $subObject->setExternalId($field['id']);
                             // @TODO convert to a mapping object.
                             $subObjectArray = [
-                                'naam'         => $field['magic_string'],
-                                'definitie'    => ($field['original_label'] ?? $field['label'] ?? $field['magic_string']),
+                                'naam'      => $field['magic_string'],
+                                'definitie' => $field['original_label'] ?? $field['label'] ?? $field['magic_string'],
                                 'specificatie' => [
                                     'formaat'       => $field['type'],
-                                    'kardinaliteit' => ((string) $field['limit_values'] ?? "1"),
-                                ],
+                                    'kardinaliteit' => (string) $field['limit_values'] ?? "1"
+                                ]
                             ];
                             $subObjectType  = 'eigenschappen';
                         } else {
@@ -343,9 +343,13 @@ class ZaakTypeService
         if (isset($this->catalogusObject) === false
             && ($this->catalogusObject = $this->objectRepo->findOneBy(['entity' => $catalogusSchema])) === null
         ) {
-            isset($this->style) === true && $this->style->error('Could not find catalogus object');
-
-            return false;
+            $this->catalogusObject = new ObjectEntity($catalogusSchema);
+            $this->catalogusObject->hydrate([
+                "id" => "d3de83d2-aa64-4d34-a9d1-ea07c5c6b045",
+                "domein" => "http://localhost",
+                "contactpersoonBeheerNaam" => "Conduction"
+            ]);
+            $this->entityManager->persist($this->catalogusObject);
         }//end if
 
         return true;
