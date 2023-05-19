@@ -2,7 +2,7 @@
     "title": "XxllncCaseToZGWZaak",
     "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseToZGWZaak.mapping.json",
     "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "passTrough": false,
     "mapping": {
         "identificatie": "reference",
@@ -14,7 +14,7 @@
         "einddatumGepland": "instance.date_target",
         "publicatiedatum": "instance.date_target",
         "communicatiekanaal": "instance.channel_of_contact",
-        "vertrouwelijkheidaanduidng": "instance.confidentiality.mapped"
+        "vertrouwelijkheidaanduidng": "{{ instance.confidentiality.mapped|lower }}"
     },
     "unset": {},
     "cast": {}
