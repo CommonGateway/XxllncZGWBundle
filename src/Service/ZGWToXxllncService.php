@@ -161,10 +161,9 @@ class ZGWToXxllncService
             foreach ($zaakArrayObject['eigenschappen'] as $zaakEigenschap) {
                 if (isset($zaakEigenschap['eigenschap']['naam']) === true && isset($eigenschapIds[$zaakEigenschap['eigenschap']['_self']['id']]) === true
                 ) {
-
                     // refetch eigenschap otherwise it doesnt load the specificate sub object.
                     $eigenschap = $this->entityManager->find('App:ObjectEntity', $zaakEigenschap['eigenschap']['_self']['id'])->toArray();
-                    
+
                     // If formaat is checkbox set the waarde in a array that is in a array :/.
                     if (isset($eigenschap['specificatie']['formaat']) === true && $eigenschap['specificatie']['formaat'] === 'checkbox') {
                         $xxllncZaakArray['values'][$eigenschap['naam']] = [[$zaakEigenschap['waarde']]];
@@ -320,7 +319,7 @@ class ZGWToXxllncService
         // Method is always POST in the xxllnc api for creating and updating.
         $method = 'POST';
 
-        $this->logger->info("$method a case to xxllnc (Zaak ID: $zaakId) " . \Safe\json_encode($caseArray));
+        $this->logger->info("$method a case to xxllnc (Zaak ID: $zaakId) ".\Safe\json_encode($caseArray));
 
         // Send the POST/PUT request to xxllnc.
         try {
@@ -328,12 +327,13 @@ class ZGWToXxllncService
             $response = $this->callService->call($this->xxllncAPI, $endpoint, $method, ['body' => \Safe\json_encode($caseArray), 'headers' => ['Content-Type' => 'application/json']]);
             $result   = $this->callService->decodeResponse($this->xxllncAPI, $response);
             $caseId   = $result['result']['reference'] ?? null;
-            $this->logger->info("$method succesfull for case with externalId: $caseId and response: " . \Safe\json_encode($result));
+            $this->logger->info("$method succesfull for case with externalId: $caseId and response: ".\Safe\json_encode($result));
         } catch (Exception $e) {
             $this->logger->error("Failed to $method case, message:  {$e->getMessage()}");
 
             return false;
         }//end try
+
         return $caseId ?? false;
 
     }//end sendCaseToXxllnc()
