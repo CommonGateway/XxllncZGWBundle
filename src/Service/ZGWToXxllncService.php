@@ -99,7 +99,7 @@ class ZGWToXxllncService
         $this->entityManager   = $entityManager;
         $this->callService     = $callService;
         $this->documentService = $documentService;
-        $this->logger        = $pluginLogger;
+        $this->logger          = $pluginLogger;
 
         $this->schemaRepo = $this->entityManager->getRepository('App:Entity');
         $this->sourceRepo = $this->entityManager->getRepository('App:Gateway');
