@@ -344,16 +344,13 @@ class ZaakService
     /**
      * Sets default values.
      *
-     * @param array $zaakArray
-     *
      * @return array $zaakArray
      */
-    private function setDefaultValues($zaakArray)
+    private function setDefaultValues()
     {
+        $zaakArray = [];
         foreach ($this->skeletonIn as $key => $data) {
-            if (isset($zaakArray[$key]) === false) {
-                $zaakArray[$key] = $data;
-            }
+            $zaakArray[$key] = $data;
         }
 
         return $zaakArray;
@@ -467,12 +464,17 @@ class ZaakService
     {
         $this->checkId($case);
         $zaakTypeObject = $this->checkZaakType($case);
+        if ($zaakTypeObject instanceof ObjectEntity === false) {
+
+            isset($this->style) === true && $this->style->error("ZaakType for case {$case['reference']} could not be found or synced");
+            
+            return null;
+        }
         $zaakTypeArray  = $zaakTypeObject->toArray();
 
         $synchronization = $this->getSyncForCase($case);
         $zaakObject      = $synchronization->getObject();
-        $zaakArray       = $zaakObject->toArray();
-        $zaakArray       = $this->setDefaultValues($zaakArray);
+        $zaakArray       = $this->setDefaultValues();
 
         $zaakArray['zaaktype'] = $zaakTypeObject;
 
@@ -566,8 +568,13 @@ class ZaakService
         // Fetch the xxllnc cases.
         isset($this->style) === true && $this->style->info('Fetching xxllnc cases');
 
+        $callConfig = [];
+        if (isset($configuration['query']) === true) {
+            $callConfig['query'] = $configuration['query'];
+        }
+
         try {
-            $xxllncCases = $this->callService->getAllResults($this->xxllncAPI, '/case', [], 'result.instance.rows');
+            $xxllncCases = $this->callService->getAllResults($this->xxllncAPI, '/case', $callConfig, 'result.instance.rows');
         } catch (Exception $e) {
             isset($this->style) === true && $this->style->error("Failed to fetch: {$e->getMessage()}");
 
@@ -580,10 +587,14 @@ class ZaakService
         $createdZaakCount = 0;
         $flushCount       = 0;
         foreach ($xxllncCases as $case) {
-            if ($this->caseToZaak($case)) {
-                $createdZaakCount = ($createdZaakCount + 1);
-                $flushCount       = ($flushCount + 1);
-            }//end if
+            if ($this->caseToZaak($case) instanceof ObjectEntity === false) {
+                isset($this->style) === true && $this->style->success("Could not sync a case");
+
+                continue;
+            }
+
+            $createdZaakCount = ($createdZaakCount + 1);
+            $flushCount       = ($flushCount + 1);
 
             // Flush every 20
             if ($flushCount == 20) {
