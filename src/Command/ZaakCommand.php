@@ -52,7 +52,7 @@ class ZaakCommand extends Command
      */
     public function __construct(ZaakService $zaakService, EntityManagerInterface $entityManager)
     {
-        $this->zaakService = $zaakService;
+        $this->zaakService   = $zaakService;
         $this->entityManager = $entityManager;
         parent::__construct();
 

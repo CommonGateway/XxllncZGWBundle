@@ -465,12 +465,12 @@ class ZaakService
         $this->checkId($case);
         $zaakTypeObject = $this->checkZaakType($case);
         if ($zaakTypeObject instanceof ObjectEntity === false) {
-
             isset($this->style) === true && $this->style->error("ZaakType for case {$case['reference']} could not be found or synced");
-            
+
             return null;
         }
-        $zaakTypeArray  = $zaakTypeObject->toArray();
+
+        $zaakTypeArray = $zaakTypeObject->toArray();
 
         $synchronization = $this->getSyncForCase($case);
         $zaakObject      = $synchronization->getObject();
