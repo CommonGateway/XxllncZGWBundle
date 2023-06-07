@@ -1,0 +1,14 @@
+{
+  "title": "XxllncCaseTypeToZGWZaakType",
+  "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncPhaseToZGWStatusType.mapping.json",
+  "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
+  "version": "0.0.1",
+  "passTrough": false,
+  "mapping": {
+    "omschrijving": "name",
+    "omschrijvingGeneriek": "{% if fields.0.label|default %}{{ fields.0.label }}{% else %}geen statustekst{% endif %}",
+    "statustekst": "{% if fields.0.help|default %}{{ fields.0.help }}{% else %}geen statustekst{% endif %}",
+    "_sourceId": "id"
+  },
+  "cast": {}
+}
