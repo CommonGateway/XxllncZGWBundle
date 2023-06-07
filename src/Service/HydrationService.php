@@ -11,6 +11,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class HydrationService
 {
+
     /**
      * @var SynchronizationService The synchronization service.
      */
@@ -20,6 +21,7 @@ class HydrationService
      * @var EntityManagerInterface The entity manager.
      */
     private EntityManagerInterface $entityManager;
+
 
     /**
      * The constructor of the service.
@@ -49,7 +51,7 @@ class HydrationService
         foreach ($object as $key => $value) {
             if (is_array($value) == true) {
                 $subEntity = $entity;
-                if($entity->getAttributeByName($key) !== false && $entity->getAttributeByName($key) !== null && $entity->getAttributeByName($key)->getObject() !== null) {
+                if ($entity->getAttributeByName($key) !== false && $entity->getAttributeByName($key) !== null && $entity->getAttributeByName($key)->getObject() !== null) {
                     $subEntity = $entity->getAttributeByName($key)->getObject();
                 }
 
