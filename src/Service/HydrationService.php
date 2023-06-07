@@ -11,9 +11,22 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class HydrationService
 {
+    /**
+     * @var SynchronizationService The synchronization service.
+     */
     private SynchronizationService $synchronizationService;
+
+    /**
+     * @var EntityManagerInterface The entity manager.
+     */
     private EntityManagerInterface $entityManager;
 
+    /**
+     * The constructor of the service.
+     *
+     * @param SynchronizationService $synchronizationService
+     * @param EntityManagerInterface $entityManager
+     */
     public function __construct(SynchronizationService $synchronizationService, EntityManagerInterface $entityManager)
     {
         $this->synchronizationService = $synchronizationService;
@@ -21,29 +34,21 @@ class HydrationService
     }
 
     /**
-     * Checks if an array is associative.
+     * Recursively loop through an object, check if a synchronisation exists or create one (if necessary).
      *
-     * @param array $array The array to check
+     * @param array  $object The object array ready for hydration.
+     * @param Source $source The source the objects need to be connected to.
+     * @param Entity $entity The entity of the (sub)object.
      *
-     * @return bool Whether or not the array is associative
+     * @return array|ObjectEntity The resulting object or array.
      */
-    private function isAssociative(array $array): bool
-    {
-        if ([] === $array) {
-            return false;
-        }
-
-        return array_keys($array) !== range(0, count($array) - 1);
-    }
-
     public function searchAndReplaceSynchronizations(array $object, Source $source, Entity $entity)
     {
         foreach ($object as $key => $value) {
             if (is_array($value) == true) {
                 $subEntity = $entity;
-                if($this->isAssociative($object) === true) {
-                    $attribute = $entity->getAttributeByName($key);
-                    $attribute instanceof Attribute && $attribute->getObject() ?? $subEntity = $entity;
+                if($entity->getAttributeByName($key) !== false && $entity->getAttributeByName($key) !== null && $entity->getAttributeByName($key)->getObject() !== null) {
+                    $subEntity = $entity->getAttributeByName($key)->getObject();
                 }
                 $object[$key] = $this->searchAndReplaceSynchronizations($value, $source, $subEntity);
             } elseif ($key === '_sourceId') {
@@ -63,7 +68,7 @@ class HydrationService
             $this->entityManager->flush();
             $this->entityManager->flush();
 
-            return $synchronization->getObject()->getId()->toString();
+            return $synchronization->getObject();
         }
 
         return $object;
