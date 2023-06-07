@@ -19,6 +19,7 @@ use App\Service\SynchronizationService;
 use CommonGateway\CoreBundle\Service\CacheService;
 use CommonGateway\CoreBundle\Service\CallService;
 use CommonGateway\CoreBundle\Service\GatewayResourceService;
+use CommonGateway\CoreBundle\Service\MappingService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectRepository;
 use Exception;
@@ -41,6 +42,11 @@ class ZaakTypeService
      * @var CacheService
      */
     private CacheService $cacheService;
+
+    /**
+     * @var MappingService
+     */
+    private MappingService $mappingService;
 
     /**
      * @var SynchronizationService
@@ -96,13 +102,15 @@ class ZaakTypeService
         SynchronizationService $synchronizationService,
         CallService $callService,
         CacheService $cacheService,
-        GatewayResourceService $gatewayResourceService
+        GatewayResourceService $gatewayResourceService,
+        MappingService $mappingService
     ) {
         $this->entityManager          = $entityManager;
         $this->synchronizationService = $synchronizationService;
         $this->callService            = $callService;
         $this->cacheService           = $cacheService;
         $this->gatewayResourceService = $gatewayResourceService;
+        $this->mappingService         = $mappingService;
 
         $this->objectRepo = $this->entityManager->getRepository('App:ObjectEntity');
         $this->schemaRepo = $this->entityManager->getRepository('App:Entity');
@@ -219,6 +227,7 @@ class ZaakTypeService
             // Phases are ZTC StatusTypen.
             foreach ($caseType['instance']['phases'] as $phase) {
                 // Find or create new roltype object.
+
                 $statusTypeObject = ($this->objectRepo->findOneBy(['externalId' => $phase['id'], 'entity' => $statusTypeSchema]) ?? new ObjectEntity($statusTypeSchema));
                 $statusTypeObject->setExternalId($phase['id']);
                 $newStatusTypeArray = [
@@ -377,6 +386,26 @@ class ZaakTypeService
         return $zaakTypeArray;
 
     }//end setDefaultValues()
+
+
+    public function syncCaseType(array $caseType, bool $flush = true): ObjectEntity
+    {
+        $catalogus = $this->getCatalogusObject();
+
+        $zaakTypeSchema  = $this->gatewayResourceService->getSchema('https://vng.opencatalogi.nl/schemas/ztc.zaakType.schema.json', 'common-gateway/xxllnc-zgw-bundle');
+        $xxllncAPI       = $this->gatewayResourceService->getSource('https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json', 'common-gateway/xxllnc-zgw-bundle');
+        $caseTypeMapping = $this->gatewayResourceService->getMapping('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseTypeToZGWZaakType.mapping.json', 'common-gateway/xxllnc-zgw-bundle');
+
+        $zaakTypeArray              = $this->mappingService->mapping($caseTypeMapping, $caseType);
+//        $zaakTypeArray['catalogus'] = $catalogus->getId()->toString();
+        $zaakTypeArray              = $this->setDefaultValues($zaakTypeArray);
+
+        $hydrationService = new HydrationService($this->synchronizationService, $this->entityManager);
+
+        $zaakType = $hydrationService->searchAndReplaceSynchronizations($zaakTypeArray, $xxllncAPI, $zaakTypeSchema);
+
+        return $zaakType;
+    }
 
 
     /**
@@ -659,7 +688,7 @@ class ZaakTypeService
                 continue;
             }
 
-            if ($this->caseTypeToZaakType($caseType, false)) {
+            if ($this->syncCaseType($caseType, false)) {
                 $createdZaakTypeCount = ($createdZaakTypeCount + 1);
                 $persistCount         = $this->flush($persistCount);
                 continue;
