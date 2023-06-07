@@ -31,7 +31,9 @@ class HydrationService
     {
         $this->synchronizationService = $synchronizationService;
         $this->entityManager          = $entityManager;
-    }
+
+    }//end __construct()
+
 
     /**
      * Recursively loop through an object, check if a synchronisation exists or create one (if necessary).
@@ -50,14 +52,15 @@ class HydrationService
                 if($entity->getAttributeByName($key) !== false && $entity->getAttributeByName($key) !== null && $entity->getAttributeByName($key)->getObject() !== null) {
                     $subEntity = $entity->getAttributeByName($key)->getObject();
                 }
+
                 $object[$key] = $this->searchAndReplaceSynchronizations($value, $source, $subEntity);
-            } elseif ($key === '_sourceId') {
+            } else if ($key === '_sourceId') {
                 $synchronization = $this->synchronizationService->findSyncBySource($source, $entity, $value);
             }
         }
 
-        if(isset($synchronization) === true) {
-            if($synchronization->getObject() instanceof ObjectEntity === false) {
+        if (isset($synchronization) === true) {
+            if ($synchronization->getObject() instanceof ObjectEntity === false) {
                 $synchronization->setObject(new ObjectEntity($entity));
             }
 
@@ -72,5 +75,8 @@ class HydrationService
         }
 
         return $object;
-    }
-}
+
+    }//end searchAndReplaceSynchronizations()
+
+
+}//end class
