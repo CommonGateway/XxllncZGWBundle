@@ -51,18 +51,17 @@ class HydrationService
         foreach ($object as $key => $value) {
             if (is_array($value) == true) {
                 $subEntity = $entity;
-                if ($entity->getAttributeByName($key) !== false && $entity->getAttributeByName($key) !== null && $entity->getAttributeByName($key)->getObject() !== null) {
+                if($entity->getAttributeByName($key) !== false && $entity->getAttributeByName($key) !== null && $entity->getAttributeByName($key)->getObject() !== null) {
                     $subEntity = $entity->getAttributeByName($key)->getObject();
                 }
-
                 $object[$key] = $this->searchAndReplaceSynchronizations($value, $source, $subEntity);
-            } else if ($key === '_sourceId') {
+            } elseif ($key === '_sourceId') {
                 $synchronization = $this->synchronizationService->findSyncBySource($source, $entity, $value);
             }
         }
 
-        if (isset($synchronization) === true) {
-            if ($synchronization->getObject() instanceof ObjectEntity === false) {
+        if(isset($synchronization) === true) {
+            if($synchronization->getObject() instanceof ObjectEntity === false) {
                 $synchronization->setObject(new ObjectEntity($entity));
             }
 
@@ -77,7 +76,6 @@ class HydrationService
         }
 
         return $object;
-
     }//end searchAndReplaceSynchronizations()
 
 
