@@ -1,5 +1,5 @@
 {
-  "title": "XxllncCaseTypeToZGWZaakType",
+  "title": "XxllncFieldToZGWInformatieObjectType",
   "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncFieldToZGWInformatieObjectType.mapping.json",
   "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
   "version": "0.0.1",
