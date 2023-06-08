@@ -1,0 +1,15 @@
+{
+  "title": "XxllncFieldToZGWEigenschap",
+  "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncFieldToZGWEigenschap.mapping.json",
+  "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
+  "version": "0.0.1",
+  "passTrough": false,
+  "mapping": {
+    "naam": "magic_string",
+    "definitie": "{% if original_label|default %}{{ original_label }}{% elseif label|default %}{{ label }}{% else %}{{ magic_string }}{% endif %}",
+    "specificatie.formaat": "type",
+    "kardinaliteit": "{% if limit_values|default %}{{ limit_values }}{% else %}1{% endif %}",
+    "_sourceId": "id"
+  },
+  "cast": {}
+}
