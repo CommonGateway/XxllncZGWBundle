@@ -2,7 +2,7 @@
   "title": "XxllncCaseTypeToZGWZaakType",
   "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseTypeToZGWZaakType.mapping.json",
   "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "passTrough": false,
   "mapping": {
     "identificatie": "instance.legacy.zaaktype_id",
@@ -18,6 +18,7 @@
     "statustypen": "[{% for phase in instance.phases %}{% if not loop.first %},{% endif %}{{ map('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncPhaseToZGWStatusType.mapping.json', phase)|json_encode }}{% endfor %}]",
     "informatieobjecttypen": "[{% set index=0 %}{% for phase in instance.phases %}{% for field in phase.fields %}{% if field.type == 'file' %}{% if index != 0 %},{% endif %}{{ map('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncFieldToZGWInformatieObjectType.mapping.json', field)|json_encode }}{% set index=index+1 %}{% endif %}{% endfor %}{% endfor %}]",
     "eigenschappen": "[{% set index=0 %}{% for phase in instance.phases %}{% for field in phase.fields %}{% if field.type != 'file' %}{% if index != 0 %},{% endif %}{{ map('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncFieldToZGWEigenschap.mapping.json', field)|json_encode }}{% set index=index+1 %}{% endif %}{% endfor %}{% endfor %}]",
+    "roltypen": "[{% set index=0 %}{% for phase in instance.phases %}{% if phase.route.role|default %}{% if index != 0 %},{% endif %}{{ map('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncRoleToZGWRolType.mapping.json', phase.route.role)|json_encode }}{% set index=index+1 %}{% endif %}{% endfor %}]",
     "_sourceId": "reference"
   },
   "unset": {
@@ -26,6 +27,7 @@
   "cast": {
     "statustypen": "jsonToArray",
     "informatieobjecttypen": "jsonToArray",
-    "eigenschappen": "jsonToArray"
+    "eigenschappen": "jsonToArray",
+    "roltypen": "jsonToArray"
   }
 }
