@@ -16,6 +16,7 @@
         "contactpersoonRol.telefoonnummer": "{% if requestor.instance.subject.instance.phone_number|default %}{{ requestor.instance.subject.instance.phone_number }}{% endif %}",
         "contactpersoonRol.naam": "{% if requestor.instance.subject.instance.firstname|default %}{{ requestor.instance.subject.instance.firstname }}{%  endif %} {% if requestor.instance.subject.instance.surname|default %}{{ requestor.instance.subject.instance.surname }}{% endif %}",
         "betrokkeneIdentificatie.achternaam": "{% if requestor.instance.subject.instance.surname|default %}{{ requestor.instance.subject.instance.surname }}{% endif %}",
-        "betrokkeneIdentificatie.voorletters": "{% if requestor.instance.subject.instance.initials|default %}{{ requestor.instance.subject.instance.initials }}{% endif %}"
+        "betrokkeneIdentificatie.voorletters": "{% if requestor.instance.subject.instance.initials|default %}{{ requestor.instance.subject.instance.initials }}{% endif %}",
+        "roltype": "{% for roltype in roltypen %}{% if roltype.omschrijving == role.instance.description %}{{ roltype['_self']['id'] }}{% endif %}{% endfor %}"
     }
   }

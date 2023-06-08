@@ -16,7 +16,11 @@
         "communicatiekanaal": "instance.channel_of_contact",
         "vertrouwelijkheidaanduidng": "instance.confidentiality.mapped",
         "kenmerken.0.kenmerk": "reference",
-        "kenmerken.0.bron": "xxllnc v1 api"
+        "kenmerken.0.bron": "xxllnc v1 api",
+        "eigenschappen": "@todo loopen door values dan per value: XxllncValueToZaakEigenschap uitvoeren en de zaaktype eigenschappen meegeven",
+        "status": "@todo milestone meegeven en statustypen aan mapping: XxllncMilestoneToStatus",
+        "resultaat": "@todo outcome meegeven en resultaattypen aan mapping: XxllncOutcomeToResultaat",
+        "rollen": "@todo role, requestor en roltypen meegeven aan mapping: XxllncRoleRequestorToRol"
     },
     "unset": {},
     "cast": {}
