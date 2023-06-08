@@ -16,12 +16,14 @@
     "omschrijving": "instance.title",
     "opschortingEnAanhoudingMogelijk": "instance.properties.suspension",
     "statustypen": "[{% for phase in instance.phases %}{% if not loop.first %},{% endif %}{{ map('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncPhaseToZGWStatusType.mapping.json', phase)|json_encode }}{% endfor %}]",
+    "informatieobjecttypen": "{% set index=0 %}{% for phase in instance.phases %}{% for field in phase.fields %}{% if field.type == 'file' %}{% if index != 0 %},{% endif %}{{ map('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncFieldToZGWInformatieObjectType.mapping.json', field)|json_encode }}{% set index=index+1 %}{% endif %}{% endfor %}{% endfor %}",
     "_sourceId": "reference"
   },
   "unset": {
     "identificatie": "unsetIfValue==instance.legacy.zaaktype_id"
   },
   "cast": {
-    "statustypen": "jsonToArray"
+    "statustypen": "jsonToArray",
+    "informatieobjecttypen": "jsonToArray"
   }
 }
