@@ -14,7 +14,9 @@
         "einddatumGepland": "instance.date_target",
         "publicatiedatum": "instance.date_target",
         "communicatiekanaal": "instance.channel_of_contact",
-        "vertrouwelijkheidaanduidng": "instance.confidentiality.mapped"
+        "vertrouwelijkheidaanduidng": "instance.confidentiality.mapped",
+        "kenmerken.0.kenmerk": "reference",
+        "kenmerken.0.bron": "xxllnc v1 api"
     },
     "unset": {},
     "cast": {}

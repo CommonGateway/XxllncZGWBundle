@@ -5,7 +5,8 @@
     "version": "0.0.1",
     "passTrough": false,
     "mapping": {
-        "_sourceId": "{% if reference|default %}{{ reference }}{% endif %}",
-        "toelichting": "name"
+        "_sourceId": "{% if outcome.reference|default %}{{ outcome.reference }}{% endif %}",
+        "toelichting": "{% if outcome.instance.name|default %}{{ outcome.instance.name }}{% endif %}",
+        "resultaattype": "{% for resultaattype in resultaattypen %}{% if resultaattype.omschrijving == outcome.instance.name %}{{ resultaattype['_self']['id'] }}{% endif %}{% endfor %}"
     }
   }

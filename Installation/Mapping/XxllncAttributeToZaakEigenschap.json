@@ -5,17 +5,8 @@
     "version": "0.0.1",
     "passTrough": false,
     "mapping": {
-        "_sourceId": "{% if reference|default %}{{ role.reference }}{% endif %}",
-        "betrokkeneType": "{% if role.instance.name == 'Behandelaar'|lower %}medewerker{% else %}medewerker{% endif %}",
-        "omschrijving": "{{ role.instance.name }}",
-        "omschrijvingGeneriek": "{{ role.instance.description }}",
-        "roltoelichting": "{{ role.instance.name }}",
-        "registratiedatum": "{{ role.instance.date_created }}",
-        "contactpersoonRol.emailadres": "{% if requestor.instance.subject.instance.email_adress|default %}{{ requestor.instance.subject.instance.email_adress }}{% endif %}",
-        "contactpersoonRol.functie": "{% if requestor.instance.subject.instance.positions.instance.rows|default %}{% for position in requestor.instance.subject.instance.positions.instance.rows %}{% if instance.role.preview|default %}{{ instance.role.preview }}{% endif %}{% endfor %}{% endif %}",
-        "contactpersoonRol.telefoonnummer": "{% if requestor.instance.subject.instance.phone_number|default %}{{ requestor.instance.subject.instance.phone_number }}{% endif %}",
-        "contactpersoonRol.naam": "{% if requestor.instance.subject.instance.firstname|default %}{{ requestor.instance.subject.instance.firstname }}{%  endif %} {% if requestor.instance.subject.instance.surname|default %}{{ requestor.instance.subject.instance.surname }}{% endif %}",
-        "betrokkeneIdentificatie.achternaam": "{% if requestor.instance.subject.instance.surname|default %}{{ requestor.instance.subject.instance.surname }}{% endif %}",
-        "betrokkeneIdentificatie.voorletters": "{% if requestor.instance.subject.instance.initials|default %}{{ requestor.instance.subject.instance.initials }}{% endif %}"
+        "naam": "{{ key }}",
+        "waarde": "{{ value|first }}",
+        "eigenschap": "{% for eigenschap in eigenschappen %}{% if key == eigenschap.naam %}{{ eigenschap['_self']['id'] }}{% endif %}{% endfor %}"
     }
   }

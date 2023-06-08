@@ -5,10 +5,11 @@
     "version": "0.0.1",
     "passTrough": false,
     "mapping": {
-        "_sourceId": "{% if reference|default %}{{ reference }}{% endif %}",
-        "datumStatusGezet": "date_modified",
-        "statustoelichting": "phase_label",
-        "indicatieLaatstGezetteStatus": "{{ true }}"
+        "_sourceId": "{% if milestone.reference|default %}{{ reference }}{% endif %}",
+        "datumStatusGezet": "milestone.instance.date_modified",
+        "statustoelichting": "milestone.instance.phase_label",
+        "indicatieLaatstGezetteStatus": "{{ true }}",
+        "statustype": "{% for statustype in statustypen %}{% if statustype.omschrijving == milestone.instance.phase_label %}{{ statustype['_self']['id'] }}{% endif %}{% endfor %}"
     },
     "cast": {
         "indicatieLaatstGezetteStatus": "bool"
