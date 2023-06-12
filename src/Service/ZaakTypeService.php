@@ -19,6 +19,7 @@ use App\Service\SynchronizationService;
 use CommonGateway\CoreBundle\Service\CacheService;
 use CommonGateway\CoreBundle\Service\CallService;
 use CommonGateway\CoreBundle\Service\GatewayResourceService;
+use CommonGateway\CoreBundle\Service\MappingService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectRepository;
 use Exception;
@@ -43,6 +44,11 @@ class ZaakTypeService
     private CacheService $cacheService;
 
     /**
+     * @var MappingService
+     */
+    private MappingService $mappingService;
+
+    /**
      * @var SynchronizationService
      */
     private SynchronizationService $synchronizationService;
@@ -50,7 +56,7 @@ class ZaakTypeService
     /**
      * @var GatewayResourceService
      */
-    private GatewayResourceService $gatewayResourceService;
+    private GatewayResourceService $resourceService;
 
     /**
      * @var SymfonyStyle
@@ -94,15 +100,17 @@ class ZaakTypeService
     public function __construct(
         EntityManagerInterface $entityManager,
         SynchronizationService $synchronizationService,
-        CallService $callService,
-        CacheService $cacheService,
-        GatewayResourceService $gatewayResourceService
+        CallService            $callService,
+        CacheService           $cacheService,
+        GatewayResourceService $resourceService,
+        MappingService         $mappingService
     ) {
         $this->entityManager          = $entityManager;
         $this->synchronizationService = $synchronizationService;
         $this->callService            = $callService;
         $this->cacheService           = $cacheService;
-        $this->gatewayResourceService = $gatewayResourceService;
+        $this->resourceService        = $resourceService;
+        $this->mappingService         = $mappingService;
 
         $this->objectRepo = $this->entityManager->getRepository('App:ObjectEntity');
         $this->schemaRepo = $this->entityManager->getRepository('App:Entity');
@@ -148,7 +156,7 @@ class ZaakTypeService
      */
     public function getZaakType(string $caseTypeID)
     {
-        $xxllncAPI = $this->gatewayResourceService->getSource('https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json', 'common-gateway/xxllnc-zgw-bundle');
+        $xxllncAPI = $this->resourceService->getSource('https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json', 'common-gateway/xxllnc-zgw-bundle');
 
         try {
             isset($this->style) === true && $this->style->info("Fetching casetype: $caseTypeID");
@@ -168,160 +176,11 @@ class ZaakTypeService
         }
 
         // Else create a normal ZGW ZaakType.
-        return $this->caseTypeToZaakType($caseType);
+        $caseType        = $caseType['result'];
+        $caseType['url'] = $xxllncAPI->getLocation().'/casetype/'.$caseType['reference'];
+        return $this->syncCaseType($caseType);
 
     }//end getZaakType()
-
-
-    /**
-     * Maps a simple informatieobjecttype.
-     *
-     * @param array $field xxllnc field.
-     *
-     * @return array InformatieObjectType.
-     */
-    private function mapInformatieObjectType(array $field): array
-    {
-        return [
-            'omschrijving'                => ($field['original_label'] ?? $field['label'] ?? $field['magic_string']),
-            'vertrouwelijkheidaanduiding' => 'openbaar',
-        ];
-
-    }//end mapInformatieObjectType()
-
-
-    /**
-     * @TODO make function smaller and readable.
-     *
-     * Maps the statusTypen and rolTypen from xxllnc to zgw.
-     *
-     * @param array $caseType      This is the xxllcn casetype array.
-     * @param array $zaakTypeArray This is the ZGW ZaakType array.
-     *
-     * @return array $zaakTypeArray This is the ZGW ZaakType array with the added statustypen.
-     */
-    private function mapStatusAndRolTypen(array $caseType, array $zaakTypeArray): array
-    {
-        $rolTypeSchema        = $this->gatewayResourceService->getSchema('https://vng.opencatalogi.nl/schemas/ztc.rolType.schema.json', 'common-gateway/xxllnc-zgw-bundle');
-        $statusTypeSchema     = $this->gatewayResourceService->getSchema('https://vng.opencatalogi.nl/schemas/ztc.statusType.schema.json', 'common-gateway/xxllnc-zgw-bundle');
-        $infoObjectTypeSchema = $this->gatewayResourceService->getSchema('https://vng.opencatalogi.nl/schemas/ztc.informatieObjectType.schema.json', 'common-gateway/xxllnc-zgw-bundle');
-        $eigenschapSchema     = $this->gatewayResourceService->getSchema('https://vng.opencatalogi.nl/schemas/ztc.eigenschap.schema.json', 'common-gateway/xxllnc-zgw-bundle');
-
-        $zaakTypeArray['roltypen'] = [];
-        $preventDupedRolTypen      = [];
-
-        // Manually map phases to statustypen.
-        if (isset($caseType['instance']['phases'])) {
-            $zaakTypeArray['statustypen']           = [];
-            $zaakTypeArray['informatieobjecttypen'] = [];
-            $zaakTypeArray['eigenschappen']         = [];
-
-            // Phases are ZTC StatusTypen.
-            foreach ($caseType['instance']['phases'] as $phase) {
-                // Find or create new roltype object.
-                $statusTypeObject = ($this->objectRepo->findOneBy(['externalId' => $phase['id'], 'entity' => $statusTypeSchema]) ?? new ObjectEntity($statusTypeSchema));
-                $statusTypeObject->setExternalId($phase['id']);
-                $newStatusTypeArray = [
-                    'omschrijving'         => $phase['name'] ?? null,
-                    'omschrijvingGeneriek' => ($phase['fields'][0]['label'] ?? 'geen omschrijving'),
-                    'statustekst'          => ($phase['fields'][0]['help'] ?? 'geen statustekst'),
-                    'volgnummer'           => $phase['seq'] ?? null,
-                ];
-
-                // Use external id so we can find this object when resyncing.
-                $statusTypeObject->hydrate($newStatusTypeArray);
-                $this->entityManager->persist($statusTypeObject);
-                $zaakTypeArray['statustypen'][] = $statusTypeObject;
-
-                // Fields can be mapped to ZTC Eigencshappen or ZTC InformatieObjectTypen.
-                if (isset($phase['fields'])) {
-                    foreach ($phase['fields'] as $field) {
-                        // If type file map informatieobjecttype.
-                        if ($field['type'] === 'file') {
-                            $subObject = ($this->objectRepo->findOneBy(['externalId' => $field['id'], 'entity' => $infoObjectTypeSchema]) ?? new ObjectEntity($infoObjectTypeSchema));
-                            $subObject->setExternalId($field['id']);
-                            $subObjectArray = $this->mapInformatieObjectType($field);
-                            $subObjectType  = 'informatieobjecttypen';
-                        }
-                        // else its a eigenschap.
-                        else if (isset($field['magic_string']) === true) {
-                            $subObject = ($this->objectRepo->findOneBy(['externalId' => $field['id'], 'entity' => $eigenschapSchema]) ?? new ObjectEntity($eigenschapSchema));
-                            $subObject->setExternalId($field['id']);
-                            // @TODO convert to a mapping object.
-                            $subObjectArray = [
-                                'naam'         => $field['magic_string'],
-                                'definitie'    => ($field['original_label'] ?? $field['label'] ?? $field['magic_string']),
-                                'specificatie' => [
-                                    'formaat'       => $field['type'],
-                                    'kardinaliteit' => ((string) $field['limit_values'] ?? "1"),
-                                ],
-                            ];
-                            $subObjectType  = 'eigenschappen';
-                        } else {
-                            continue;
-                        }
-
-                        // Use external id so we can find this object when resyncing.
-                        $subObject->hydrate($subObjectArray);
-                        $this->entityManager->persist($subObject);
-                        $zaakTypeArray[$subObjectType][] = $subObject;
-                    }//end foreach
-                }//end if
-
-                // Map role to roltype.
-                if (isset($phase['route']['role']['reference']) && isset($phase['route']['role']['instance']['name'])
-                    && in_array(strtolower($phase['route']['role']['instance']['name']), $preventDupedRolTypen) === false
-                ) {
-                    $rolTypeArray                                                                          = [
-                        'omschrijving'         => isset($phase['route']['role']['instance']['description']) ? $phase['route']['role']['instance']['description'] : null,
-                        'omschrijvingGeneriek' => isset($phase['route']['role']['instance']['name']) ? strtolower($phase['route']['role']['instance']['name']) : null,
-                    ];
-                    isset($phase['route']['role']['instance']['name']) === true && $preventDupedRolTypen[] = strtolower($phase['route']['role']['instance']['name']);
-
-                    // Find or create new roltype object.
-                    $rolTypeObject = ($this->objectRepo->findOneBy(['externalId' => $phase['route']['role']['reference'], 'entity' => $rolTypeSchema]) ?? new ObjectEntity($rolTypeSchema));
-                    $rolTypeObject->setExternalId($phase['route']['role']['reference']);
-                    // use external id so we can find this object when sending case to xxllnc
-                    $rolTypeObject->hydrate($rolTypeArray);
-                    $this->entityManager->persist($rolTypeObject);
-                    $zaakTypeArray['roltypen'][] = $rolTypeObject;
-                }//end if
-            }//end foreach
-        }//end if
-
-        return $zaakTypeArray;
-
-    }//end mapStatusAndRolTypen()
-
-
-    /**
-     * Maps the resultaatTypen from xxllnc to zgw.
-     *
-     * @param array $caseType      This is the xxllnc casetype.
-     * @param array $zaakTypeArray This is the ZGW ZaakType array.
-     *
-     * @return array $zaakTypeArray This is the ZGW ZaakType array with the added resultaattypen.
-     */
-    private function mapResultaatTypen(array $caseType, array $zaakTypeArray): array
-    {
-        // Manually map results to resultaattypen.
-        if (isset($caseType['instance']['results']) === true) {
-            $zaakTypeArray['resultaattypen'] = [];
-            foreach ($caseType['instance']['results'] as $result) {
-                $resultaatTypeArray                                                             = [];
-                $result['type'] && $resultaatTypeArray['omschrijving']                          = $result['type'];
-                $result['label'] && $resultaatTypeArray['toelichting']                          = $result['label'];
-                $resultaatTypeArray['selectielijstklasse']                                      = ($result['selection_list'] ?? 'http://localhost');
-                $result['type_of_archiving'] && $resultaatTypeArray['archiefnominatie']         = $result['type_of_archiving'];
-                $result['period_of_preservation'] && $resultaatTypeArray['archiefactietermijn'] = $result['period_of_preservation'];
-
-                $zaakTypeArray['resultaattypen'][] = $resultaatTypeArray;
-            }//end foreach
-        }//end if
-
-        return $zaakTypeArray;
-
-    }//end mapResultaatTypen()
 
 
     /**
@@ -332,7 +191,7 @@ class ZaakTypeService
     private function getCatalogusObject(): ?bool
     {
         // Get Catalogus object.
-        $catalogusSchema = $this->gatewayResourceService->getSchema('https://vng.opencatalogi.nl/schemas/ztc.catalogus.schema.json', 'common-gateway/xxllnc-zgw-bundle');
+        $catalogusSchema = $this->resourceService->getSchema('https://vng.opencatalogi.nl/schemas/ztc.catalogus.schema.json', 'common-gateway/xxllnc-zgw-bundle');
 
         if ($catalogusSchema === null) {
             isset($this->style) === true && $this->style->error('Could not find schema: https://vng.opencatalogi.nl/schemas/ztc.catalogus.schema.json.');
@@ -380,74 +239,49 @@ class ZaakTypeService
 
 
     /**
-     * Creates or updates a casetype to zaaktype.
+     * Synchronises a casetype to zgw zaaktype based on the data retrieved from the Xxllnc api.
      *
-     * @param array $caseType CaseType from the Xxllnc API
-     * @param bool  $flush    Do we need to flush here
+     * @param array $caseType The caseType to synchronize.
+     * @param bool  $flush    Wether or not the casetype should be flushed already (not functional at this time)
      *
-     * @var Synchronization
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\SyntaxError
      *
-     * @return void|null
-     *
-     * @todo make function smaller and more readable.
+     * @return ObjectEntity The resulting zaaktype object.
      */
-    public function caseTypeToZaakType(array $caseType, bool $flush = true)
+    public function syncCaseType(array $caseType, bool $flush = true): ObjectEntity
     {
         $this->getCatalogusObject();
-        $zaakTypeSchema  = $this->gatewayResourceService->getSchema('https://vng.opencatalogi.nl/schemas/ztc.zaakType.schema.json', 'common-gateway/xxllnc-zgw-bundle');
-        $xxllncAPI       = $this->gatewayResourceService->getSource('https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json', 'common-gateway/xxllnc-zgw-bundle');
-        $caseTypeMapping = $this->gatewayResourceService->getMapping('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseTypeToZGWZaakType.mapping.json', 'common-gateway/xxllnc-zgw-bundle');
 
-        isset($caseType['result']) === true && $caseType = $caseType['result'];
+        $zaakTypeSchema  = $this->resourceService->getSchema(
+            'https://vng.opencatalogi.nl/schemas/ztc.zaakType.schema.json',
+            'common-gateway/xxllnc-zgw-bundle'
+        );
+        $xxllncAPI       = $this->resourceService->getSource(
+            'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json',
+            'common-gateway/xxllnc-zgw-bundle'
+        );
+        $caseTypeMapping = $this->resourceService->getMapping(
+            'https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseTypeToZGWZaakType.mapping.json',
+            'common-gateway/xxllnc-zgw-bundle'
+        );
 
-        // Check for id.
-        if (isset($caseType['reference']) === false) {
-            isset($this->style) === true && $this->style->error('CaseType has no id (reference)');
+        $zaakTypeArray              = $this->mappingService->mapping($caseTypeMapping, $caseType);
+        $zaakTypeArray['catalogus'] = $this->catalogusObject;
+        $zaakTypeArray              = $this->setDefaultValues($zaakTypeArray);
 
-            return null;
-        }//end if
+        $hydrationService = new HydrationService($this->synchronizationService, $this->entityManager);
 
-        // Get or create sync and map object.
-        $synchronization = $this->synchronizationService->findSyncBySource($xxllncAPI, $zaakTypeSchema, $caseType['reference']);
-        $synchronization->setMapping($caseTypeMapping);
-        isset($this->style) === true && $this->style->info("Mapping casetype with sourceId: {$caseType['reference']}");
-        $synchronization = $this->synchronizationService->synchronize($synchronization, $caseType);
-        $zaakTypeObject  = $synchronization->getObject();
-        $zaakTypeArray   = $zaakTypeObject->toArray();
-        $zaakTypeArray   = $this->setDefaultValues($zaakTypeArray);
+        $zaakType = $hydrationService->searchAndReplaceSynchronizations(
+            $zaakTypeArray,
+            $xxllncAPI,
+            $zaakTypeSchema,
+            $flush
+        );
 
-        // Manually set array properties (cant map with twig).
-        $zaakTypeArray['verantwoordingsrelatie'] = [$caseType['instance']['properties']['supervisor_relation']] ?? null;
-        $zaakTypeArray['trefwoorden']            = $caseType['instance']['subject_types'] ?? null;
+        return $zaakType;
 
-        // Manually map subobjects.
-        $zaakTypeArray              = $this->mapStatusAndRolTypen($caseType, $zaakTypeArray);
-        $zaakTypeArray              = $this->mapResultaatTypen($caseType, $zaakTypeArray);
-        $zaakTypeArray['catalogus'] = $this->catalogusObject->getId()->toString();
-
-        // Hydrate and persist.
-        $zaakTypeObject->hydrate($zaakTypeArray);
-        $this->entityManager->persist($zaakTypeObject);
-        $zaakTypeID = $zaakTypeObject->getId()->toString();
-
-        // Update catalogus with new zaaktype.
-        isset($this->style) === true && $this->style->info("Updating catalogus: {$zaakTypeArray['catalogus']} with zaaktype: $zaakTypeID");
-        $linkedZaakTypen = ($this->catalogusObject->getValue('zaaktypen')->toArray() ?? []);
-        $this->catalogusObject->setValue('zaaktypen', array_merge($linkedZaakTypen, [$zaakTypeID]));
-        $this->entityManager->persist($this->catalogusObject);
-
-        // Flush here if we are only mapping one zaaktype and not loopin through more in a parent function.
-        if ($flush === true) {
-            $this->entityManager->flush();
-            $this->entityManager->flush();
-            $this->cacheService->cacheObject($zaakTypeObject);
-        }
-
-        isset($this->style) === true && $this->style->success("Created/updated zaaktype: $zaakTypeID");
-
-        return $synchronization->getObject();
-
-    }//end caseTypeToZaakType()
+    }//end syncCaseType()
 
 
     /**
@@ -460,8 +294,8 @@ class ZaakTypeService
      */
     public function createInformatieObjecttype(Source $xxllncAPI, array $phases): ?ObjectEntity
     {
-        $informatieobjectSchema  = $this->gatewayResourceService->getSchema('https://vng.opencatalogi.nl/schemas/ztc.informatieObjectType.schema.json', 'common-gateway/xxllnc-zgw-bundle');
-        $informatieobjectMapping = $this->gatewayResourceService->getMapping('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncInformatieObjectTypeToZGWInformatieObjectType.mapping.json', 'common-gateway/xxllnc-zgw-bundle');
+        $informatieobjectSchema  = $this->resourceService->getSchema('https://vng.opencatalogi.nl/schemas/ztc.informatieObjectType.schema.json', 'common-gateway/xxllnc-zgw-bundle');
+        $informatieobjectMapping = $this->resourceService->getMapping('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncInformatieObjectTypeToZGWInformatieObjectType.mapping.json', 'common-gateway/xxllnc-zgw-bundle');
 
         $fields = null;
         foreach ($phases as $phase) {
@@ -536,9 +370,9 @@ class ZaakTypeService
      */
     public function caseTypeToBesluitType(array $caseType, bool $flush = true): void
     {
-        $besluittypeSchema  = $this->gatewayResourceService->getSchema('https://vng.opencatalogi.nl/schemas/ztc.besluitType.schema.json', 'common-gateway/xxllnc-zgw-bundle');
-        $xxllncAPI          = $this->gatewayResourceService->getSource('https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json', 'common-gateway/xxllnc-zgw-bundle');
-        $besluittypeMapping = $this->gatewayResourceService->getMapping('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncBesluitTypeToZGWBesluitType.mapping.json', 'common-gateway/xxllnc-zgw-bundle');
+        $besluittypeSchema  = $this->resourceService->getSchema('https://vng.opencatalogi.nl/schemas/ztc.besluitType.schema.json', 'common-gateway/xxllnc-zgw-bundle');
+        $xxllncAPI          = $this->resourceService->getSource('https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json', 'common-gateway/xxllnc-zgw-bundle');
+        $besluittypeMapping = $this->resourceService->getMapping('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncBesluitTypeToZGWBesluitType.mapping.json', 'common-gateway/xxllnc-zgw-bundle');
         $this->getCatalogusObject();
 
         $caseType = $caseType['result'];
@@ -633,7 +467,7 @@ class ZaakTypeService
     {
         isset($this->style) === true && $this->style->success('zaakType triggered');
 
-        $xxllncAPI = $this->gatewayResourceService->getSource('https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json', 'common-gateway/xxllnc-zgw-bundle');
+        $xxllncAPI = $this->resourceService->getSource('https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json', 'common-gateway/xxllnc-zgw-bundle');
 
         // Fetch the xxllnc casetypes.
         isset($this->style) === true && $this->style->info('Fetching xxllnc casetypes');
@@ -653,13 +487,14 @@ class ZaakTypeService
         $createdBesluitTypeCount = 0;
         $persistCount            = 0;
         foreach ($xxllncCaseTypes as $caseType) {
+            $caseType['url'] = $xxllncAPI->getLocation().'/casetype/'.$caseType['reference'];
             if ($this->isBesluitType($caseType) === true && $this->caseTypeToBesluitType($caseType, false)) {
                 $createdBesluitTypeCount = ($createdBesluitTypeCount + 1);
                 $persistCount            = $this->flush($persistCount);
                 continue;
             }
 
-            if ($this->caseTypeToZaakType($caseType, false)) {
+            if ($this->syncCaseType($caseType, false) !== null) {
                 $createdZaakTypeCount = ($createdZaakTypeCount + 1);
                 $persistCount         = $this->flush($persistCount);
                 continue;
@@ -681,7 +516,7 @@ class ZaakTypeService
      */
     private function connectBesluittypeToZaaktype(ObjectEntity $caseType): void
     {
-        $besluittypeSchema  = $this->gatewayResourceService->getSchema('https://vng.opencatalogi.nl/schemas/ztc.besluitType.schema.json', 'common-gateway/xxllnc-zgw-bundle');
+        $besluittypeSchema  = $this->resourceService->getSchema('https://vng.opencatalogi.nl/schemas/ztc.besluitType.schema.json', 'common-gateway/xxllnc-zgw-bundle');
         $besluittypeObjects = $this->objectRepo->findBy(['entity' => $besluittypeSchema]);
 
         if (isset($this->style) === true) {
@@ -737,7 +572,7 @@ class ZaakTypeService
      */
     public function connectBesluittypeToZaaktypeHandler(?array $data = [], ?array $configuration = [], ?string $zaaktypeId = null)
     {
-        $zaaktypeSchema = $this->gatewayResourceService->getSchema('https://vng.opencatalogi.nl/schemas/ztc.zaakType.schema.json', 'common-gateway/xxllnc-zgw-bundle');
+        $zaaktypeSchema = $this->resourceService->getSchema('https://vng.opencatalogi.nl/schemas/ztc.zaakType.schema.json', 'common-gateway/xxllnc-zgw-bundle');
 
         if ($zaaktypeId !== null) {
             if (isset($this->style) === true) {
