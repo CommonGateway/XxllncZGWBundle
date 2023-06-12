@@ -257,12 +257,12 @@ class ZGWToXxllncService
     public function sendCaseToXxllnc(array $caseArray, ?Synchronization $synchronization = null, string $type = 'zaak'): ?string
     {
         switch ($type) {
-            case 'zaak':
-                $resourceId = $caseArray['zgwZaak'];
-                break;
-            case 'besluit':
-                $resourceId = $caseArray['zgwBesluit'];
-                break;
+        case 'zaak':
+            $resourceId = $caseArray['zgwZaak'];
+            break;
+        case 'besluit':
+            $resourceId = $caseArray['zgwBesluit'];
+            break;
         }
 
         var_dump($caseArray);
@@ -291,7 +291,6 @@ class ZGWToXxllncService
             var_dump("hallo hier is een PUT");
         }//end if
 
-
         // If we have dont have a sync or sourceId we can do a POST.
         if ($synchronization === null
             || ($synchronization !== null && $synchronization->getSourceId() === null)
@@ -305,7 +304,6 @@ class ZGWToXxllncService
             ];
 
             var_dump("hallo hier is een POST");
-
         }//end if
 
         // unset unwanted properties.
@@ -407,12 +405,12 @@ class ZGWToXxllncService
         ];
 
         switch ($type) {
-            case 'zaak':
-                $resourceMappingArray['resource']['zgwZaak'] = $resourceObject->getId()->toString();
-                break;
-            case 'besluit':
-                $resourceMappingArray['resource']['zgwBesluit'] = $resourceObject->getId()->toString();
-                break;
+        case 'zaak':
+            $resourceMappingArray['resource']['zgwZaak'] = $resourceObject->getId()->toString();
+            break;
+        case 'besluit':
+            $resourceMappingArray['resource']['zgwBesluit'] = $resourceObject->getId()->toString();
+            break;
         }//end switch
 
         return $resourceMappingArray;
@@ -433,12 +431,12 @@ class ZGWToXxllncService
         $xxllncZaakSchema = $this->resourceService->getSchema('https://development.zaaksysteem.nl/schema/xxllnc.zaakPost.schema.json', 'common-gateway/xxllnc-zgw-bundle');
 
         switch ($type) {
-            case 'case':
-                $name = 'zgwZaak';
-                break;
-            case 'besluit':
-                $name = 'zgwBesluit';
-                break;
+        case 'case':
+            $name = 'zgwZaak';
+            break;
+        case 'besluit':
+            $name = 'zgwBesluit';
+            break;
         }
 
         // Get needed attribute so we can find the already existing case object
@@ -535,12 +533,11 @@ class ZGWToXxllncService
         $caseMappingArray = $this->mapPostEigenschappen($caseMappingArray, $zaakArrayObject, $zaakTypeObject);
         $caseMappingArray = $this->mapPostInfoObjecten($caseMappingArray, $zaakArrayObject);
         // $caseArray = $this->mapPostRollen($caseArray, $zaakArrayObject); // disabled for now.
-//        $caseObject = $this->getCaseObject($zaakArrayObject);
-//
-//        $caseObject->hydrate($caseMappingArray);
-//        $this->entityManager->persist($caseObject);
-//        $this->entityManager->flush();
-
+        // $caseObject = $this->getCaseObject($zaakArrayObject);
+        //
+        // $caseObject->hydrate($caseMappingArray);
+        // $this->entityManager->persist($caseObject);
+        // $this->entityManager->flush();
         $synchronization = null;
         // Only get synchronization that has a sourceId.
         if ($zaakObject->getSynchronizations()->first() !== false
