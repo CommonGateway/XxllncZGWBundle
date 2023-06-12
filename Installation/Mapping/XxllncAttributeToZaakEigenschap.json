@@ -5,8 +5,9 @@
     "version": "0.0.1",
     "passTrough": false,
     "mapping": {
-        "naam": "{{ key }}",
-        "waarde": "{{ value|first }}",
-        "eigenschap": "{% for eigenschap in eigenschappen %}{% if key == eigenschap.naam %}{{ eigenschap['_self']['id'] }}{% endif %}{% endfor %}"
+      "_sourceId": "name",
+      "naam": "name",
+      "waarde": "value.0",
+      "eigenschap": ""
     }
   }
