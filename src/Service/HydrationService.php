@@ -84,7 +84,7 @@ class HydrationService
             $this->entityManager->persist($synchronization->getObject());
             $this->entityManager->persist($synchronization);
 
-            if($flush === true) {
+            if ($flush === true) {
                 $this->entityManager->flush();
                 $this->entityManager->flush();
             }
