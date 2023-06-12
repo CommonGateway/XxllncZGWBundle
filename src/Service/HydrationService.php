@@ -1,5 +1,12 @@
 <?php
-
+/**
+ * This class hydrates objects and sets synchronisations for objects if applicable.
+ *
+ * @author  Conduction BV <info@conduction.nl>, Robert Zondervan <robert@conduction.nl>
+ * @license EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * @category Service
+ */
 namespace CommonGateway\XxllncZGWBundle\Service;
 
 use App\Entity\Attribute;
@@ -13,12 +20,16 @@ class HydrationService
 {
 
     /**
-     * @var SynchronizationService The synchronization service.
+     * The synchronization service.
+     *
+     * @var SynchronizationService
      */
-    private SynchronizationService $synchronizationService;
+    private SynchronizationService $syncService;
 
     /**
-     * @var EntityManagerInterface The entity manager.
+     * The entity manager.
+     *
+     * @var EntityManagerInterface
      */
     private EntityManagerInterface $entityManager;
 
@@ -26,13 +37,13 @@ class HydrationService
     /**
      * The constructor of the service.
      *
-     * @param SynchronizationService $synchronizationService
+     * @param SynchronizationService $syncService
      * @param EntityManagerInterface $entityManager
      */
-    public function __construct(SynchronizationService $synchronizationService, EntityManagerInterface $entityManager)
+    public function __construct(SynchronizationService $syncService, EntityManagerInterface $entityManager)
     {
-        $this->synchronizationService = $synchronizationService;
-        $this->entityManager          = $entityManager;
+        $this->syncService   = $syncService;
+        $this->entityManager = $entityManager;
 
     }//end __construct()
 
@@ -46,18 +57,21 @@ class HydrationService
      *
      * @return array|ObjectEntity The resulting object or array.
      */
-    public function searchAndReplaceSynchronizations(array $object, Source $source, Entity $entity)
+    public function searchAndReplaceSynchronizations(array $object, Source $source, Entity $entity, bool $flush = true)
     {
         foreach ($object as $key => $value) {
-            if (is_array($value) == true) {
+            if (is_array($value) === true) {
                 $subEntity = $entity;
-                if ($entity->getAttributeByName($key) !== false && $entity->getAttributeByName($key) !== null && $entity->getAttributeByName($key)->getObject() !== null) {
+                if ($entity->getAttributeByName($key) !== false
+                    && $entity->getAttributeByName($key) !== null
+                    && $entity->getAttributeByName($key)->getObject() !== null
+                ) {
                     $subEntity = $entity->getAttributeByName($key)->getObject();
                 }
 
-                $object[$key] = $this->searchAndReplaceSynchronizations($value, $source, $subEntity);
+                $object[$key] = $this->searchAndReplaceSynchronizations($value, $source, $subEntity, $flush);
             } else if ($key === '_sourceId') {
-                $synchronization = $this->synchronizationService->findSyncBySource($source, $entity, $value);
+                $synchronization = $this->syncService->findSyncBySource($source, $entity, $value);
             }
         }
 
@@ -70,8 +84,10 @@ class HydrationService
             $this->entityManager->persist($synchronization->getObject());
             $this->entityManager->persist($synchronization);
 
-            $this->entityManager->flush();
-            $this->entityManager->flush();
+            if($flush === true) {
+                $this->entityManager->flush();
+                $this->entityManager->flush();
+            }
 
             return $synchronization->getObject();
         }
