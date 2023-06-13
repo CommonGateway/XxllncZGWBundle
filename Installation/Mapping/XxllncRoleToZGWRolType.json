@@ -2,11 +2,13 @@
   "title": "XxllncRoleToZGWRolType",
   "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncRoleToZGWRolType.mapping.json",
   "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "passTrough": false,
   "mapping": {
     "omschrijving": "{% if instance.description|default %}{{ instance.description }}{% endif %}",
     "omschrijvingGeneriek": "{% if instance.name|default %}{{ instance.name|lower }}{% endif %}",
+    "catalogus": "_catalogus",
+    "zaaktypeIdentificatie": "_zaaktypeIdentificatie",
     "_sourceId": "instance.role_id"
   },
   "cast": {}

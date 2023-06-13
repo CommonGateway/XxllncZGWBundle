@@ -123,6 +123,7 @@ class ZaakTypeService
             'doel'                 => 'Overzicht hebben van de bezoekers die aanwezig zijn',
             'versiedatum'          => '1970-01-01',
             'handelingBehandelaar' => 'Hoofd beveiliging',
+            'verantwoordelijke'    => 'Hoofd beveiliging',
             'aanleiding'           => 'Er is een afspraak gemaakt met een (niet) natuurlijk persoon',
         ];
 
@@ -266,9 +267,9 @@ class ZaakTypeService
             'common-gateway/xxllnc-zgw-bundle'
         );
 
-        $zaakTypeArray              = $this->mappingService->mapping($caseTypeMapping, $caseType);
-        $zaakTypeArray['catalogus'] = $this->catalogusObject;
-        $zaakTypeArray              = $this->setDefaultValues($zaakTypeArray);
+        $caseType['_catalogus'] = $this->catalogusObject->getId()->toString();
+        $zaakTypeArray          = $this->mappingService->mapping($caseTypeMapping, $caseType);
+        $zaakTypeArray          = $this->setDefaultValues($zaakTypeArray);
 
         $hydrationService = new HydrationService($this->synchronizationService, $this->entityManager);
 
