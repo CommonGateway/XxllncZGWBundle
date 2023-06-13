@@ -1,0 +1,16 @@
+{
+  "title": "XxllncResultToZGWResultaatType",
+  "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncResultToZGWResultaatType.mapping.json",
+  "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
+  "version": "0.0.1",
+  "passTrough": false,
+  "mapping": {
+    "omschrijving": "type",
+    "toelichting": "label",
+    "selectielijstklasse": "{% if selection_list|default %}{{ selection_list }}{% else %}http://localhost{% endif %}",
+    "archiefnominatie": "{% if type_of_archiving == 'Bewaren (B)' or type_of_archiving == 'Conversie' %}blijvend_bewaren{% else %}vernietigen{% endif %}",
+    "archiefactietermijn": "P{{ period_of_preservation }}D",
+    "_sourceId": "resultaat_id"
+  },
+  "cast": {}
+}
