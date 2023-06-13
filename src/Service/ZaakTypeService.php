@@ -266,9 +266,9 @@ class ZaakTypeService
             'common-gateway/xxllnc-zgw-bundle'
         );
 
-        $zaakTypeArray              = $this->mappingService->mapping($caseTypeMapping, $caseType);
-        $zaakTypeArray['catalogus'] = $this->catalogusObject;
-        $zaakTypeArray              = $this->setDefaultValues($zaakTypeArray);
+        $caseType['_catalogus'] = $this->catalogusObject;
+        $zaakTypeArray         = $this->mappingService->mapping($caseTypeMapping, $caseType);
+        $zaakTypeArray         = $this->setDefaultValues($zaakTypeArray);
 
         $hydrationService = new HydrationService($this->synchronizationService, $this->entityManager);
 
