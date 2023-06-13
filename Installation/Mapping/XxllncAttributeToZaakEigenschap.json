@@ -2,12 +2,11 @@
     "title": "XxllncValueToZaakEigenschap",
     "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncValueToZaakEigenschap.mapping.json",
     "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "passTrough": false,
     "mapping": {
-      "_sourceId": "name",
-      "naam": "name",
-      "waarde": "value.0",
-      "eigenschap": ""
+      "naam": "{% key|default %}{{ key }}{% endif %}",
+      "waarde": "{% value|default %}{{ value }}{% endif %}",
+      "eigenschap": "{% if eigenschap|default %}{{ eigenschap }}{% endif %}"
     }
   }

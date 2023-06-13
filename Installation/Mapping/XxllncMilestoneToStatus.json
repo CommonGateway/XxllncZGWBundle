@@ -5,7 +5,7 @@
     "version": "0.0.1",
     "passTrough": false,
     "mapping": {
-        "_sourceId": "{% if milestone.reference|default %}{{ reference }}{% endif %}",
+        "_sourceId": "{% if milestone.reference|default %}{{ milestone.reference }}{% endif %}",
         "datumStatusGezet": "milestone.instance.date_modified",
         "statustoelichting": "milestone.instance.phase_label",
         "indicatieLaatstGezetteStatus": "{{ true }}",

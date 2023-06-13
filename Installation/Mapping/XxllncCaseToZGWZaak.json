@@ -2,7 +2,7 @@
     "title": "XxllncCaseToZGWZaak",
     "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseToZGWZaak.mapping.json",
     "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
-    "version": "0.0.1",
+    "version": "0.0.3",
     "passTrough": false,
     "mapping": {
         "identificatie": "reference",
@@ -17,14 +17,17 @@
         "vertrouwelijkheidaanduidng": "instance.confidentiality.mapped",
         "kenmerken.0.kenmerk": "reference",
         "kenmerken.0.bron": "xxllnc v1 api",
-        "eigenschappen": "[{% set index=0 %}{% for key, attribute in instance.attributes %}{% if index != 0 %},{% endif %}{% set data = {'name': key, 'value': attribute} %}{{ map('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncValueToZaakEigenschapp.mapping.json', data)|json_encode }}{% set index=index+1 %}{% endfor %}]",
-        "resultaat": "{{ map('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncOutcomeToResultaatt.mapping.json', instance.outcome)|json_encode }}",
-        "rollen": "[{% set index=0 %}{% for row in instance.assignee.instance.subject.instance.positions.instance.rows %}{% if index != 0 %},{% endif %}{% set dataRol = {'requestor': instance.requestor, 'role': row} %}{{ map('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncRoleRequestorToRoll.mapping.json', dataRol)|json_encode }}{% set index=index+1 %}{% endfor %}]"    },
+        "eigenschappen": "[{% set index=0 %}{% if zaaktype.eigenschappen|default %}{% set eigenschappenArray = {} %}{% for eigenschap in zaaktype.eigenschappen %}{% for key, attribute in eigenschap %}{% if key == eigenschap.naam %}{% set eigenschappenArray = eigenschappenArray|merge({key: eigenschap['_self']['id']}) %}{% endif %}{% endfor %}{% endfor %}{% for key, attribute in instance.attributes %}{% if eigenschappenArray[key]|default %}{% if index != 0 %},{% endif %}{% set data = {'name': key, 'value': attribute, 'eigenschap': eigenschappenArray[key]} %}{{ map('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncValueToZaakEigenschap.mapping.json', data)|json_encode }}{% set index=index+1 %}{% endif %}{% endfor %}{% endif %}]",
+        "resultaat": "{% if instance.outcome|default %}{% set data = {'outcome': instance.outcome, 'resultaattypen': zaaktype.resultaattypen} %}{{ map('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncOutcomeToResultaat.mapping.json', data)|json_encode }}{% endif %}",
+        "rollen": "[{% if instance.route.instance.role|default %}{% set dataRol = {'requestor': instance.requestor, 'role': instance.route.instance.role, 'roltypen': zaaktype.roltypen} %}{{ map('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncRoleRequestorToRol.mapping.json', dataRol)|json_encode }}{% endif %}]",
+        "status": "{% if instance.milestone|default %}{% set data = {'milestone': instance.milestone, 'statustypen': zaaktype.statustypen} %}{{ map('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncMilestoneToStatus.mapping.json', data)|json_encode }}{% endif %}"
+    },
     "unset": {},
     "cast": {
         "eigenschappen": "jsonToArray",
         "resultaat": "jsonToArray",
-        "rollen": "jsonToArray"
+        "rollen": "jsonToArray",
+        "status": "jsonToArray"
     }
 }
   
