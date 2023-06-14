@@ -51,13 +51,14 @@ class HydrationService
     /**
      * Recursively loop through an object, check if a synchronisation exists or create one (if necessary).
      *
-     * @param array  $object The object array ready for hydration.
-     * @param Source $source The source the objects need to be connected to.
-     * @param Entity $entity The entity of the (sub)object.
+     * @param array  $object        The object array ready for hydration.
+     * @param Source $source        The source the objects need to be connected to.
+     * @param Entity $entity        The entity of the (sub)object.
+     * @param bool   $unsafeHydrate If we should hydrate unsafely or not (when true it will unset non given properties).
      *
      * @return array|ObjectEntity The resulting object or array.
      */
-    public function searchAndReplaceSynchronizations(array $object, Source $source, Entity $entity, bool $flush = true)
+    public function searchAndReplaceSynchronizations(array $object, Source $source, Entity $entity, bool $flush = true, bool $unsafeHydrate = false)
     {
         foreach ($object as $key => $value) {
             if (is_array($value) === true) {
@@ -80,7 +81,7 @@ class HydrationService
                 $synchronization->setObject(new ObjectEntity($entity));
             }
 
-            $synchronization->getObject()->hydrate($object);
+            $synchronization->getObject()->hydrate($object, $unsafeHydrate);
             $this->entityManager->persist($synchronization->getObject());
             $this->entityManager->persist($synchronization);
 
