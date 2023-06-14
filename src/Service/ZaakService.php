@@ -85,14 +85,15 @@ class ZaakService
         CallService $callService,
         ZaakTypeService $zaakTypeService,
         GatewayResourceService $resourceService,
-        MappingService         $mappingService
-    )   {
+        MappingService $mappingService
+    ) {
         $this->entityManager          = $entityManager;
         $this->synchronizationService = $synchronizationService;
         $this->callService            = $callService;
         $this->zaakTypeService        = $zaakTypeService;
         $this->resourceService        = $resourceService;
         $this->mappingService         = $mappingService;
+
     }//end __construct()
 
 
@@ -123,7 +124,7 @@ class ZaakService
      */
     public function getZaakTypeByExtId(string $caseTypeId)
     {
-        $zaakTypeSchema  = $this->resourceService->getSchema(
+        $zaakTypeSchema = $this->resourceService->getSchema(
             'https://vng.opencatalogi.nl/schemas/ztc.zaakType.schema.json',
             'common-gateway/xxllnc-zgw-bundle'
         );
@@ -140,7 +141,6 @@ class ZaakService
         // Fetch and create new zaaktype
         $zaakTypeObject = $this->zaakTypeService->getZaakType($caseTypeId);
         if ($zaakTypeObject) {
-
             return $zaakTypeObject;
         }
 
@@ -182,8 +182,8 @@ class ZaakService
     /**
      * Synchronises a case to zgw zaak based on the data retrieved from the Xxllnc api.
      *
-     * @param array $case     The case to synchronize.
-     * @param bool  $flush    Wether or not the case should be flushed already (not functional at this time)
+     * @param array $case  The case to synchronize.
+     * @param bool  $flush Wether or not the case should be flushed already (not functional at this time)
      *
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\SyntaxError
@@ -196,7 +196,7 @@ class ZaakService
             'https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json',
             'common-gateway/xxllnc-zgw-bundle'
         );
-        $xxllncAPI       = $this->resourceService->getSource(
+        $xxllncAPI   = $this->resourceService->getSource(
             'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json',
             'common-gateway/xxllnc-zgw-bundle'
         );
@@ -213,13 +213,14 @@ class ZaakService
         }
 
         isset($this->style) === true && $this->style->info("Mapping case to zaak..");
-        
+
         $caseAndCaseType = array_merge(
-            $case, 
+            $case,
             [
-                'zaaktype' => $zaakTypeObject->toArray(),
-                'bronorganisatie' => $this->configuration['bronorganisatie'] ?? 'No bronorganisatie set'
-            ]);
+                'zaaktype'        => $zaakTypeObject->toArray(),
+                'bronorganisatie' => ($this->configuration['bronorganisatie'] ?? 'No bronorganisatie set'),
+            ]
+        );
         $zaakArray       = $this->mappingService->mapping($caseMapping, $caseAndCaseType);
 
         $hydrationService = new HydrationService($this->synchronizationService, $this->entityManager);
@@ -237,7 +238,7 @@ class ZaakService
 
         return $zaak;
 
-    }//end syncCaseType()
+    }//end syncCase()
 
 
     /**
@@ -248,10 +249,12 @@ class ZaakService
     private function getXxllncAPI()
     {
         // Get xxllnc source
-        if (isset($this->xxllncAPI) === false && 
-            ($this->xxllncAPI = $this->resourceService->getSource(
-            'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json', 'common-gateway/xxllnc-zgw-bundle')) === null
-            ) {
+        if (isset($this->xxllncAPI) === false
+            && ($this->xxllncAPI = $this->resourceService->getSource(
+                'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json',
+                'common-gateway/xxllnc-zgw-bundle'
+            )) === null
+        ) {
             isset($this->style) === true && $this->style->error('Could not find Source: Xxllnc API');
 
             return false;
@@ -265,8 +268,8 @@ class ZaakService
     /**
      * Fetches a xxllnc case and maps it to a zgw zaak.
      *
-     * @param array $configuration https://development.zaaksysteem.nl/action/xxllnc.Zaak.action.json configuration
-     * @param string $caseID This is the xxllnc case id.
+     * @param array  $configuration https://development.zaaksysteem.nl/action/xxllnc.Zaak.action.json configuration
+     * @param string $caseID        This is the xxllnc case id.
      *
      * @return object|null $zaakTypeObject Fetched and mapped ZGW ZaakType.
      */

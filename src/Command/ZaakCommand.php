@@ -105,7 +105,7 @@ class ZaakCommand extends Command
             if ($this->zaakService->getZaak($action->getConfiguration(), $zaakId) === true) {
                 return Command::FAILURE;
             }
-            
+
             isset($style) === true && $style->info("Succesfully synced and created a ZGW Zaak from xxllnc case: $zaakId.");
 
             return Command::SUCCESS;
