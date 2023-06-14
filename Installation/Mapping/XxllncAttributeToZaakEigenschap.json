@@ -2,11 +2,11 @@
     "title": "XxllncValueToZaakEigenschap",
     "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncValueToZaakEigenschap.mapping.json",
     "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "passTrough": false,
     "mapping": {
         "naam": "{% if name|default %}{{ name }}{% endif %}",
-        "waarde": "{% set count = 0 %}{% if value is iterable %}{% for subvalue in value %}{% if subvalue is iterable %}{% for subsubvalue in subvalue %}{% if count != 0 %}, {% endif %}{{ subsubvalue }}{% set count = count + 1 %}{% endfor %}{% else %}{% if count != 0 %}, {% endif %}{{ subvalue }}{% set count = count + 1 %}{% endif %}{% endfor %}{% else %}{% if count != 0 %}, {% endif %}{{ value }}{% set count = count + 1 %}{% endif %}",
+        "waarde": "{% if value[0]|default and value[0] is not iterable %}{{ value[0] }}{% elseif value[0][0]|default and value[0][0] is not iterable %}{{ value[0][0] }}{% elseif value[0][0][0]|default and value[0][0][0] is not iterable %}{{ value[0][0][0] }}{% else %}{{ value|json_encode}}{% endif %}",
         "eigenschap": "{% for eigenschap in eigenschappen %}{% if eigenschap.naam == name %}{{ eigenschap['_self']['id'] }}{% endif %}{% endfor %}"
     }
 }
