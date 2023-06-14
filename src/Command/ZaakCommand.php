@@ -102,13 +102,11 @@ class ZaakCommand extends Command
         if (isset($zaakId) === true
             && Uuid::isValid($zaakId) === true
         ) {
-            $style->info(
-                "ID is valid, trying to fetch and
-                map casetype $zaakId to a ZGW Zaak"
-            );
-            if ($this->zaakService->getZaak($zaakId) === true) {
+            if ($this->zaakService->getZaak($action->getConfiguration(), $zaakId) === true) {
                 return Command::FAILURE;
             }
+
+            isset($style) === true && $style->info("Succesfully synced and created a ZGW Zaak from xxllnc case: $zaakId.");
 
             return Command::SUCCESS;
         }//end if

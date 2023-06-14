@@ -13,7 +13,6 @@
 namespace CommonGateway\XxllncZGWBundle\Service;
 
 use App\Entity\Gateway as Source;
-use App\Entity\Mapping;
 use App\Entity\ObjectEntity;
 use App\Service\SynchronizationService;
 use CommonGateway\CoreBundle\Service\CacheService;
@@ -24,6 +23,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectRepository;
 use Exception;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Psr\Log\LoggerInterface;
 
 class ZaakTypeService
 {
@@ -93,6 +93,11 @@ class ZaakTypeService
      */
     private array $skeletonIn;
 
+    /**
+     * @var LoggerInterface
+     */
+    private LoggerInterface $logger;
+
 
     /**
      * __construct.
@@ -100,10 +105,11 @@ class ZaakTypeService
     public function __construct(
         EntityManagerInterface $entityManager,
         SynchronizationService $synchronizationService,
-        CallService            $callService,
-        CacheService           $cacheService,
+        CallService $callService,
+        CacheService $cacheService,
         GatewayResourceService $resourceService,
-        MappingService         $mappingService
+        MappingService $mappingService,
+        LoggerInterface $pluginLogger
     ) {
         $this->entityManager          = $entityManager;
         $this->synchronizationService = $synchronizationService;
@@ -111,6 +117,7 @@ class ZaakTypeService
         $this->cacheService           = $cacheService;
         $this->resourceService        = $resourceService;
         $this->mappingService         = $mappingService;
+        $this->logger                 = $pluginLogger;
 
         $this->objectRepo = $this->entityManager->getRepository('App:ObjectEntity');
         $this->schemaRepo = $this->entityManager->getRepository('App:Entity');
@@ -161,17 +168,20 @@ class ZaakTypeService
 
         try {
             isset($this->style) === true && $this->style->info("Fetching casetype: $caseTypeID");
+            $this->logger->info("Fetching casetype: $caseTypeID");
             $response = $this->callService->call($xxllncAPI, "/casetype/$caseTypeID", 'GET', [], false, false);
             $caseType = $this->callService->decodeResponse($xxllncAPI, $response);
         } catch (Exception $e) {
             isset($this->style) === true && $this->style->error("Failed to fetch casetype: $caseTypeID, message:  {$e->getMessage()}");
+            $this->logger->error("Failed to fetch casetype: $caseTypeID, message:  {$e->getMessage()}");
 
             return null;
         }
 
         // If this is a besluittype disguised as a casetype, create a ZGW BesluitType.
         if ($this->isBesluitType($caseType) === true) {
-            isset($this->style) === true && $this->style->info('CaseType seen as a BesluitType, creating a BesluitType.');
+            isset($this->style) === true && $this->style->info("CaseType seen as a BesluitType, creating a BesluitType.");
+            $this->logger->info("CaseType seen as a BesluitType, creating a BesluitType.");
 
             return $this->caseTypeToBesluitType($caseType);
         }
@@ -195,7 +205,8 @@ class ZaakTypeService
         $catalogusSchema = $this->resourceService->getSchema('https://vng.opencatalogi.nl/schemas/ztc.catalogus.schema.json', 'common-gateway/xxllnc-zgw-bundle');
 
         if ($catalogusSchema === null) {
-            isset($this->style) === true && $this->style->error('Could not find schema: https://vng.opencatalogi.nl/schemas/ztc.catalogus.schema.json.');
+            isset($this->style) === true && $this->style->error("Could not find schema: https://vng.opencatalogi.nl/schemas/ztc.catalogus.schema.json.");
+            $this->logger->error("Could not find schema: https://vng.opencatalogi.nl/schemas/ztc.catalogus.schema.json.");
 
             return false;
         }
@@ -267,11 +278,17 @@ class ZaakTypeService
             'common-gateway/xxllnc-zgw-bundle'
         );
 
+        isset($this->style) === true && $this->style->info("Mapping ZaakType..");
+        $this->logger->info("Mapping ZaakType..");
+
         $caseType['_catalogus'] = $this->catalogusObject->getId()->toString();
         $zaakTypeArray          = $this->mappingService->mapping($caseTypeMapping, $caseType);
         $zaakTypeArray          = $this->setDefaultValues($zaakTypeArray);
 
         $hydrationService = new HydrationService($this->synchronizationService, $this->entityManager);
+
+        isset($this->style) === true && $this->style->info("Checking subobjects for synchronizations..");
+        $this->logger->info("Checking subobjects for synchronizations..");
 
         $zaakType = $hydrationService->searchAndReplaceSynchronizations(
             $zaakTypeArray,
@@ -279,6 +296,9 @@ class ZaakTypeService
             $zaakTypeSchema,
             $flush
         );
+
+        isset($this->style) === true && $this->style->info("ZaakType object created/updated with id: {$zaakType->getId()->toString()}");
+        $this->logger->info("ZaakType object created/updated with id: {$zaakType->getId()->toString()}");
 
         return $zaakType;
 
@@ -339,6 +359,7 @@ class ZaakTypeService
     {
         // Update catalogus with new besluittype.
         isset($this->style) === true && $this->style->info("Updating catalogus: {$this->catalogusObject->getId()->toString()} with besluittype: $besluittypeId");
+        $this->logger->info("Updating catalogus: {$this->catalogusObject->getId()->toString()} with besluittype: $besluittypeId");
 
         $linkedBesluittypen = [];
         if (($besluittypen = $this->catalogusObject->getValue('besluittypen')) !== false) {
@@ -379,6 +400,7 @@ class ZaakTypeService
         $caseType = $caseType['result'];
 
         isset($this->style) === true && $this->style->info("Sync and mapping besluittype with sourceId: {$caseType['reference']}");
+        $this->logger->info("Sync and mapping besluittype with sourceId: {$caseType['reference']}");
 
         // Get or create sync and map object.
         $synchronization = $this->synchronizationService->findSyncBySource($xxllncAPI, $besluittypeSchema, $caseType['reference']);
@@ -471,18 +493,21 @@ class ZaakTypeService
         $xxllncAPI = $this->resourceService->getSource('https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json', 'common-gateway/xxllnc-zgw-bundle');
 
         // Fetch the xxllnc casetypes.
-        isset($this->style) === true && $this->style->info('Fetching xxllnc casetypes');
+        isset($this->style) === true && $this->style->info("Fetching xxllnc casetypes");
+        $this->logger->info("Fetching xxllnc casetypes");
 
         try {
             $xxllncCaseTypes = $this->callService->getAllResults($xxllncAPI, '/casetype', [], 'result.instance.rows');
         } catch (Exception $e) {
             isset($this->style) === true && $this->style->error("Failed to fetch: {$e->getMessage()}");
+            $this->logger->error("Failed to fetch: {$e->getMessage()}");
 
             return null;
         }
 
         $caseTypeCount = count($xxllncCaseTypes);
         isset($this->style) === true && $this->style->success("Fetched $caseTypeCount casetypes");
+        $this->logger->info("Fetched $caseTypeCount casetypes");
 
         $createdZaakTypeCount    = 0;
         $createdBesluitTypeCount = 0;
@@ -504,6 +529,8 @@ class ZaakTypeService
 
         isset($this->style) === true && $this->style->success("Created $createdBesluitTypeCount besluittypen from the $caseTypeCount fetched casetypes");
         isset($this->style) === true && $this->style->success("Created $createdZaakTypeCount zaaktypen from the $caseTypeCount fetched casetypes");
+        $this->logger->info("Created $createdBesluitTypeCount besluittypen from the $caseTypeCount fetched casetypes");
+        $this->logger->info("Created $createdZaakTypeCount zaaktypen from the $caseTypeCount fetched casetypes");
 
     }//end zaakTypeHandler()
 
@@ -522,6 +549,7 @@ class ZaakTypeService
 
         if (isset($this->style) === true) {
             $this->style->info("Get the besluittypen we want to add to the casetype with id: {$caseType->getId()->toString()}");
+            $this->logger->info("Get the besluittypen we want to add to the casetype with id: {$caseType->getId()->toString()}");
         }
 
         // Get the ids of the besluittypen we want to add to the given zaaktype.
@@ -534,6 +562,7 @@ class ZaakTypeService
 
         if (isset($this->style) === true) {
             $this->style->info("Get the besluittypen from the casetype with id: {$caseType->getId()->toString()}");
+            $this->logger->info("Get the besluittypen from the casetype with id: {$caseType->getId()->toString()}");
         }
 
         // Get the ids of the besluittypen from the given zaaktype.
@@ -551,6 +580,7 @@ class ZaakTypeService
 
         if (isset($this->style) === true) {
             $this->style->info("Set the besluittypen to the casetype with id: {$caseType->getId()->toString()}");
+            $this->logger->info("Set the besluittypen to the casetype with id: {$caseType->getId()->toString()}");
         }
 
         $caseType->setValue('besluittypen', $mergedBesluittypen);
@@ -578,6 +608,7 @@ class ZaakTypeService
         if ($zaaktypeId !== null) {
             if (isset($this->style) === true) {
                 $this->style->info("Get zaaktype with id: $zaaktypeId");
+                $this->logger->info("Get zaaktype with id: $zaaktypeId");
             }
 
             // Get the zaaktype with the given id.
@@ -593,7 +624,8 @@ class ZaakTypeService
 
         if ($zaaktypeId === null) {
             if (isset($this->style) === true) {
-                $this->style->info('Get all zaaktype');
+                $this->style->info("Get all zaaktype");
+                $this->logger->info("Get all zaaktype");
             }
 
             // Get all zaaktype objects.
