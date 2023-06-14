@@ -105,11 +105,11 @@ class ZaakTypeService
     public function __construct(
         EntityManagerInterface $entityManager,
         SynchronizationService $synchronizationService,
-        CallService            $callService,
-        CacheService           $cacheService,
+        CallService $callService,
+        CacheService $cacheService,
         GatewayResourceService $resourceService,
-        MappingService         $mappingService,
-        LoggerInterface        $pluginLogger
+        MappingService $mappingService,
+        LoggerInterface $pluginLogger
     ) {
         $this->entityManager          = $entityManager;
         $this->synchronizationService = $synchronizationService;
@@ -277,7 +277,6 @@ class ZaakTypeService
             'https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseTypeToZGWZaakType.mapping.json',
             'common-gateway/xxllnc-zgw-bundle'
         );
-
 
         isset($this->style) === true && $this->style->info("Mapping ZaakType..");
         $this->logger->info("Mapping ZaakType..");

@@ -81,18 +81,19 @@ class ZaakService
      */
     private LoggerInterface $logger;
 
+
     /**
      * __construct.
      */
     public function __construct(
         EntityManagerInterface $entityManager,
         SynchronizationService $synchronizationService,
-        CallService            $callService,
-        ZaakTypeService        $zaakTypeService,
+        CallService $callService,
+        ZaakTypeService $zaakTypeService,
         GatewayResourceService $resourceService,
-        MappingService         $mappingService,
-        LoggerInterface        $pluginLogger
-    )   {
+        MappingService $mappingService,
+        LoggerInterface $pluginLogger
+    ) {
         $this->entityManager          = $entityManager;
         $this->synchronizationService = $synchronizationService;
         $this->callService            = $callService;
@@ -100,6 +101,7 @@ class ZaakService
         $this->resourceService        = $resourceService;
         $this->mappingService         = $mappingService;
         $this->logger                 = $pluginLogger;
+
     }//end __construct()
 
 
@@ -225,7 +227,7 @@ class ZaakService
 
         isset($this->style) === true && $this->style->info("Mapping case to zaak..");
         $this->logger->info("Mapping case to zaak..");
-        
+
         $caseAndCaseType = array_merge(
             $case,
             [
@@ -264,10 +266,12 @@ class ZaakService
     private function getXxllncAPI()
     {
         // Get xxllnc source
-        if (isset($this->xxllncAPI) === false && 
-            ($this->xxllncAPI = $this->resourceService->getSource(
-            'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json', 'common-gateway/xxllnc-zgw-bundle')) === null
-            ) {
+        if (isset($this->xxllncAPI) === false
+            && ($this->xxllncAPI = $this->resourceService->getSource(
+                'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json',
+                'common-gateway/xxllnc-zgw-bundle'
+            )) === null
+        ) {
             isset($this->style) === true && $this->style->error("Could not find Source: Xxllnc API");
             $this->logger->error("Could not find Source: Xxllnc API");
 
