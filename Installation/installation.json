@@ -1,5 +1,29 @@
 {
     "installationService": "CommonGateway\\XxllncZGWBundle\\Service\\InstallationService",
+    "applications": [
+      {
+        "title": "Xxllnc Application",
+        "$id": "https://docs.commongateway.nl/application/default.application.json",
+        "$schema": "https://docs.commongateway.nl/schemas/Application.schema.json",
+        "version": "0.0.1",
+        "description": "The xxllnc application for extra configuration",
+        "domains": [
+          "localhost",
+          "api.xxllnc.commonground.nu"
+        ],
+        "configuration": [
+          {
+            "https://vng.opencatalogi.nl/EntityEndpoint/ZaakType.endpoint.json": {
+              "in": {
+                "query": {
+                  "mapping": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncZaaktypeQueryInMapping.mapping.json"
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
     "cards": {
       "sources": [
         "https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json"
