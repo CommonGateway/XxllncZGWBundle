@@ -3,7 +3,6 @@ name: "XxllncZGWBundle"
 url: "https://github.com/CommonGateway/XxllncZGWBundle"
 releaseDate: "2022-10-01"
 softwareType: addon
-applicationSuite: "CommonGateway Application"
 
 platforms:
   - web
