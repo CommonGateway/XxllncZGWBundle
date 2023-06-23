@@ -5,7 +5,7 @@
         "title": "Xxllnc Application",
         "$id": "https://docs.commongateway.nl/application/default.application.json",
         "$schema": "https://docs.commongateway.nl/schemas/Application.schema.json",
-        "version": "0.0.1",
+        "version": "0.0.2",
         "description": "The xxllnc application for extra configuration",
         "domains": [
           "localhost",
@@ -17,6 +17,60 @@
               "in": {
                 "query": {
                   "mapping": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncZaaktypeQueryInMapping.mapping.json"
+                }
+              }
+            }
+          },
+          {
+            "https://vng.opencatalogi.nl/EntityEndpoint/Eigenschap.endpoint.json": {
+              "in": {
+                "query": {
+                  "mapping": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncEigenschapQueryInMapping.mapping.json"
+                }
+              }
+            }
+          },
+          {
+            "https://vng.opencatalogi.nl/EntityEndpoint/InformatieObjectType.endpoint.json": {
+              "in": {
+                "query": {
+                  "mapping": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncInformatieObjecttypeQueryInMapping.mapping.json"
+                }
+              }
+            }
+          },
+          {
+            "https://vng.opencatalogi.nl/EntityEndpoint/ResultaatType.endpoint.json": {
+              "in": {
+                "query": {
+                  "mapping": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncResultaattypeQueryInMapping.mapping.json"
+                }
+              }
+            }
+          },
+          {
+            "https://vng.opencatalogi.nl/EntityEndpoint/BesluitType.endpoint.json": {
+              "in": {
+                "query": {
+                  "mapping": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncBesluittypeQueryInMapping.mapping.json"
+                }
+              }
+            }
+          },
+          {
+            "https://vng.opencatalogi.nl/EntityEndpoint/RolType.endpoint.json": {
+              "in": {
+                "query": {
+                  "mapping": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncRoltypeQueryInMapping.mapping.json"
+                }
+              }
+            }
+          },
+          {
+            "https://vng.opencatalogi.nl/EntityEndpoint/StatusType.endpoint.json": {
+              "in": {
+                "query": {
+                  "mapping": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncStatustypeQueryInMapping.mapping.json"
                 }
               }
             }
