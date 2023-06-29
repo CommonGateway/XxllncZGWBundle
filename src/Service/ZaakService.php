@@ -192,6 +192,28 @@ class ZaakService
 
 
     /**
+     * Gets documents (zaakinformatieobjecten) for a case.
+     *
+     * @param string $caseId xxllnc case id
+     *
+     * @return array
+     */
+    private function getCaseDocuments(string $caseId): array
+    {
+        isset($this->style) === true && $this->style->info("Checking for documents on this case (zaakinformatieobjecten)..");
+        $this->logger->info("Checking for documents on this case (zaakinformatieobjecten)..");
+        try {
+            return $this->callService->getAllResults($this->xxllncAPI, "/case/$caseId/document", [], 'result.instance.rows');
+        } catch (Exception $e) {
+            isset($this->style) === true && $this->style->error("Failed to fetch case documents: {$e->getMessage()}");
+            $this->logger->error("Failed to fetch case documents: {$e->getMessage()}");
+
+            return [];
+        }
+    }//end getCaseDocuments()
+
+
+    /**
      * Synchronises a case to zgw zaak based on the data retrieved from the Xxllnc api.
      *
      * @param array $case  The case to synchronize.
@@ -204,6 +226,7 @@ class ZaakService
      */
     public function syncCase(array $case, bool $flush = true): ObjectEntity
     {
+        // 0. Get required config objects.
         $zaakSchema  = $this->resourceService->getSchema(
             'https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json',
             'common-gateway/xxllnc-zgw-bundle'
@@ -217,6 +240,7 @@ class ZaakService
             'common-gateway/xxllnc-zgw-bundle'
         );
 
+        // 1. Check related ZaakType if its already synced, if not sync.
         $zaakTypeObject = $this->checkZaakType($case);
         if ($zaakTypeObject instanceof ObjectEntity === false) {
             isset($this->style) === true && $this->style->error("ZaakType for case {$case['reference']} could not be found or synced, aborting.");
@@ -225,20 +249,27 @@ class ZaakService
             return null;
         }
 
+        // 2. Fetch documents (zaakinformatieobject) for this case.
+        $caseDocuments = $this->getCaseDocuments($case['reference']);
+
+
+        // 3. Map the case and all its subobjects.
         isset($this->style) === true && $this->style->info("Mapping case to zaak..");
         $this->logger->info("Mapping case to zaak..");
 
-        $caseAndCaseType = array_merge(
+        $hydrationService = new HydrationService($this->synchronizationService, $this->entityManager);
+        $caseAndRelatedObjects = array_merge(
             $case,
             [
                 'zaaktype'        => $zaakTypeObject->toArray(),
                 'bronorganisatie' => ($this->configuration['bronorganisatie'] ?? 'No bronorganisatie set'),
+                'documents'       => $caseDocuments
             ]
         );
-        $zaakArray       = $this->mappingService->mapping($caseMapping, $caseAndCaseType);
+        $zaakArray       = $this->mappingService->mapping($caseMapping, $caseAndRelatedObjects);
 
-        $hydrationService = new HydrationService($this->synchronizationService, $this->entityManager);
 
+        // 4. Check or create synchronization for case and its subobjects.
         isset($this->style) === true && $this->style->info("Checking subobjects for synchronizations..");
         $this->logger->info("Checking subobjects for synchronizations..");
 
