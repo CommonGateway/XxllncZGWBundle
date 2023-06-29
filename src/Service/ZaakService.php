@@ -210,6 +210,7 @@ class ZaakService
 
             return [];
         }
+
     }//end getCaseDocuments()
 
 
@@ -252,22 +253,20 @@ class ZaakService
         // 2. Fetch documents (zaakinformatieobject) for this case.
         $caseDocuments = $this->getCaseDocuments($case['reference']);
 
-
         // 3. Map the case and all its subobjects.
         isset($this->style) === true && $this->style->info("Mapping case to zaak..");
         $this->logger->info("Mapping case to zaak..");
 
-        $hydrationService = new HydrationService($this->synchronizationService, $this->entityManager);
+        $hydrationService      = new HydrationService($this->synchronizationService, $this->entityManager);
         $caseAndRelatedObjects = array_merge(
             $case,
             [
                 'zaaktype'        => $zaakTypeObject->toArray(),
                 'bronorganisatie' => ($this->configuration['bronorganisatie'] ?? 'No bronorganisatie set'),
-                'documents'       => $caseDocuments
+                'documents'       => $caseDocuments,
             ]
         );
-        $zaakArray       = $this->mappingService->mapping($caseMapping, $caseAndRelatedObjects);
-
+        $zaakArray             = $this->mappingService->mapping($caseMapping, $caseAndRelatedObjects);
 
         // 4. Check or create synchronization for case and its subobjects.
         isset($this->style) === true && $this->style->info("Checking subobjects for synchronizations..");
