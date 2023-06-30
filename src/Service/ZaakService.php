@@ -192,7 +192,30 @@ class ZaakService
 
 
     /**
-     * Gets documents (zaakinformatieobjecten) for a case.
+     * Gets the actual document from a different endpoint that has the metadata.
+     *
+     * @param string $documentNumber document number (not the id).
+     *
+     * @return array
+     */
+    private function getActualDocument(string $documentNumber): array
+    {
+        try {
+            isset($this->style) === true && $this->style->info("Fetching actual document: $documentNumber..");
+            $this->logger->info("Fetching actual document: $documentNumber..");
+            $response = $this->callService->call($this->xxllncAPI, "/document/get_by_number/$documentNumber", 'GET', [], false, false);
+            return $this->callService->decodeResponse($this->xxllncAPI, $response);
+        } catch (Exception $e) {
+            isset($this->style) === true && $this->style->error("Failed to fetch actual document: $documentNumber, message:  {$e->getMessage()}");
+            $this->logger->error("Failed to fetch actual document: $documentNumber, message:  {$e->getMessage()}");
+
+            return [];
+        }
+    }//end getActualDocument
+
+
+    /**
+     * Gets documents (zaakinformatieobjecten) for a case without metadata.
      *
      * @param string $caseId xxllnc case id
      *
@@ -203,7 +226,12 @@ class ZaakService
         isset($this->style) === true && $this->style->info("Checking for documents on this case (zaakinformatieobjecten)..");
         $this->logger->info("Checking for documents on this case (zaakinformatieobjecten)..");
         try {
-            return $this->callService->getAllResults($this->xxllncAPI, "/case/$caseId/document", [], 'result.instance.rows');
+            $response = $this->callService->call($this->xxllncAPI, "/case/$caseId/document", 'GET', [], false, false);
+            $documents = $this->callService->decodeResponse($this->xxllncAPI, $response)['result']['instance']['rows'];
+            foreach ($documents as $key => $document) {
+                $documents[$key] = $this->getActualDocument($document['instance']['number']);
+            }
+            return $documents;
         } catch (Exception $e) {
             isset($this->style) === true && $this->style->error("Failed to fetch case documents: {$e->getMessage()}");
             $this->logger->error("Failed to fetch case documents: {$e->getMessage()}");
@@ -266,6 +294,7 @@ class ZaakService
                 'documents'       => $caseDocuments,
             ]
         );
+
         $zaakArray             = $this->mappingService->mapping($caseMapping, $caseAndRelatedObjects);
 
         // 4. Check or create synchronization for case and its subobjects.
