@@ -211,7 +211,8 @@ class ZaakService
 
             return [];
         }
-    }//end getActualDocument
+
+    }//end getActualDocument()
 
 
     /**
@@ -226,11 +227,12 @@ class ZaakService
         isset($this->style) === true && $this->style->info("Checking for documents on this case (zaakinformatieobjecten)..");
         $this->logger->info("Checking for documents on this case (zaakinformatieobjecten)..");
         try {
-            $response = $this->callService->call($this->xxllncAPI, "/case/$caseId/document", 'GET', [], false, false);
+            $response  = $this->callService->call($this->xxllncAPI, "/case/$caseId/document", 'GET', [], false, false);
             $documents = $this->callService->decodeResponse($this->xxllncAPI, $response)['result']['instance']['rows'];
             foreach ($documents as $key => $document) {
                 $documents[$key] = $this->getActualDocument($document['instance']['number']);
             }
+
             return $documents;
         } catch (Exception $e) {
             isset($this->style) === true && $this->style->error("Failed to fetch case documents: {$e->getMessage()}");
@@ -295,7 +297,7 @@ class ZaakService
             ]
         );
 
-        $zaakArray             = $this->mappingService->mapping($caseMapping, $caseAndRelatedObjects);
+        $zaakArray = $this->mappingService->mapping($caseMapping, $caseAndRelatedObjects);
 
         // 4. Check or create synchronization for case and its subobjects.
         isset($this->style) === true && $this->style->info("Checking subobjects for synchronizations..");
