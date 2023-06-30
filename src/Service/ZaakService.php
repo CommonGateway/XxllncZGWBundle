@@ -126,9 +126,9 @@ class ZaakService
     /**
      * Gets a existing ZaakType or syncs one from the xxllnc api.
      *
-     * @var string xxllnc casetype
+     * @var string $caseTypeId xxllnc casetype identifier.
      *
-     * @return ObjectEntity|null $zaakType object or null
+     * @return ObjectEntity|null $zaakType ObjectEntity or null.
      */
     public function getZaakTypeByExtId(string $caseTypeId)
     {
@@ -167,7 +167,7 @@ class ZaakService
      *
      * @param array $case xxllnc case object
      *
-     * @return ObjectEntity|null
+     * @return ObjectEntity|null $zaakTypeObject ObjectEntity or null.
      */
     private function checkZaakType(array $case)
     {
@@ -196,7 +196,7 @@ class ZaakService
      *
      * @param string $documentNumber document number (not the id).
      *
-     * @return array
+     * @return array $this->callService->decodeResponse() Decoded requested document as PHP array.
      */
     private function getActualDocument(string $documentNumber): array
     {
@@ -220,7 +220,7 @@ class ZaakService
      *
      * @param string $caseId xxllnc case id
      *
-     * @return array
+     * @return array $documents Decoded documents in an PHP array.
      */
     private function getCaseDocuments(string $caseId): array
     {
