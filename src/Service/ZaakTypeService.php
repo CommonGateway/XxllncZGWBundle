@@ -1,14 +1,4 @@
 <?php
-/**
- * This class handles the synchronizations of xxllnc casetypes to zgw ztc zaaktypen.
- *
- * By fetching, mapping and creating synchronizations.
- *
- * @author  Conduction BV <info@conduction.nl>, Barry Brands <barry@conduction.nl>
- * @license EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
- *
- * @category Service
- */
 
 namespace CommonGateway\XxllncZGWBundle\Service;
 
@@ -25,6 +15,16 @@ use Exception;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Psr\Log\LoggerInterface;
 
+/**
+ * This class handles the synchronizations of xxllnc casetypes to zgw ztc zaaktypen.
+ *
+ * By fetching, mapping and creating synchronizations.
+ *
+ * @author  Conduction BV <info@conduction.nl>, Barry Brands <barry@conduction.nl>
+ * @license EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * @category Service
+ */
 class ZaakTypeService
 {
 

@@ -1,14 +1,4 @@
 <?php
-/**
- * This class handles the installation of the XxllncZGWBundle.
- *
- * By creating symfony objects that function as configuration for the gateway.
- *
- * @author Conduction BV <info@conduction.nl>, Barry Brands <barry@conduction.nl>, Wilco Louwerse <wilco@conduction.nl>
- * @license EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
- *
- * @category Service
- */
 
 // src/Service/InstallationService.php
 
@@ -21,6 +11,16 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectRepository;
 use Psr\Log\LoggerInterface;
 
+/**
+ * This class handles the installation of the XxllncZGWBundle.
+ *
+ * By creating symfony objects that function as configuration for the gateway.
+ *
+ * @author Conduction BV <info@conduction.nl>, Barry Brands <barry@conduction.nl>, Wilco Louwerse <wilco@conduction.nl>
+ * @license EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * @category Service
+ */
 class InstallationService implements InstallerInterface
 {
     /**

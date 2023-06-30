@@ -1,4 +1,13 @@
 <?php
+
+namespace CommonGateway\XxllncZGWBundle\Service;
+
+use App\Entity\Entity;
+use App\Entity\Gateway as Source;
+use App\Entity\ObjectEntity;
+use App\Service\SynchronizationService;
+use Doctrine\ORM\EntityManagerInterface;
+
 /**
  * This class hydrates objects and sets synchronisations for objects if applicable.
  *
@@ -7,15 +16,6 @@
  *
  * @category Service
  */
-namespace CommonGateway\XxllncZGWBundle\Service;
-
-use App\Entity\Attribute;
-use App\Entity\Entity;
-use App\Entity\Gateway as Source;
-use App\Entity\ObjectEntity;
-use App\Service\SynchronizationService;
-use Doctrine\ORM\EntityManagerInterface;
-
 class HydrationService
 {
 
