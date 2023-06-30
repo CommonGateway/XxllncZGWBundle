@@ -1,0 +1,29 @@
+{
+    "title": "XxllncDocumentToZaakInformatieObject",
+    "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncDocumentToZaakInformatieObject.mapping.json",
+    "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
+    "version": "0.0.1",
+    "passTrough": false,
+    "mapping": {
+        "_sourceId": "result.instance.file.reference",
+        "titel": "result.instance.name",
+        "registratiedatum": "result.instance.file.instance.date_created",
+        "informatieobject.identificatie": "result.instance.number",
+        "informatieobject.creatiedatum": "result.instance.file.instance.date_created",
+        "informatieobject.titel": "result.instance.name",
+        "informatieobject.vertrouwelijksheidaanduiding": "{% if result.instance.metadata.instance.trust_level|default %}{{ result.instance.metadata.instance.trust_level|lower }}{% endif %}",
+        "informatieobject.formaat": "result.instance.file.instance.mimetype",
+        "informatieobject.versie": "1",
+        "informatieobject.beginRegistratie": "result.instance.file.instance.date_modified",
+        "informatieobject.bestandsnaam": "result.instance.filename",
+        "informatieobject.bestandsomvang": "result.instance.file.instance.size",
+        "informatieobject.verschijningsvorm": "result.instance.metadata.instance.category",
+        "informatieobject.integriteit.algoritme": "{% if result.instance.file.instance|default %}{% set algoritmeArray = ['crc_16','crc_32','crc_64','fletcher4','fletcher8','fletcher16','fletcher32','hmac','md5','sha_1','sha_256','sha_512','sha_3'] %}{% for algoritme in algoritmeArray %}{% if result.instance.file.instance[algoritme]|default %}{{ algoritme }}{% endif %}{% endfor %}{% endif %}",
+        "informatieobject.integriteit.waarde": "{% if result.instance.file.instance|default %}{% set algoritmeArray = ['crc_16','crc_32','crc_64','fletcher4','fletcher8','fletcher16','fletcher32','hmac','md5','sha_1','sha_256','sha_512','sha_3'] %}{% for algoritme in algoritmeArray %}{% if result.instance.file.instance[algoritme]|default %}{{ result.instance.file.instance[algoritme] }}{% endif %}{% endfor %}{% endif %}",
+        "informatieobject.integriteit.datum": "result.instance.file.instance.date_created"
+    },
+    "cast": {
+        "informatieobject.versie": "integer",
+        "informatieobject.bestandsomvang": "integer"
+    }
+  }
