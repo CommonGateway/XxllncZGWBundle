@@ -55,11 +55,11 @@ class ZaakHandler implements ActionHandlerInterface
             '$schema'     => 'https://docs.commongateway.nl/schemas/ActionHandler.schema.json',
             'title'       => 'ZaakAction',
             'description' => 'This handler customly maps xxllnc case to zgw zaak',
-            'required'    => ['zaakEntityId'],
+            'required'    => ['bronorganisatie'],
             'properties'  => [
-                'zaakTypeEntityId' => [
+                'bronorganisatie' => [
                     'type'        => 'string',
-                    'description' => 'The UUID of the Zaak Entity on the gateway',
+                    'description' => 'The RSIN of the organisation creating the incoming cases on the gateway.',
                     'example'     => '',
                 ],
             ],

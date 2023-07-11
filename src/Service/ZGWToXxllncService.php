@@ -132,6 +132,30 @@ class ZGWToXxllncService
 
 
     /**
+     * Gets the eigenschappen from a zaaktype and creates a simpler array.
+     *
+     * @param ObjectEntity $zaakTypeObject These is the ZGW ZaakType.
+     *
+     * @return array $zaakTypeEigenschappen This is the Xxllnc Zaak array with the added eigenschappen.
+     */
+    private function getEigenschappen(ObjectEntity $zaakTypeObject): array
+    {
+        $zaakTypeEigenschappen = $zaakTypeObject->getValue('eigenschappen');
+        if ($zaakTypeEigenschappen instanceof PersistentCollection) {
+            $zaakTypeEigenschappen = $zaakTypeEigenschappen->toArray();
+        }
+
+        $eigenschappen = [];
+        foreach ($zaakTypeEigenschappen as $eigenschap) {
+            $eigenschappen[$eigenschap->getId()->toString()] = $eigenschap->getValue('naam');
+        }
+
+        return $eigenschappen;
+
+    }//end getEigenschappen()
+
+
+    /**
      * Maps the eigenschappen from zgw to xxllnc.
      *
      * @param array        $xxllncZaakArray This is the Xxllnc Zaak array.
@@ -142,21 +166,26 @@ class ZGWToXxllncService
      */
     private function mapPostEigenschappen(array $xxllncZaakArray, array $zaakArrayObject, ObjectEntity $zaakTypeObject): array
     {
-        $zaakTypeEigenschappen = $zaakTypeObject->getValue('eigenschappen');
-        if ($zaakTypeEigenschappen instanceof PersistentCollection) {
-            $zaakTypeEigenschappen = $zaakTypeEigenschappen->toArray();
-        }
-
-        $eigenschapIds = [];
-        foreach ($zaakTypeEigenschappen as $eigenschap) {
-            $eigenschapIds[] = $eigenschap->getId()->toString();
-        }
+        // Create a array for the eigenschappen so its easier to check if zaakeigenschapen are valid for the zaaktype.
+        $eigenschapIds = $this->getEigenschappen($zaakTypeObject);
 
         // eigenschappen to values
         if (isset($zaakArrayObject['eigenschappen']) === true) {
             foreach ($zaakArrayObject['eigenschappen'] as $zaakEigenschap) {
-                if (isset($zaakEigenschap['eigenschap']) === true && in_array($zaakEigenschap['eigenschap']['_self']['id'], $eigenschapIds)) {
-                    $xxllncZaakArray['values'][$zaakEigenschap['eigenschap']['definitie']] = [$zaakEigenschap['waarde']];
+                if (isset($zaakEigenschap['eigenschap']['naam']) === true && isset($eigenschapIds[$zaakEigenschap['eigenschap']['_self']['id']]) === true
+                ) {
+                    // refetch eigenschap otherwise it doesnt load the specificate sub object.
+                    $eigenschap = $this->entityManager->find('App:ObjectEntity', $zaakEigenschap['eigenschap']['_self']['id'])->toArray();
+
+                    // If formaat is checkbox set the waarde in a array that is in a array :/.
+                    if (isset($eigenschap['specificatie']['formaat']) === true && $eigenschap['specificatie']['formaat'] === 'checkbox') {
+                        $xxllncZaakArray['values'][$eigenschap['naam']] = [[$zaakEigenschap['waarde']]];
+
+                        continue;
+                    }
+
+                    // Else set the waarde in a array.
+                    $xxllncZaakArray['values'][$eigenschap['naam']] = [$zaakEigenschap['waarde']];
                 }
             }
         }
@@ -312,23 +341,16 @@ class ZGWToXxllncService
         // Method is always POST in the xxllnc api for creating and updating.
         $method = 'POST';
 
-        $this->logger->info("$method a case to xxllnc (Zaak ID: $resourceId)", ['mapped case' => $caseArray]);
-        $this->logger->info(\Safe\json_encode($caseArray));
+        $this->logger->info("$method a case to xxllnc (Zaak ID: $zaakId) ".\Safe\json_encode($caseArray));
 
         $xxllncAPI = $this->resourceService->getSource('https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json', 'common-gateway/xxllnc-zgw-bundle');
         // Send the POST/PUT request to xxllnc.
         try {
             isset($this->style) === true && $this->style->info($logMessage);
-            $response = $this->callService->call($xxllncAPI, $endpoint, $method, ['body' => \Safe\json_encode($caseArray), 'headers' => ['Content-Type' => 'application/json']]);
-            $result   = $this->callService->decodeResponse($xxllncAPI, $response);
-
-            var_dump("LALALALALLA");
-            // var_dump($result);
-            $caseId = $result['result']['reference'] ?? null;
-            var_dump("$method succesfull for case with externalId: $caseId");
-            $this->logger->info("$method succesfull for case with externalId: $caseId");
-
-            return $caseId;
+            $response = $this->callService->call($this->xxllncAPI, $endpoint, $method, ['body' => \Safe\json_encode($caseArray), 'headers' => ['Content-Type' => 'application/json']]);
+            $result   = $this->callService->decodeResponse($this->xxllncAPI, $response);
+            $caseId   = $result['result']['reference'] ?? null;
+            $this->logger->info("$method succesfull for case with externalId: $caseId and response: ".\Safe\json_encode($result));
         } catch (Exception $e) {
             $this->logger->error("Failed to $method case, message:  {$e->getMessage()}");
             var_dump("Failed to $method case, message:  {$e->getMessage()}");

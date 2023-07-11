@@ -1,0 +1,17 @@
+{
+    "title": "XxllncMilestoneToStatus",
+    "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncMilestoneToStatus.mapping.json",
+    "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
+    "version": "0.0.1",
+    "passTrough": false,
+    "mapping": {
+        "_sourceId": "{% if milestone.reference|default %}{{ milestone.reference }}{% endif %}",
+        "datumStatusGezet": "milestone.instance.date_modified",
+        "statustoelichting": "milestone.instance.phase_label",
+        "indicatieLaatstGezetteStatus": "{{ true }}",
+        "statustype": "{% for statustype in statustypen %}{% if statustype.omschrijving == milestone.instance.phase_label %}{{ statustype['_self']['id'] }}{% endif %}{% endfor %}"
+    },
+    "cast": {
+        "indicatieLaatstGezetteStatus": "bool"
+    }
+  }

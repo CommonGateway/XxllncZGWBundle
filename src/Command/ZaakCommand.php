@@ -12,7 +12,9 @@
 
 namespace CommonGateway\XxllncZGWBundle\Command;
 
+use App\Entity\Action;
 use CommonGateway\XxllncZGWBundle\Service\ZaakService;
+use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -37,15 +39,21 @@ class ZaakCommand extends Command
      */
     private ZaakService $zaakService;
 
+    /**
+     * @var EntityManagerInterface
+     */
+    private EntityManagerInterface $entityManager;
+
 
     /**
      * Class constructor.
      *
      * @param ZaakService $zaakService The case service
      */
-    public function __construct(ZaakService $zaakService)
+    public function __construct(ZaakService $zaakService, EntityManagerInterface $entityManager)
     {
-        $this->zaakService = $zaakService;
+        $this->zaakService   = $zaakService;
+        $this->entityManager = $entityManager;
         parent::__construct();
 
     }//end __construct()
@@ -71,7 +79,7 @@ class ZaakCommand extends Command
 
 
     /**
-     * Executes this command.
+     * Executes zaakService->zaakHandler or zaakService->getZaak if a id is given.
      *
      * @param InputInterface  Handles input from cli
      * @param OutputInterface Handles output from cli
@@ -84,28 +92,32 @@ class ZaakCommand extends Command
         $this->zaakService->setStyle($style);
         $zaakId = $input->getArgument('id');
 
+        $action = $this->entityManager->getRepository('App:Action')->findOneBy(['reference' => 'https://development.zaaksysteem.nl/action/xxllnc.Zaak.action.json']);
+        if ($action instanceof Action === null) {
+            $style->error('Action with reference https://development.zaaksysteem.nl/action/xxllnc.Zaak.action.json not found');
+
+            return Command::FAILURE;
+        }
+
         if (isset($zaakId) === true
             && Uuid::isValid($zaakId) === true
         ) {
-            $style->info(
-                "ID is valid, trying to fetch and
-                map casetype $zaakId to a ZGW Zaak"
-            );
-            if ($this->zaakService->getZaak($zaakId) === true) {
+            if ($this->zaakService->getZaak($action->getConfiguration(), $zaakId) === true) {
                 return Command::FAILURE;
-            }//end if
+            }
+
+            isset($style) === true && $style->info("Succesfully synced and created a ZGW Zaak from xxllnc case: $zaakId.");
 
             return Command::SUCCESS;
         }//end if
 
-        if ($this->zaakService->zaakHandler() === null) {
+        if ($this->zaakService->zaakHandler([], $action->getConfiguration()) === null) {
             return Command::FAILURE;
-        }//end if
+        }
 
         return Command::SUCCESS;
 
     }//end execute()
 
 
-    // end execute()
 }//end class
