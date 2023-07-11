@@ -879,16 +879,9 @@ class ZGWToXxllncService
     {
         $this->data          = $data;
         $this->configuration = $configuration;
-        var_dump("halloooo");
 
-        if (isset($this->data['response']['_self']['id']) === false) {
-            $this->logger->error('syncBesluitToXxllnc returned, no besluittype set');
-
-            return [];
-        }
-
-        if (isset($this->data['response']['besluit']) === false) {
-            $this->logger->error('syncBesluitToXxllnc returned, no besluittype set');
+        if (isset($this->data['response']['_self']['id']) === false || isset($this->data['response']['besluit']) === false) {
+            $this->logger->error('syncBesluitToXxllnc returned, no id or besluit found in given zaakbesluit.');
 
             return [];
         }
