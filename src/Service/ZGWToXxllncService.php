@@ -254,7 +254,7 @@ class ZGWToXxllncService
             return [];
         }
 
-        $bsn = ($zaakArrayObject['rollen'][0]['betrokkeneIdentificatie']['inpBsn'] ?? $zaakArrayObject['verantwoordelijkeOrganisatie'] ?? ) null;
+        $bsn = ($zaakArrayObject['rollen'][0]['betrokkeneIdentificatie']['inpBsn'] ?? $zaakArrayObject['verantwoordelijkeOrganisatie']) ?? null;
         if ($bsn === null) {
             $this->logger->error('No bsn found in a rol->betrokkeneIdentificatie->inpBsn');
 
@@ -435,3 +435,4 @@ class ZGWToXxllncService
 
 
 }//end class
+

@@ -12,10 +12,11 @@
         "confidentiality": "public",
         "requestor.id": "bsn",
         "requestor.type": "person",
-        "files": "[{% set index = 0 %}{% for infoObject in zaakinformatieobjecten %}{% if index > 0 %}, {% endif %}{% map('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncInfoObjectToFile.mapping.json', infoObject)|json_encode %}{% set index = index + 1 %}{% endfor %}]",
+        "files": "[{% set index = 0 %}{% for infoObject in zaakinformatieobjecten %}{% if index > 0 %}, {% endif %}{{ map('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncInfoObjectToFile.mapping.json', infoObject)|json_encode }}{% set index = index + 1 %}{% endfor %}]",
         "values": "[{% set index = 0 %}{% for zaakEigenschap in eigenschappen %}{% if zaakEigenschap.eigenschap.naam|default %}{% if index > 0 %}, {% endif %}{\"{{ zaakEigenschap.eigenschap.naam }}\":{% if zaakEigenschap.eigenschap.waarde|default and zaakEigenschap.eigenschap.specificatie.formaat|default and zaakEigenschap.eigenschap.specificatie.formaat == 'checkbox' %}[[\"{{ zaakEigenschap.eigenschap.waarde }}\"]]{% else %}[\"{{ zaakEigenschap.waarde }}\"]{% endif %}}{% set index = index + 1 %}{% endif %}{% endfor %}]"
     },
     "cast": {
-        "files": "jsonToArray"
+        "files": "jsonToArray",
+        "values": "jsonToArray"
     }
 }
