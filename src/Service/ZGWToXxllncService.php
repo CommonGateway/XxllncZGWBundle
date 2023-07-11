@@ -1,20 +1,12 @@
 <?php
-/**
- * This class handles the synchronization of a zgw zrc zaak to a xxllnc case.
- *
- * By mapping, posting and creating a synchronization. Only works if the ztc zaaktype also exists in the xxllnc api.
- *
- * @author  Conduction BV <info@conduction.nl>, Barry Brands <barry@conduction.nl>
- * @license EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
- *
- * @category Service
- */
 
 namespace CommonGateway\XxllncZGWBundle\Service;
 
-use App\Entity\Attribute;
+use Exception;
+use DateTime;
 use App\Entity\Entity as Schema;
 use App\Entity\Gateway as Source;
+use App\Entity\Mapping;
 use App\Entity\ObjectEntity;
 use App\Entity\Synchronization;
 use App\Entity\Value;
@@ -23,6 +15,7 @@ use CommonGateway\CoreBundle\Service\CallService;
 use CommonGateway\CoreBundle\Service\GatewayResourceService;
 use CommonGateway\CoreBundle\Service\MappingService;
 use DateTime;
+use CommonGateway\CoreBundle\Service\SynchronizationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\PersistentCollection;
 use Doctrine\Persistence\ObjectRepository;
@@ -31,23 +24,41 @@ use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+use function Safe\json_encode;
+
+/**
+ * The ZGWToXxllncService handles the sending of ZGW objects to the xxllnc v1 api.
+ *
+ * By mapping, posting and creating a synchronization. Only works if the ztc zaaktype also exists in the xxllnc api.
+ *
+ * @author Conduction BV <info@conduction.nl>, Barry Brands <barry@conduction.nl>, Sarai Misidjan <sarai@conduction.nl>
+ *
+ * @license EUPL <https://github.com/ConductionNL/contactcatalogus/blob/master/LICENSE.md>
+ *
+ * @category Service
+ */
 class ZGWToXxllncService
 {
 
     /**
-     * @var EntityManagerInterface
+     * @var EntityManagerInterface $entityManager.
      */
     private EntityManagerInterface $entityManager;
 
     /**
-     * @var CallService
+     * @var CallService $callService.
      */
     private CallService $callService;
 
     /**
-     * @var SynchronizationService
+     * @var SynchronizationService $syncService.
      */
-    private SynchronizationService $synService;
+    private SynchronizationService $syncService;
+
+    /**
+     * @var MappingService $mappingService.
+     */
+    private MappingService $mappingService;
 
     /**
      * @var GatewayResourceService
@@ -55,37 +66,42 @@ class ZGWToXxllncService
     private GatewayResourceService $resourceService;
 
     /**
-     * @var MappingService
-     */
-    private MappingService $mappingService;
-
-    /**
-     * @var SymfonyStyle
+     * @var SymfonyStyle $style.
      */
     private SymfonyStyle $style;
 
     /**
-     * @var array
+     * @var array $configuration.
      */
     private array $configuration;
 
     /**
-     * @var array
+     * @var array $data.
      */
-    private array $data;
+    public array $data;
 
     /**
-     * @var ObjectRepository
+     * @var ObjectRepository $schemaRepo.
      */
     private ObjectRepository $schemaRepo;
 
     /**
-     * @var ObjectRepository
+     * @var ObjectRepository $sourceRepo.
      */
     private ObjectRepository $sourceRepo;
 
     /**
-     * @var LoggerInterface
+     * @var Source|null $xxllncAPI.
+     */
+    private ?Source $xxllncAPI;
+
+    /**
+     * @var Schema|null $xxllncZaakSchema.
+     */
+    private ?Schema $xxllncZaakSchema;
+
+    /**
+     * @var LoggerInterface $logger.
      */
     private LoggerInterface $logger;
 
@@ -96,17 +112,17 @@ class ZGWToXxllncService
     public function __construct(
         EntityManagerInterface $entityManager,
         CallService $callService,
+        MappingService $mappingService,
         LoggerInterface $pluginLogger,
-        SynchronizationService $synService,
-        GatewayResourceService $resourceService,
-        MappingService $mappingService
+        SynchronizationService $syncService,
+        GatewayResourceService $resourceService
     ) {
         $this->entityManager   = $entityManager;
         $this->callService     = $callService;
-        $this->logger          = $pluginLogger;
-        $this->synService      = $synService;
-        $this->resourceService = $resourceService;
         $this->mappingService  = $mappingService;
+        $this->logger          = $pluginLogger;
+        $this->syncService     = $syncService;
+        $this->resourceService = $resourceService;
 
         $this->schemaRepo = $this->entityManager->getRepository('App:Entity');
         $this->sourceRepo = $this->entityManager->getRepository('App:Gateway');
@@ -132,158 +148,17 @@ class ZGWToXxllncService
 
 
     /**
-     * Gets the eigenschappen from a zaaktype and creates a simpler array.
-     *
-     * @param ObjectEntity $zaakTypeObject These is the ZGW ZaakType.
-     *
-     * @return array $zaakTypeEigenschappen This is the Xxllnc Zaak array with the added eigenschappen.
-     */
-    private function getEigenschappen(ObjectEntity $zaakTypeObject): array
-    {
-        $zaakTypeEigenschappen = $zaakTypeObject->getValue('eigenschappen');
-        if ($zaakTypeEigenschappen instanceof PersistentCollection) {
-            $zaakTypeEigenschappen = $zaakTypeEigenschappen->toArray();
-        }
-
-        $eigenschappen = [];
-        foreach ($zaakTypeEigenschappen as $eigenschap) {
-            $eigenschappen[$eigenschap->getId()->toString()] = $eigenschap->getValue('naam');
-        }
-
-        return $eigenschappen;
-
-    }//end getEigenschappen()
-
-
-    /**
-     * Maps the eigenschappen from zgw to xxllnc.
-     *
-     * @param array        $xxllncZaakArray This is the Xxllnc Zaak array.
-     * @param array        $zaakArrayObject This is the ZGW Zaak array.
-     * @param ObjectEntity $zaakTypeObject  These is the ZGW ZaakType.
-     *
-     * @return array $xxllncZaakArray This is the Xxllnc Zaak array with the added eigenschappen.
-     */
-    private function mapPostEigenschappen(array $xxllncZaakArray, array $zaakArrayObject, ObjectEntity $zaakTypeObject): array
-    {
-        // Create a array for the eigenschappen so its easier to check if zaakeigenschapen are valid for the zaaktype.
-        $eigenschapIds = $this->getEigenschappen($zaakTypeObject);
-
-        // eigenschappen to values
-        if (isset($zaakArrayObject['eigenschappen']) === true) {
-            foreach ($zaakArrayObject['eigenschappen'] as $zaakEigenschap) {
-                if (isset($zaakEigenschap['eigenschap']['naam']) === true && isset($eigenschapIds[$zaakEigenschap['eigenschap']['_self']['id']]) === true
-                ) {
-                    // refetch eigenschap otherwise it doesnt load the specificate sub object.
-                    $eigenschap = $this->entityManager->find('App:ObjectEntity', $zaakEigenschap['eigenschap']['_self']['id'])->toArray();
-
-                    // If formaat is checkbox set the waarde in a array that is in a array :/.
-                    if (isset($eigenschap['specificatie']['formaat']) === true && $eigenschap['specificatie']['formaat'] === 'checkbox') {
-                        $xxllncZaakArray['values'][$eigenschap['naam']] = [[$zaakEigenschap['waarde']]];
-
-                        continue;
-                    }
-
-                    // Else set the waarde in a array.
-                    $xxllncZaakArray['values'][$eigenschap['naam']] = [$zaakEigenschap['waarde']];
-                }
-            }
-        }
-
-        return $xxllncZaakArray;
-
-    }//end mapPostEigenschappen()
-
-
-    /**
-     * Maps the informatieobjecten from zgw to xxllnc.
-     *
-     * @param array $xxllncZaakArray This is the Xxllnc Zaak array.
-     * @param array $zaakTypeArray   This is the ZGW Zaak array.
-     *
-     * @return array $xxllncZaakArray This is the Xxllnc Zaak array with the added eigenschappen.
-     */
-    private function mapPostInfoObjecten(array $xxllncZaakArray, array $zaakArrayObject): array
-    {
-        if (isset($zaakArrayObject['zaakinformatieobjecten']) === true) {
-            foreach ($zaakArrayObject['zaakinformatieobjecten'] as $infoObject) {
-                isset($infoObject['informatieobject']) === true && $xxllncZaakArray['files'][] = [
-                    // 'reference' => $infoObject['_self']['id'],
-                    'type'     => 'metadata',
-                    'naam'     => $infoObject['titel'],
-                    'metadata' => [
-                        // 'reference' =>  null,
-                        'type'     => 'metadata',
-                        'instance' => [
-                            'appearance'    => $infoObject['informatieobject']['bestandsnaam'],
-                            'category'      => null,
-                            'description'   => $infoObject['informatieobject']['beschrijving'],
-                            'origin'        => 'Inkomend',
-                            'origin_date'   => $infoObject['informatieobject']['creatiedatum'],
-                            'pronom_format' => $infoObject['informatieobject']['formaat'],
-                            'structure'     => 'text',
-                            'trust_level'   => ($infoObject['integriteit']['waarde'] ?? 'Openbaar'),
-                            'status'        => 'original',
-                            'creation_date' => $infoObject['informatieobject']['creatiedatum'],
-                        ],
-                    ],
-                ];
-            }//end foreach
-        }//end if
-
-        return $xxllncZaakArray;
-
-    }//end mapPostInfoObjecten()
-
-
-    /**
-     * Maps the rollen from zgw to xxllnc.
-     *
-     * @param array $xxllncZaakArray This is the Xxllnc Zaak array.
-     * @param array $zaakTypeArray   This is the ZGW Zaak array.
-     *
-     * @return array $xxllncZaakArray This is the Xxllnc Zaak array with the added eigenschappen.
-     */
-    private function mapPostRollen(array $xxllncZaakArray, array $zaakArrayObject): array
-    {
-        if (isset($zaakArrayObject['rollen']) === true && isset($zaakArrayObject['zaaktype']['roltypen']) === true) {
-            foreach ($zaakArrayObject['rollen'] as $rol) {
-                foreach ($zaakArrayObject['zaaktype']['roltypen'] as $rolType) {
-                    if ($rolType['omschrijvingGeneriek'] === $rol['roltoelichting']) {
-                        $rolTypeObject = $this->entityManager->find('App:ObjectEntity', $rolType['_self']['id']);
-                        if ($rolTypeObject instanceof ObjectEntity && $rolTypeObject->getExternalId() !== null) {
-                            $xxllncZaakArray['subjects'][] = [
-                                'subject'                => [
-                                    'type'      => 'subject',
-                                    'reference' => $rolTypeObject->getExternalId(),
-                                ],
-                                'role'                   => $rol['roltoelichting'],
-                                'magic_string_prefix'    => $rol['roltoelichting'],
-                                'pip_authorized'         => true,
-                                'send_auth_notification' => false,
-                            ];
-                        }
-                    }
-                }
-            }
-        }//end if
-
-        return $xxllncZaakArray;
-
-    }//end mapPostRollen()
-
-
-    /**
      * Saves case to xxllnc by POST or PUT request.
      *
-     * @param array                $caseArray       Case object.
+     * @param array                $caseArray       Case object as array.
+     * @param ObjectEntity         $caseObject      Case object as ObjectEntity.
      * @param Synchronization|null $synchronization Earlier created synchronization object.
      *
      * @return bool True if succesfully saved to xxllnc
      *
      * @todo Make function smaller and more readable
      */
-    public function sendCaseToXxllnc(array $caseArray, ?Synchronization $synchronization = null, string $type = 'zaak'): ?string
+    public function sendCaseToXxllnc(array $caseArray, ObjectEntity $caseObject, ?Synchronization $synchronization = null)
     {
         switch ($type) {
         case 'zaak':
@@ -294,144 +169,54 @@ class ZGWToXxllncService
             break;
         }
 
+        $zaakId = $caseArray['zgwZaak'];
+
         // If we have a sync with a sourceId we can do a PUT.
-        if ($synchronization !== null
-            && $synchronization->getSourceId()
-        ) {
-            $endpoint        = "/case/{$synchronization->getSourceId()}/update";
-            $logMessage      = "Updating case: {$synchronization->getSourceId()} to xxllnc";
-            $unsetProperties = [
-                '_self',
-                'requestor',
-                'casetype_id',
-                'source',
-                'open',
-                'route',
-                'contact_details',
-                'confidentiality',
-                'number',
-                'subjects',
-                'zgwZaak',
-                'date_of_registration',
-            ];
-        }//end if
+        if ($synchronization && $synchronization->getSourceId()) {
+            $endpoint     = "/case/{$synchronization->getSourceId()}/update";
+            $unsetMapping = $this->resourceService->getMapping('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseUnsetPUT.mapping.json', 'xxllnc-zgw-bundle');
+        }
 
         // If we have dont have a sync or sourceId we can do a POST.
         if ($synchronization === null
             || ($synchronization !== null && $synchronization->getSourceId() === null)
         ) {
+            $synchronization = new Synchronization($this->xxllncAPI, $this->xxllncZaakSchema);
             $endpoint        = '/case/create';
-            $logMessage      = 'Posting new case to xxllnc';
-            $unsetProperties = [
-                '_self',
-                'requestor._self',
-                'zgwZaak',
-            ];
-        }//end if
-
-        // unset unwanted properties.
-        foreach ($unsetProperties as $property) {
-            unset($caseArray[$property]);
+            $unsetMapping    = $this->resourceService->getMapping('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseUnsetPOST.mapping.json', 'xxllnc-zgw-bundle');
         }
 
-        if (isset($caseArray['requestor']['_self']) === true) {
-            unset($caseArray['requestor']['_self']);
-        }
-
-        // Method is always POST in the xxllnc api for creating and updating.
-        $method = 'POST';
-
-        $this->logger->info("$method a case to xxllnc (Zaak ID: $zaakId) ".\Safe\json_encode($caseArray));
-
-        $xxllncAPI = $this->resourceService->getSource('https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json', 'common-gateway/xxllnc-zgw-bundle');
-        // Send the POST/PUT request to xxllnc.
-        try {
-            isset($this->style) === true && $this->style->info($logMessage);
-            $response = $this->callService->call($this->xxllncAPI, $endpoint, $method, ['body' => \Safe\json_encode($caseArray), 'headers' => ['Content-Type' => 'application/json']]);
-            $result   = $this->callService->decodeResponse($this->xxllncAPI, $response);
-            $caseId   = $result['result']['reference'] ?? null;
-            $this->logger->info("$method succesfull for case with externalId: $caseId and response: ".\Safe\json_encode($result));
-        } catch (Exception $e) {
-            $this->logger->error("Failed to $method case, message:  {$e->getMessage()}");
-            var_dump("Failed to $method case, message:  {$e->getMessage()}");
-
-            return null;
-        }//end try
-
-    }//end sendCaseToXxllnc()
-
-
-    /**
-     * Saves a case relation from a case (Besluit) to another case (Zaak) to xxllnc by POST.
-     *
-     * @param string $caseSourceId        Case id from xxllnc.
-     * @param string $besluitCaseSourceId Case (Besluit) id from xxllnc.
-     *
-     * @return bool True if succesfully saved to xxllnc.
-     */
-    public function sendCaseRelationForBesluit(string $caseSourceId, string $besluitCaseSourceId)
-    {
-        $xxllncAPI = $this->resourceService->getSource('https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json', 'common-gateway/xxllnc-zgw-bundle');
-
-        $logMessage = "Posting relation for case (besluit): $besluitCaseSourceId to normal case: $caseSourceId";
-        $endpoint   = "/case/$caseSourceId/relation/add";
-        $body       = ['related_id' => $besluitCaseSourceId];
-
-        // Send the POST/PUT request to xxllnc.
-        try {
-            isset($this->style) === true && $this->style->info($logMessage);
-            $response = $this->callService->call($xxllncAPI, $endpoint, 'POST', ['form_params' => $body]);
-            $result   = $this->callService->decodeResponse($xxllncAPI, $response);
-
-            var_dump("LALALALALLA");
-            // var_dump($result);
-            $caseId = $result['result']['reference'] ?? null;
-            var_dump("succesfull for case relation with externalId: $caseId");
-        } catch (Exception $e) {
-            isset($this->style) === true && $this->style->error("Failed to set relation for besluit case to normal case, message:  {$e->getMessage()}");
-
-            var_dump("Failed to set relation for besluit case to normal case, message:  {$e->getMessage()}");
+        if ($unsetMapping instanceof Mapping == false) {
             return false;
-        }//end try
+        }
 
-        return true;
+        // Unset unwanted properties.
+        $caseArray = $this->mappingService->mapping($unsetMapping, $caseArray);
+        $method    = 'POST';
+        $this->logger->info("$method a case to xxllnc (Zaak ID: $zaakId) ".json_encode($caseArray));
+
+        // New
+        // Method is always POST in the xxllnc api for creating and updating (not needed to pass here).
+        $responseBody = $this->syncService->synchronizeTemp($synchronization, $caseArray, $caseObject, $this->xxllncZaakSchema, $endpoint, 'result.reference');
+        $this->entityManager->persist($synchronization);
+        $this->entityManager->flush();
+        $caseId = $responseBody['result']['reference'] ?? null;
+
+        // Old @todo remove when new works.
+        // // Send the POST/PUT request to xxllnc.
+        // try {
+        // isset($this->style) === true && $this->style->info($logMessage);
+        // $response = $this->callService->call($this->xxllncAPI, $endpoint, $method, ['body' => json_encode($caseArray), 'headers' => ['Content-Type' => 'application/json']]);
+        // $result   = $this->callService->decodeResponse($this->xxllncAPI, $response);
+        // $caseId   = $result['result']['reference'] ?? null;
+        // $this->logger->info("$method succesfull for case with externalId: $caseId and response: ".json_encode($result));
+        // } catch (Exception $e) {
+        // $this->logger->error("Failed to $method case, message:  {$e->getMessage()}");
+        // return false;
+        // }//end try
+        return $caseId ?? false;
 
     }//end sendCaseRelationForBesluit()
-
-
-    /**
-     * Sets some default values for the case object.
-     *
-     * @param ObjectEntity $resourceObject       The resource object (zaak or besluit).
-     * @param string       $resourceTypeSourceId The resource type source id (zaaktype or besluittype).
-     * @param string       $bsn                  The bsn.
-     * @param string       $type                 besluit or case
-     *
-     * @return array $caseArray
-     */
-    private function setCaseDefaultValues(ObjectEntity $resourceObject, string $resourceTypeSourceId, string $bsn, string $type = 'zaak'): array
-    {
-        $dateTimeNow                      = new DateTime('now');
-        $dateTimeNow                      = ($dateTimeNow->format('Y-m-d').'T'.$dateTimeNow->format('H:i:s').'Z');
-        $resourceMappingArray['resource'] = [
-            'date_of_registration' => $dateTimeNow,
-            'casetype_id'          => $resourceTypeSourceId,
-            'bsn'                  => $bsn,
-        // Get bsn from case
-        ];
-
-        switch ($type) {
-        case 'zaak':
-            $resourceMappingArray['resource']['zgwZaak'] = $resourceObject->getId()->toString();
-            break;
-        case 'besluit':
-            $resourceMappingArray['resource']['zgwBesluit'] = $resourceObject->getId()->toString();
-            break;
-        }//end switch
-
-        return $resourceMappingArray;
-
-    }//end setCaseDefaultValues()
 
 
     /**
@@ -475,31 +260,7 @@ class ZGWToXxllncService
 
 
     /**
-     * Finds the requestor of a ZGW Zaak.
-     *
-     * @param array $zaakArrayObject ZGW Zaak.
-     *
-     * @return string|null $bsn if found.
-     */
-    private function getZaakBsn(array $zaakArrayObject): ?string
-    {
-        // Option 1
-        if (isset($zaakArrayObject['rollen'][0]['betrokkeneIdentificatie']['inpBsn']) === true) {
-            return $zaakArrayObject['rollen'][0]['betrokkeneIdentificatie']['inpBsn'];
-        }
-
-        // Option 2
-        if (isset($zaakArrayObject['verantwoordelijkeOrganisatie']) === true) {
-            return $zaakArrayObject['verantwoordelijkeOrganisatie'];
-        }
-
-        return null;
-
-    }//end getZaakBsn()
-
-
-    /**
-     * Get bsn from case
+     * Maps zgw zaak to xxllnc case.
      *
      * @param array $zaakArray ZGW Zaak object as array.
      *
@@ -509,52 +270,42 @@ class ZGWToXxllncService
      */
     public function getBsnFromCase(array $zaakArray): ?string
     {
-        $bsn = $this->getZaakBsn($zaakArray);
-        if ($bsn === null) {
-            throw new \Exception('No bsn found in a rol->betrokkeneIdentificatie->inpBsn or verantwoordelijkeOrganisatie is not set');
+        if (isset($zaakArrayObject['verantwoordelijkeOrganisatie']) === false) {
+            $this->logger->error('verantwoordelijkeOrganisatie is not set');
+
+            return [];
         }
 
-        return $bsn;
+        $bsn = ($zaakArrayObject['rollen'][0]['betrokkeneIdentificatie']['inpBsn'] ?? $zaakArrayObject['verantwoordelijkeOrganisatie'] ?? ) null;
+        if ($bsn === null) {
+            $this->logger->error('No bsn found in a rol->betrokkeneIdentificatie->inpBsn');
 
-    }//end getBsnFromCase()
+            return [];
+        }
 
+        $mapping = $this->resourceService->getMapping('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncZaakToCase.mapping.json', 'xxllnc-zgw-bundle');
+        if ($mapping instanceof Mapping === false) {
+            return [];
+        }
 
-    /**
-     * Maps zgw zaak to xxllnc case.
-     *
-     * @param string       $zaaktypeSourceId The caseType source id.
-     * @param ObjectEntity $zaakTypeObject   ZGW ZaakType object.
-     * @param ObjectEntity $zaakObject       The ZGW zaak Object.
-     *
-     * @throws Exception
-     *
-     * @return array $this->data Data which we entered the function with.
-     *
-     * @todo Make function smaller and more readable.
-     */
-    public function mapZGWToXxllnc(string $zaaktypeSourceId, ObjectEntity $zaakTypeObject, ObjectEntity $zaakObject): array
-    {
-        $xxllncZaakSchema  = $this->resourceService->getSchema('https://development.zaaksysteem.nl/schema/xxllnc.zaakPost.schema.json', 'common-gateway/xxllnc-zgw-bundle');
-        $xxllncAPI         = $this->resourceService->getSource('https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json', 'common-gateway/xxllnc-zgw-bundle');
-        $xxllncZaakMapping = $this->resourceService->getMapping('https://development.zaaksysteem.nl/mapping/xxllnc.ZgwBesluitToXxllncCase.mapping.json', 'common-gateway/xxllnc-zgw-bundle');
+        // Base values.
+        // @todo remove when mapping works.
+        // $caseArray = $this->setCaseDefaultValues($zaakArrayObject, $casetypeId, $bsn);
+        // Map ZGW Zaak to xxllnc case.
+        $zaakArrayObject = array_merge($zaakArrayObject, ['bsn' => $bsn, 'caseTypeId' => $casetypeId]);
+        $caseArray       = $this->mappingService->mapping($mapping, $zaakArrayObject);
+        dump(json_encode($caseArray));
+        die;
 
-        $zaakArrayObject = $zaakObject->toArray();
-        $bsn             = $this->getBsnFromCase($zaakArrayObject);
-        // Base values
-        $caseMappingArray = $this->setCaseDefaultValues($zaakObject, $zaaktypeSourceId, $bsn, 'zaak');
-        $caseMappingArray = $this->mappingService->mapping($xxllncZaakMapping, $caseMappingArray);
-        unset($caseMappingArray['zgwBesluit']);
-
-        // Manually map subobjects
-        $caseMappingArray = $this->mapPostEigenschappen($caseMappingArray, $zaakArrayObject, $zaakTypeObject);
-        $caseMappingArray = $this->mapPostInfoObjecten($caseMappingArray, $zaakArrayObject);
+        // @todo Remove when mapping works.
+        // $caseArray = $this->mapPostInfoObjecten($caseArray, $zaakArrayObject);
+        // $caseArray = $this->mapPostEigenschappen($caseArray, $zaakArrayObject, $zaakTypeObject);
+        // @todo Might be needed in the future.
         // $caseArray = $this->mapPostRollen($caseArray, $zaakArrayObject); // disabled for now.
         $caseObject = $this->getCaseObject($zaakArrayObject);
-
-        $caseObject->hydrate($caseMappingArray);
+        $caseObject->hydrate($caseArray);
         $this->entityManager->persist($caseObject);
-        $this->entityManager->flush();
-
+        // $caseArray = $caseObject->toArray();
         $synchronization = null;
         // Only get synchronization that has a sourceId.
         if ($caseObject->getSynchronizations()->first() !== false
@@ -563,19 +314,18 @@ class ZGWToXxllncService
             $synchronization = $caseObject->getSynchronizations()->first();
         }
 
-        $sourceId = $this->sendCaseToXxllnc($caseObject->toArray(), $synchronization);
-        if ($sourceId === null) {
+        // Unset empty keys.
+        $caseArray = array_filter($caseArray);
+
+        $sourceId = $this->sendCaseToXxllnc($caseArray, $caseObject, $synchronization);
+        if ($sourceId === false) {
             var_dump("POST to xxllnc failed.");
             return [];
         }
 
-        var_dump("POST to xxllnc succesfull with external id: $sourceId");
-        $synchronization = $this->synService->findSyncBySource($xxllncAPI, $xxllncZaakSchema, $sourceId);
-        $synchronization = $this->synService->synchronize($synchronization, $caseObject->toArray());
-
-        $zaakObject->addSynchronization($synchronization);
-        $this->entityManager->persist($zaakObject);
-        $this->entityManager->flush();
+        // Not needed anymore.
+        // $this->saveSynchronization($synchronization, $sourceId, $caseObject);
+        return $caseArray;
 
         return $zaakObject->toArray();
 
@@ -645,53 +395,56 @@ class ZGWToXxllncService
      */
     private function getZaakTypeId()
     {
-        if (isset($this->data['zaaktype']) === false) {
-            return false;
+        if (isset($this->data['zaaktype']) === true && Uuid::isValid($this->data['zaaktype']) === true) {
+            return $this->data['zaaktype'];
         }
 
-        if (isset($this->data['embedded']['zaaktype']['_self']['id']) === false
-            && isset($this->data['zaaktype']) === false
-        ) {
-            return false;
-        }
-
-        if (is_array($this->data['zaaktype']) === true) {
+        if (isset($this->data['zaaktype']['_self']['id']) === true) {
             return $this->data['zaaktype']['_self']['id'];
-        } else if (filter_var($this->data['zaaktype'], FILTER_VALIDATE_URL) !== false) {
-            return substr($this->data['zaaktype'], (strrpos($this->data['zaaktype'], '/') + 1));
-        } else {
+        }
+
+        if (isset($this->data['embedded']['zaaktype']['_self']['id']) === true) {
             return $this->data['embedded']['zaaktype']['_self']['id'];
         }
+
+        if (filter_var($this->data['zaaktype'], FILTER_VALIDATE_URL) !== false) {
+            $id = substr($this->data['zaaktype'], (strrpos($this->data['zaaktype'], '/') + 1));
+            if (Uuid::isValid($id) === true) {
+                return $id;
+            }
+        }
+
+        return false;
 
     }//end getZaakTypeId()
 
 
     /**
-     * Handles all code to make a zgw zaak to a xxllnc case.
+     * Handles all code to send a zgw zaak as a xxllnc case to the xxllnc v1 api.
      *
      * @param string|null $zaakTypeId The id of the zaaktype
      *
      * @return array empty
      * @throws Exception
      */
-    private function syncZaakToXxllnc(?string $zaakTypeId): array
+    public function syncZaakToXxllnc(): array
     {
         isset($this->style) === true && $this->style->success('function syncZaakToXxllnc triggered');
 
-        $zaakTypeObject = $this->entityManager->find('App:ObjectEntity', $zaakTypeId);
-        // Only get synchronization that has a sourceId.
-        if ($zaakTypeObject->getSynchronizations()->first() !== false
-            && $zaakTypeObject->getSynchronizations()->first()->getSourceId() !== null
-        ) {
-            $zaaktypeSourceId = $zaakTypeObject->getSynchronizations()->first()->getSourceId();
-        }
+        $this->xxllncZaakSchema = $this->resourceService->getSchema('https://development.zaaksysteem.nl/schema/xxllnc.zaakPost.schema.json', 'xxllnc-zgw-bundle');
+        $this->xxllncAPI        = $this->resourceService->getSource('https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json', 'xxllnc-zgw-bundle');
 
-        // Return here cause if the zaaktype is created through this gateway, we cant sync it to xxllnc because it doesn't exist there
-        if (isset($zaaktypeSourceId) === false) {
+        $zaakTypeId = $this->getZaakTypeId();
+        if ($zaakTypeId === false) {
+            var_dump('test1');
             return [];
         }
 
+        $zaakTypeObject = $this->entityManager->find('App:ObjectEntity', $zaakTypeId);
+        $casetypeId     = $zaakTypeObject->getSynchronizations()[0]->getSourceId() ?? null;
+
         if (isset($this->data['_self']['id']) === false) {
+            var_dump('test2');
             return [];
         }
 
@@ -803,6 +556,8 @@ class ZGWToXxllncService
             return [];
         }
 
+        $zaakArrayObject       = $zaakArrayObject->toArray();
+        $xxllncZaakArrayObject = $this->mapZGWToXxllnc($casetypeId, $zaakTypeObject, $zaakArrayObject);
         // Get the besluittype source id.
         $besluittypeSourceId = $this->getBesluittypeSourceId($besluitTypeObject);
         $besluitCaseSourceId = $this->mapBesluitToXxllnc($besluittypeSourceId, $besluitObject, $caseObject);

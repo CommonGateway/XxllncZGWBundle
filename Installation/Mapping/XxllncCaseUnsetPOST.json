@@ -1,0 +1,13 @@
+{
+    "title": "XxllncCaseUnsetPOST",
+    "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseUnsetPOST.mapping.json",
+    "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
+    "version": "0.0.2",
+    "passTrough": false,
+    "mapping": {},
+    "unset": [
+        "_self",
+        "requestor._self",
+        "zgwZaak"
+    ]
+}

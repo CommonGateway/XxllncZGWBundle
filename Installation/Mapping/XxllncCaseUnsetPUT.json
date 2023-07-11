@@ -1,0 +1,22 @@
+{
+    "title": "XxllncCaseUnsetPUT",
+    "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseUnsetPUT.mapping.json",
+    "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
+    "version": "0.0.2",
+    "passTrough": false,
+    "mapping": {},
+    "unset": [
+        "_self",
+        "requestor",
+        "casetype_id",
+        "source",
+        "open",
+        "route",
+        "contact_details",
+        "confidentiality",
+        "number",
+        "subjects",
+        "zgwZaak",
+        "date_of_registration"
+    ]
+}
