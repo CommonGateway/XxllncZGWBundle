@@ -161,12 +161,12 @@ class ZGWToXxllncService
     public function sendCaseToXxllnc(array $caseArray, ObjectEntity $caseObject, ?Synchronization $synchronization = null, ?string $type = 'zaak')
     {
         switch ($type) {
-            case 'zaak':
-                $resourceId = $caseArray['zgwZaak'];
-                break;
-            case 'besluit':
-                $resourceId = $caseArray['zgwBesluit'];
-                break;
+        case 'zaak':
+            $resourceId = $caseArray['zgwZaak'];
+            break;
+        case 'besluit':
+            $resourceId = $caseArray['zgwBesluit'];
+            break;
         }
 
         $objectId = $resourceId;
@@ -230,12 +230,12 @@ class ZGWToXxllncService
     private function getCaseObject(array $zaakArrayObject, string $type = 'case')
     {
         switch ($type) {
-            case 'case':
-                $name = 'zgwZaak';
-                break;
-            case 'besluit':
-                $name = 'zgwBesluit';
-                break;
+        case 'case':
+            $name = 'zgwZaak';
+            break;
+        case 'besluit':
+            $name = 'zgwBesluit';
+            break;
         }
 
         // Get needed attribute so we can find the already existing case object
@@ -277,7 +277,7 @@ class ZGWToXxllncService
             return [];
         }
 
-        $bsn = $zaakArrayObject['rollen'][0]['betrokkeneIdentificatie']['inpBsn'] ?? $zaakArrayObject['verantwoordelijkeOrganisatie'] ?? null;
+        $bsn = ($zaakArrayObject['rollen'][0]['betrokkeneIdentificatie']['inpBsn'] ?? $zaakArrayObject['verantwoordelijkeOrganisatie'] ?? ) null;
         if ($bsn === null) {
             $this->logger->error('No bsn found in a rol->betrokkeneIdentificatie->inpBsn');
 
@@ -344,15 +344,15 @@ class ZGWToXxllncService
         // $xxllncZaakSchema  = $this->resourceService->getSchema('https://development.zaaksysteem.nl/schema/xxllnc.zaakPost.schema.json', 'common-gateway/xxllnc-zgw-bundle');
         // $xxllncAPI         = $this->resourceService->getSource('https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json', 'common-gateway/xxllnc-zgw-bundle');
         $xxllncZaakMapping = $this->resourceService->getMapping('https://development.zaaksysteem.nl/mapping/xxllnc.ZgwBesluitToXxllncCase.mapping.json', 'common-gateway/xxllnc-zgw-bundle');
-        
+
         $zaakArrayObject = $zaakObject->toArray();
-        $bsn = $zaakArrayObject['rollen'][0]['betrokkeneIdentificatie']['inpBsn'] ?? $zaakArrayObject['verantwoordelijkeOrganisatie'] ?? null;
+        $bsn             = ($zaakArrayObject['rollen'][0]['betrokkeneIdentificatie']['inpBsn'] ?? $zaakArrayObject['verantwoordelijkeOrganisatie'] ?? ) null;
         if ($bsn === null) {
             $this->logger->error('No bsn found in a rol->betrokkeneIdentificatie->inpBsn');
 
             return [];
         }
-        
+
         $besluitObjectArray = array_merge($besluitObject->toArray(), ['bsn' => $bsn, 'caseTypeId' => $besluittypeSourceId]);
         // $besluitMappingArray = $this->setCaseDefaultValues($besluitObject, $besluittypeSourceId, $bsn, 'besluit');
         $besluitMappingArray = $this->mappingService->mapping($xxllncZaakMapping, $besluitObjectArray);
