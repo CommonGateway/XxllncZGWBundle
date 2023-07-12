@@ -408,11 +408,6 @@ class ZGWToXxllncService
 
         $this->data = $zaakObject->toArray();
 
-        $zaakTypeId = $this->getZaakTypeId();
-        if ($zaakTypeId === false) {
-            return [];
-        }
-
         return ['response' => $this->syncZaakToXxllnc($zaakTypeId)];
 
     }//end updateZaakHandler()
