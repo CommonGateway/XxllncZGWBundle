@@ -127,231 +127,41 @@ class ZGWToXxllncService
     }//end setStyle()
 
 
-    /**
-     * Gets the eigenschappen from a zaaktype and creates a simpler array.
-     *
-     * @param ObjectEntity $zaakTypeObject These is the ZGW ZaakType.
-     *
-     * @return array $zaakTypeEigenschappen This is the Xxllnc Zaak array with the added eigenschappen.
-     */
-    private function getEigenschappen(ObjectEntity $zaakTypeObject): array
-    {
-        $zaakTypeEigenschappen = $zaakTypeObject->getValue('eigenschappen');
-        if ($zaakTypeEigenschappen instanceof PersistentCollection) {
-            $zaakTypeEigenschappen = $zaakTypeEigenschappen->toArray();
-        }
+    // /**
+    //  * Maps the rollen from zgw to xxllnc.
+    //  *
+    //  * @param array $xxllncZaakArray This is the Xxllnc Zaak array.
+    //  * @param array $zaakTypeArray   This is the ZGW Zaak array.
+    //  *
+    //  * @return array $xxllncZaakArray This is the Xxllnc Zaak array with the added eigenschappen.
+    //  */
+    // private function mapPostRollen(array $xxllncZaakArray, array $zaakArrayObject): array
+    // {
+    //     if (isset($zaakArrayObject['rollen']) === true && isset($zaakArrayObject['zaaktype']['roltypen']) === true) {
+    //         foreach ($zaakArrayObject['rollen'] as $rol) {
+    //             foreach ($zaakArrayObject['zaaktype']['roltypen'] as $rolType) {
+    //                 if ($rolType['omschrijvingGeneriek'] === $rol['roltoelichting']) {
+    //                     $rolTypeObject = $this->entityManager->find('App:ObjectEntity', $rolType['_self']['id']);
+    //                     if ($rolTypeObject instanceof ObjectEntity && $rolTypeObject->getExternalId() !== null) {
+    //                         $xxllncZaakArray['subjects'][] = [
+    //                             'subject'                => [
+    //                                 'type'      => 'subject',
+    //                                 'reference' => $rolTypeObject->getExternalId(),
+    //                             ],
+    //                             'role'                   => $rol['roltoelichting'],
+    //                             'magic_string_prefix'    => $rol['roltoelichting'],
+    //                             'pip_authorized'         => true,
+    //                             'send_auth_notification' => false,
+    //                         ];
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }//end if
 
-        $eigenschappen = [];
-        foreach ($zaakTypeEigenschappen as $eigenschap) {
-            $eigenschappen[$eigenschap->getId()->toString()] = $eigenschap->getValue('naam');
-        }
+    //     return $xxllncZaakArray;
 
-        return $eigenschappen;
-
-    }//end getEigenschappen()
-
-
-    /**
-     * Maps the eigenschappen from zgw to xxllnc.
-     *
-     * @param array        $xxllncZaakArray This is the Xxllnc Zaak array.
-     * @param array        $zaakArrayObject This is the ZGW Zaak array.
-     * @param ObjectEntity $zaakTypeObject  These is the ZGW ZaakType.
-     *
-     * @return array $xxllncZaakArray This is the Xxllnc Zaak array with the added eigenschappen.
-     */
-    private function mapPostEigenschappen(array $xxllncZaakArray, array $zaakArrayObject, ObjectEntity $zaakTypeObject): array
-    {
-        // Create a array for the eigenschappen so its easier to check if zaakeigenschapen are valid for the zaaktype.
-        $eigenschapIds = $this->getEigenschappen($zaakTypeObject);
-
-        // eigenschappen to values
-        if (isset($zaakArrayObject['eigenschappen']) === true) {
-            foreach ($zaakArrayObject['eigenschappen'] as $zaakEigenschap) {
-                if (isset($zaakEigenschap['eigenschap']['naam']) === true && isset($eigenschapIds[$zaakEigenschap['eigenschap']['_self']['id']]) === true
-                ) {
-                    // refetch eigenschap otherwise it doesnt load the specificate sub object.
-                    $eigenschap = $this->entityManager->find('App:ObjectEntity', $zaakEigenschap['eigenschap']['_self']['id'])->toArray();
-
-                    // If formaat is checkbox set the waarde in a array that is in a array :/.
-                    if (isset($eigenschap['specificatie']['formaat']) === true && $eigenschap['specificatie']['formaat'] === 'checkbox') {
-                        $xxllncZaakArray['values'][$eigenschap['naam']] = [[$zaakEigenschap['waarde']]];
-
-                        continue;
-                    }
-
-                    // Else set the waarde in a array.
-                    $xxllncZaakArray['values'][$eigenschap['naam']] = [$zaakEigenschap['waarde']];
-                }
-            }
-        }
-
-        return $xxllncZaakArray;
-
-    }//end mapPostEigenschappen()
-
-
-    /**
-     * Maps the informatieobjecten from zgw to xxllnc.
-     *
-     * @param array $xxllncZaakArray This is the Xxllnc Zaak array.
-     * @param array $zaakTypeArray   This is the ZGW Zaak array.
-     *
-     * @return array $xxllncZaakArray This is the Xxllnc Zaak array with the added eigenschappen.
-     */
-    private function mapPostInfoObjecten(array $xxllncZaakArray, array $zaakArrayObject): array
-    {
-        if (isset($zaakArrayObject['zaakinformatieobjecten']) === true) {
-            foreach ($zaakArrayObject['zaakinformatieobjecten'] as $infoObject) {
-                isset($infoObject['informatieobject']) === true && $xxllncZaakArray['files'][] = [
-                    // 'reference' => $infoObject['_self']['id'],
-                    'type'     => 'metadata',
-                    'naam'     => $infoObject['titel'],
-                    'metadata' => [
-                        // 'reference' =>  null,
-                        'type'     => 'metadata',
-                        'instance' => [
-                            'appearance'    => $infoObject['informatieobject']['bestandsnaam'],
-                            'category'      => null,
-                            'description'   => $infoObject['informatieobject']['beschrijving'],
-                            'origin'        => 'Inkomend',
-                            'origin_date'   => $infoObject['informatieobject']['creatiedatum'],
-                            'pronom_format' => $infoObject['informatieobject']['formaat'],
-                            'structure'     => 'text',
-                            'trust_level'   => ($infoObject['integriteit']['waarde'] ?? 'Openbaar'),
-                            'status'        => 'original',
-                            'creation_date' => $infoObject['informatieobject']['creatiedatum'],
-                        ],
-                    ],
-                ];
-            }//end foreach
-        }//end if
-
-        return $xxllncZaakArray;
-
-    }//end mapPostInfoObjecten()
-
-
-    /**
-     * Maps the rollen from zgw to xxllnc.
-     *
-     * @param array $xxllncZaakArray This is the Xxllnc Zaak array.
-     * @param array $zaakTypeArray   This is the ZGW Zaak array.
-     *
-     * @return array $xxllncZaakArray This is the Xxllnc Zaak array with the added eigenschappen.
-     */
-    private function mapPostRollen(array $xxllncZaakArray, array $zaakArrayObject): array
-    {
-        if (isset($zaakArrayObject['rollen']) === true && isset($zaakArrayObject['zaaktype']['roltypen']) === true) {
-            foreach ($zaakArrayObject['rollen'] as $rol) {
-                foreach ($zaakArrayObject['zaaktype']['roltypen'] as $rolType) {
-                    if ($rolType['omschrijvingGeneriek'] === $rol['roltoelichting']) {
-                        $rolTypeObject = $this->entityManager->find('App:ObjectEntity', $rolType['_self']['id']);
-                        if ($rolTypeObject instanceof ObjectEntity && $rolTypeObject->getExternalId() !== null) {
-                            $xxllncZaakArray['subjects'][] = [
-                                'subject'                => [
-                                    'type'      => 'subject',
-                                    'reference' => $rolTypeObject->getExternalId(),
-                                ],
-                                'role'                   => $rol['roltoelichting'],
-                                'magic_string_prefix'    => $rol['roltoelichting'],
-                                'pip_authorized'         => true,
-                                'send_auth_notification' => false,
-                            ];
-                        }
-                    }
-                }
-            }
-        }//end if
-
-        return $xxllncZaakArray;
-
-    }//end mapPostRollen()
-
-
-    private function getFileObjects(ObjectEntity $zaakObject)
-    {
-        // Get attribute for the value we need to fetch.
-        $attribute = $this->entityManager->getRepository('App:Attribute')->findOneBy(
-            [
-                'name'   => 'zaak',
-                'entity' => $this->schemaRepo->findOneBy(['reference' => 'https://vng.opencatalogi.nl/schemas/zrc.zaakInformatieObject.schema.json']),
-            ]
-        );
-
-        // Get values so we can get the zaakinformatieobjecten from this zaak.
-        $values = $this->entityManager->getRepository('App:Value')->findBy(
-            [
-                'attribute'   => $attribute,
-                'stringValue' => $zaakObject,
-            ]
-        );
-
-        // Loop through valeus and get object of each value.
-        $fileObjects = [];
-
-        var_dump(count($values));
-        $this->documentService->xxllncAPI = $this->xxllncAPI;
-        foreach ($values as $value) {
-            // Make sure this zaakInformatieObject has a xxllnc documentNumber so we can send it to xxllnc.
-            $this->documentService->checkDocumentNumber($value->getObjectEntity());
-
-            // Get object again because new Synchronization might be added that we need.
-            $fileObjects[] = $this->entityManager->find('App:ObjectEntity', $value->getObjectEntity()->getId()->toString());
-            return $fileObjects;
-        }
-
-        return $fileObjects;
-
-    }//end getFileObjects()
-
-
-    /**
-     * Maps a file from zgw to xxllnc.
-     *
-     * @param array $xxllncZaakArray This is the Xxllnc Zaak array.
-     *
-     * @return array $xxllncZaakArray This is the Xxllnc Zaak array with the added eigenschappen.
-     */
-    private function mapPostFileObjects(array $xxllncZaakArray, array $zaakArrayObject): array
-    {
-        $zaakObject = $this->entityManager->find('App:ObjectEntity', $zaakArrayObject['_self']['id']);
-        var_dump('getfielobjects');
-        $fileObjects = $this->getFileObjects($zaakObject);
-
-        if (empty($fileObjects) === false) {
-            $xxllncZaakArray['files'] = [];
-        }
-
-        foreach ($fileObjects as $fileObject) {
-            var_dump(get_class($fileObject));
-            if ($fileObject->getSynchronizations()->first() && $fileObject->getSynchronizations()->first()->getSourceId()) {
-                $xxllncZaakArray['files'][] = [
-                    'reference' => $fileObject->getSynchronizations()->first()->getSourceId(),
-                    'name'      => $fileObject->getValue('titel'),
-                    'metadata'  => [
-                        'reference' => null,
-                        'type'      => 'metadata',
-                        'instance'  => [
-                            'appearance'    => $fileObject->getValue('beschrijving'),
-                            'category'      => 'Zaak document',
-                            'description'   => $fileObject->getValue('beschrijving'),
-                            'origin'        => 'Inkomend',
-                            'origin_date'   => $fileObject->getValue('registratiedatum'),
-                            'pronom_format' => $fileObject->getValue('informatieobject')->getValue('formaat'),
-                            'structure'     => 'text',
-                            'trust_level'   => $fileObject->getValue('informatieobject')->getValue('integriteit')->getValue('waarde'),
-                            'status'        => $fileObject->getValue('status'),
-                            'creation_date' => $fileObject->getValue('registratiedatum'),
-                        ],
-                    ],
-                ];
-            }//end if
-        }//end foreach
-
-        return $xxllncZaakArray;
-
-    }//end mapPostFileObjects()
+    // }//end mapPostRollen()
 
 
     /**
@@ -487,7 +297,7 @@ class ZGWToXxllncService
             return [];
         }
 
-        $bsn = ($zaakArrayObject['rollen'][0]['betrokkeneIdentificatie']['inpBsn'] ?? $zaakArrayObject['verantwoordelijkeOrganisatie'] ?? ) null;
+        $bsn = $zaakArrayObject['rollen'][0]['betrokkeneIdentificatie']['inpBsn'] ?? $zaakArrayObject['verantwoordelijkeOrganisatie'] ?? null;
         if ($bsn === null) {
             $this->logger->error('No bsn found in a rol->betrokkeneIdentificatie->inpBsn or verantwoordelijke organisatie.');
 
@@ -502,6 +312,16 @@ class ZGWToXxllncService
         // Base values.
         // @todo remove if mapping works.
         // $caseArray = $this->setCaseDefaultValues($zaakArrayObject, $casetypeId, $bsn);
+
+        // Check all zaakinformatieobjecten of this Zaak. So we can check if we need to sync those indiviually.
+        // If the zaakinformatieobjecten are already synced we need their source id (number) so we can add them to the case mapping.
+        foreach ($zaakArrayObject['zaakinformatieobjecten'] as $zaakInfoObject) {
+            $zaakArrayObject = $this->documentService->checkDocumentNumber($zaakInfoObject['_self']['id'], $this->xxllncAPI);
+        }
+        
+        // Refetch Zaak object for possible synchronizations on zaakinformatieobjecten.
+        $zaakArrayObject = $this->resourceService->getObject($zaakArrayObject['_self']['id'])->toArray();
+
         // Map ZGW Zaak to xxllnc case.
         $zaakArrayObject = array_merge($zaakArrayObject, ['bsn' => $bsn, 'caseTypeId' => $casetypeId]);
         $caseArray       = $this->mappingService->mapping($mapping, $zaakArrayObject);
@@ -511,6 +331,7 @@ class ZGWToXxllncService
         // $caseArray = $this->mapPostEigenschappen($caseArray, $zaakArrayObject, $zaakTypeObject);
         // @todo Might be needed in the future.
         // $caseArray = $this->mapPostRollen($caseArray, $zaakArrayObject); // disabled for now.
+
         $caseObject = $this->getCaseObject($zaakArrayObject);
         $caseObject->hydrate($caseArray);
         $this->entityManager->persist($caseObject);
@@ -610,29 +431,6 @@ class ZGWToXxllncService
 
 
     /**
-     * Triggers case update to xxllnc.
-     *
-     * @param ?array $data          Data from the handler where the xxllnc casetype is in.
-     * @param ?array $configuration Configuration from the Action where the Zaak entity id is stored in.
-     *
-     * @return array $this->data Data which we entered the function with.
-     */
-    public function fileToXxllncHandler(?array $data = [], ?array $configuration = []): array
-    {
-        $this->data          = $data['response'];
-        $this->configuration = $configuration;
-
-        $zaakInformatieObject = $this->entityManager->find('App:ObjectEntity', $this->data['_self']['id']);
-        $zaakObject           = $zaakInformatieObject->getValue('zaak');
-
-        $this->data = $zaakObject->toArray();
-
-        return ['response' => $this->syncZaakToXxllnc()];
-
-    }//end fileToXxllncHandler()
-
-
-    /**
      * Updates xxllnc case synchronization when zaak sub objects are created through their own endpoints.
      *
      * @param array|null $data
@@ -648,10 +446,14 @@ class ZGWToXxllncService
     {
         $this->configuration = $configuration;
 
+        // Multiple ways to get the zaak id.
         if (is_array($data['response']['zaak'])) {
             $zaakId = $data['response']['zaak']['_self']['id'];
-        } else {
+        } elseif (isset($zaakId) === false) {
             $zaakId = substr($data['response']['zaak'], (strrpos($data['response']['zaak'], '/') + 1));
+        } elseif (isset($zaakId) === false) {
+            $zaakSubObject = $this->entityManager->find('App:ObjectEntity', $this->data['_self']['id']);
+            $zaakId = $zaakSubObject->getValue('zaak')->getId()->toString();
         }
 
         if ($zaakId === false || $zaakId === null) {
@@ -664,11 +466,6 @@ class ZGWToXxllncService
         }
 
         $this->data = $zaakObject->toArray();
-
-        $zaakTypeId = $this->getZaakTypeId();
-        if ($zaakTypeId === false) {
-            return [];
-        }
 
         return ['response' => $this->syncZaakToXxllnc($zaakTypeId)];
 
