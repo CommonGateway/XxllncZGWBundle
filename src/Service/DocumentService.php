@@ -42,6 +42,7 @@ class DocumentService
      */
     private array $data;
 
+
     /**
      * __construct.
      */
@@ -56,12 +57,12 @@ class DocumentService
 
 
     /**
-     * Reserves a document number at the xxllnc api. 
-     * 
+     * Reserves a document number at the xxllnc api.
+     *
      * A document number is needed to save the actual file/document/informatieobject.
-     * 
+     *
      * @param Source $xxllncApi
-     * 
+     *
      * @return string|false $documentNumber Document number else false.
      */
     private function reserveDocumentNumber(Source $xxllncApi)
@@ -84,7 +85,7 @@ class DocumentService
 
     /**
      * Gets first sync object for objectinformatieobject or creates new one.
-     * 
+     *
      * @param ObjectEntity $infoObject
      * @param Source       $xxllncApi
      *
@@ -110,12 +111,12 @@ class DocumentService
      *
      * @param ObjectEntity $zaakInformatieObject
      * @param Source       $xxllncApi
-     * 
+     *
      * @return void Nothing.
      */
     public function checkDocumentNumber(string $zaakInfoId, Source $xxllncApi): void
     {
-        $zaakInfoObject = $this->entityManager->find('App:ObjectEntity', $zaakInfoId);
+        $zaakInfoObject  = $this->entityManager->find('App:ObjectEntity', $zaakInfoId);
         $synchronization = $this->getSynchronization($zaakInfoObject, $xxllncApi);
 
         if ($synchronization->getSourceId() === null) {
