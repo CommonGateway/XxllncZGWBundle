@@ -275,7 +275,7 @@ class ZGWToXxllncService
             return [];
         }
 
-        $bsn = $zaakArrayObject['rollen'][0]['betrokkeneIdentificatie']['inpBsn'] ?? $zaakArrayObject['verantwoordelijkeOrganisatie'] ?? null;
+        $bsn = ($zaakArrayObject['rollen'][0]['betrokkeneIdentificatie']['inpBsn'] ?? $zaakArrayObject['verantwoordelijkeOrganisatie'] ?? ) null;
         if ($bsn === null) {
             $this->logger->error('No bsn found in a rol->betrokkeneIdentificatie->inpBsn');
 
@@ -339,12 +339,12 @@ class ZGWToXxllncService
     public function mapBesluitToXxllnc(string $besluittypeSourceId, ObjectEntity $besluitObject, ObjectEntity $zaakObject): ?string
     {
         var_dump("halloooo");
-        $this->xxllncZaakSchema  = $this->resourceService->getSchema('https://development.zaaksysteem.nl/schema/xxllnc.zaakPost.schema.json', 'common-gateway/xxllnc-zgw-bundle');
-        $this->xxllncAPI         = $this->resourceService->getSource('https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json', 'common-gateway/xxllnc-zgw-bundle');
-        $xxllncZaakMapping = $this->resourceService->getMapping('https://development.zaaksysteem.nl/mapping/xxllnc.ZgwBesluitToXxllncCase.mapping.json', 'common-gateway/xxllnc-zgw-bundle');
+        $this->xxllncZaakSchema = $this->resourceService->getSchema('https://development.zaaksysteem.nl/schema/xxllnc.zaakPost.schema.json', 'common-gateway/xxllnc-zgw-bundle');
+        $this->xxllncAPI        = $this->resourceService->getSource('https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json', 'common-gateway/xxllnc-zgw-bundle');
+        $xxllncZaakMapping      = $this->resourceService->getMapping('https://development.zaaksysteem.nl/mapping/xxllnc.ZgwBesluitToXxllncCase.mapping.json', 'common-gateway/xxllnc-zgw-bundle');
 
         $zaakArrayObject = $zaakObject->toArray();
-        $bsn             = $zaakArrayObject['rollen'][0]['betrokkeneIdentificatie']['inpBsn'] ?? $zaakArrayObject['verantwoordelijkeOrganisatie'] ?? null;
+        $bsn             = ($zaakArrayObject['rollen'][0]['betrokkeneIdentificatie']['inpBsn'] ?? $zaakArrayObject['verantwoordelijkeOrganisatie'] ?? ) null;
         if ($bsn === null) {
             $this->logger->error('No bsn found in a rol->betrokkeneIdentificatie->inpBsn');
 
