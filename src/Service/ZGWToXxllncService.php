@@ -128,39 +128,37 @@ class ZGWToXxllncService
 
 
     // /**
-    //  * Maps the rollen from zgw to xxllnc.
-    //  *
-    //  * @param array $xxllncZaakArray This is the Xxllnc Zaak array.
-    //  * @param array $zaakTypeArray   This is the ZGW Zaak array.
-    //  *
-    //  * @return array $xxllncZaakArray This is the Xxllnc Zaak array with the added eigenschappen.
-    //  */
+    // * Maps the rollen from zgw to xxllnc.
+    // *
+    // * @param array $xxllncZaakArray This is the Xxllnc Zaak array.
+    // * @param array $zaakTypeArray   This is the ZGW Zaak array.
+    // *
+    // * @return array $xxllncZaakArray This is the Xxllnc Zaak array with the added eigenschappen.
+    // */
     // private function mapPostRollen(array $xxllncZaakArray, array $zaakArrayObject): array
     // {
-    //     if (isset($zaakArrayObject['rollen']) === true && isset($zaakArrayObject['zaaktype']['roltypen']) === true) {
-    //         foreach ($zaakArrayObject['rollen'] as $rol) {
-    //             foreach ($zaakArrayObject['zaaktype']['roltypen'] as $rolType) {
-    //                 if ($rolType['omschrijvingGeneriek'] === $rol['roltoelichting']) {
-    //                     $rolTypeObject = $this->entityManager->find('App:ObjectEntity', $rolType['_self']['id']);
-    //                     if ($rolTypeObject instanceof ObjectEntity && $rolTypeObject->getExternalId() !== null) {
-    //                         $xxllncZaakArray['subjects'][] = [
-    //                             'subject'                => [
-    //                                 'type'      => 'subject',
-    //                                 'reference' => $rolTypeObject->getExternalId(),
-    //                             ],
-    //                             'role'                   => $rol['roltoelichting'],
-    //                             'magic_string_prefix'    => $rol['roltoelichting'],
-    //                             'pip_authorized'         => true,
-    //                             'send_auth_notification' => false,
-    //                         ];
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }//end if
-
-    //     return $xxllncZaakArray;
-
+    // if (isset($zaakArrayObject['rollen']) === true && isset($zaakArrayObject['zaaktype']['roltypen']) === true) {
+    // foreach ($zaakArrayObject['rollen'] as $rol) {
+    // foreach ($zaakArrayObject['zaaktype']['roltypen'] as $rolType) {
+    // if ($rolType['omschrijvingGeneriek'] === $rol['roltoelichting']) {
+    // $rolTypeObject = $this->entityManager->find('App:ObjectEntity', $rolType['_self']['id']);
+    // if ($rolTypeObject instanceof ObjectEntity && $rolTypeObject->getExternalId() !== null) {
+    // $xxllncZaakArray['subjects'][] = [
+    // 'subject'                => [
+    // 'type'      => 'subject',
+    // 'reference' => $rolTypeObject->getExternalId(),
+    // ],
+    // 'role'                   => $rol['roltoelichting'],
+    // 'magic_string_prefix'    => $rol['roltoelichting'],
+    // 'pip_authorized'         => true,
+    // 'send_auth_notification' => false,
+    // ];
+    // }
+    // }
+    // }
+    // }
+    // }//end if
+    // return $xxllncZaakArray;
     // }//end mapPostRollen()
 
 
@@ -297,7 +295,7 @@ class ZGWToXxllncService
             return [];
         }
 
-        $bsn = $zaakArrayObject['rollen'][0]['betrokkeneIdentificatie']['inpBsn'] ?? $zaakArrayObject['verantwoordelijkeOrganisatie'] ?? null;
+        $bsn = ($zaakArrayObject['rollen'][0]['betrokkeneIdentificatie']['inpBsn'] ?? $zaakArrayObject['verantwoordelijkeOrganisatie'] ?? ) null;
         if ($bsn === null) {
             $this->logger->error('No bsn found in a rol->betrokkeneIdentificatie->inpBsn or verantwoordelijke organisatie.');
 
@@ -312,13 +310,12 @@ class ZGWToXxllncService
         // Base values.
         // @todo remove if mapping works.
         // $caseArray = $this->setCaseDefaultValues($zaakArrayObject, $casetypeId, $bsn);
-
         // Check all zaakinformatieobjecten of this Zaak. So we can check if we need to sync those indiviually.
         // If the zaakinformatieobjecten are already synced we need their source id (number) so we can add them to the case mapping.
         foreach ($zaakArrayObject['zaakinformatieobjecten'] as $zaakInfoObject) {
             $zaakArrayObject = $this->documentService->checkDocumentNumber($zaakInfoObject['_self']['id'], $this->xxllncAPI);
         }
-        
+
         // Refetch Zaak object for possible synchronizations on zaakinformatieobjecten.
         $zaakArrayObject = $this->resourceService->getObject($zaakArrayObject['_self']['id'])->toArray();
 
@@ -331,7 +328,6 @@ class ZGWToXxllncService
         // $caseArray = $this->mapPostEigenschappen($caseArray, $zaakArrayObject, $zaakTypeObject);
         // @todo Might be needed in the future.
         // $caseArray = $this->mapPostRollen($caseArray, $zaakArrayObject); // disabled for now.
-
         $caseObject = $this->getCaseObject($zaakArrayObject);
         $caseObject->hydrate($caseArray);
         $this->entityManager->persist($caseObject);
@@ -449,11 +445,11 @@ class ZGWToXxllncService
         // Multiple ways to get the zaak id.
         if (is_array($data['response']['zaak'])) {
             $zaakId = $data['response']['zaak']['_self']['id'];
-        } elseif (isset($zaakId) === false) {
+        } else if (isset($zaakId) === false) {
             $zaakId = substr($data['response']['zaak'], (strrpos($data['response']['zaak'], '/') + 1));
-        } elseif (isset($zaakId) === false) {
+        } else if (isset($zaakId) === false) {
             $zaakSubObject = $this->entityManager->find('App:ObjectEntity', $this->data['_self']['id']);
-            $zaakId = $zaakSubObject->getValue('zaak')->getId()->toString();
+            $zaakId        = $zaakSubObject->getValue('zaak')->getId()->toString();
         }
 
         if ($zaakId === false || $zaakId === null) {
