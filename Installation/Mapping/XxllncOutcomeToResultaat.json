@@ -2,11 +2,11 @@
     "title": "XxllncOutcomeToResultaat",
     "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncOutcomeToResultaat.mapping.json",
     "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "passTrough": false,
     "mapping": {
         "_sourceId": "{% if outcome.reference|default %}{{ outcome.reference }}{% endif %}",
         "toelichting": "{% if outcome.instance.name|default %}{{ outcome.instance.name }}{% endif %}",
-        "resultaattype": "{% if resultaattypen|default %}{% for resultaattype in resultaattypen %}{% if resultaattype.omschrijving == outcome.instance.name %}{{ resultaattype['_self']['id'] }}{% endif %}{% endfor %}{% endif %}"
+        "resultaattype": "{% if resultaattypen|default %}{% for resultaattype in resultaattypen %}{% if resultaattype.toelichting == outcome.instance.name %}{{ resultaattype['_self']['id'] }}{% endif %}{% endfor %}{% endif %}"
     }
-  }
+}
