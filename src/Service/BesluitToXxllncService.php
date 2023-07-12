@@ -178,7 +178,7 @@ class BesluitToXxllncService
             return null;
         }
 
-        $besluitObjectArray = array_merge($besluitObject->toArray(), ['bsn' => $bsn, 'caseTypeId' => $besluittypeSourceId]);
+        $besluitObjectArray  = array_merge($besluitObject->toArray(), ['bsn' => $bsn, 'caseTypeId' => $besluittypeSourceId]);
         $besluitMappingArray = $this->mappingService->mapping($xxllncZaakMapping, $besluitObjectArray);
         unset($besluitMappingArray['zgwZaak']);
 
@@ -199,7 +199,6 @@ class BesluitToXxllncService
 
         $sourceId = $this->zgwToXxllncService->sendCaseToXxllnc($caseArray, $besluitObject, $synchronization);
         if ($sourceId === false) {
-
             return null;
         }
 
@@ -213,7 +212,7 @@ class BesluitToXxllncService
      *
      * @param array        $pathParameters The path from the request.
      * @param ObjectEntity $besluitObject  The besluit object from the request.
-     * 
+     *
      * @return ObjectEnttiy|null $zaakObject.
      */
     private function getCaseObjectAndConnectWithBesluit(array $pathParameters, ObjectEntity $besluitObject): ?ObjectEntity
@@ -284,7 +283,6 @@ class BesluitToXxllncService
         // Map besluit case to xxllnc.
         $besluitCaseSourceId = $this->mapBesluitToXxllnc($besluittypeSourceId, $besluitObject, $zaakObject);
         if (isset($besluitCaseSourceId) === false) {
-
             return [];
         }
 
