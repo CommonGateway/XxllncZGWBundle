@@ -99,6 +99,7 @@ class ZGWToXxllncService
         $this->logger          = $pluginLogger;
         $this->syncService     = $syncService;
         $this->resourceService = $resourceService;
+
     }//end __construct()
 
 
@@ -165,8 +166,9 @@ class ZGWToXxllncService
 
         // Unset unwanted properties.
         $caseArray = $this->mappingService->mapping($unsetMapping, $caseArray);
-        var_dump(json_encode($caseArray));die;
-        $method    = 'POST';
+        var_dump(json_encode($caseArray));
+        die;
+        $method = 'POST';
         $this->logger->info("$method a case to xxllnc ($type ID: $objectId) ".json_encode($caseArray));
 
         // New
@@ -204,12 +206,12 @@ class ZGWToXxllncService
     public function getCaseObject(array $zaakArrayObject, string $type = 'case')
     {
         switch ($type) {
-            case 'case':
-                $name = 'zgwZaak';
-                break;
-            case 'besluit':
-                $name = 'zgwBesluit';
-                break;
+        case 'case':
+            $name = 'zgwZaak';
+            break;
+        case 'besluit':
+            $name = 'zgwBesluit';
+            break;
         }
 
         // Get needed attribute so we can find the already existing case object
@@ -412,6 +414,7 @@ class ZGWToXxllncService
         return ['response' => $this->syncZaakToXxllnc($zaakTypeId)];
 
     }//end updateZaakHandler()
+
 
     /**
      * Creates or updates a ZGW Zaak that is created through the normal /zaken endpoint.

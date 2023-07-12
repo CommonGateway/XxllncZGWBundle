@@ -75,6 +75,7 @@ class BesluitToXxllncService
      */
     private LoggerInterface $logger;
 
+
     /**
      * __construct.
      */
@@ -86,11 +87,11 @@ class BesluitToXxllncService
         GatewayResourceService $resourceService,
         ZGWToXxllncService $zgwToXxllncService
     ) {
-        $this->entityManager   = $entityManager;
-        $this->callService     = $callService;
-        $this->mappingService  = $mappingService;
-        $this->logger          = $pluginLogger;
-        $this->resourceService = $resourceService;
+        $this->entityManager      = $entityManager;
+        $this->callService        = $callService;
+        $this->mappingService     = $mappingService;
+        $this->logger             = $pluginLogger;
+        $this->resourceService    = $resourceService;
         $this->zgwToXxllncService = $zgwToXxllncService;
 
     }//end __construct()
@@ -151,7 +152,6 @@ class BesluitToXxllncService
     }//end sendCaseRelationForBesluit()
 
 
-
     /**
      * Maps zgw besluit to xxllnc case.
      *
@@ -166,12 +166,12 @@ class BesluitToXxllncService
     public function mapBesluitToXxllnc(string $besluittypeSourceId, ObjectEntity $besluitObject, ObjectEntity $zaakObject): ?string
     {
         var_dump("halloooo");
-        $this->zgwToXxllncService->xxllncZaakSchema  = $this->resourceService->getSchema('https://development.zaaksysteem.nl/schema/xxllnc.zaakPost.schema.json', 'common-gateway/xxllnc-zgw-bundle');
-        $this->zgwToXxllncService->xxllncAPI         = $this->resourceService->getSource('https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json', 'common-gateway/xxllnc-zgw-bundle');
-        $xxllncZaakMapping = $this->resourceService->getMapping('https://development.zaaksysteem.nl/mapping/xxllnc.ZgwBesluitToXxllncCase.mapping.json', 'common-gateway/xxllnc-zgw-bundle');
+        $this->zgwToXxllncService->xxllncZaakSchema = $this->resourceService->getSchema('https://development.zaaksysteem.nl/schema/xxllnc.zaakPost.schema.json', 'common-gateway/xxllnc-zgw-bundle');
+        $this->zgwToXxllncService->xxllncAPI        = $this->resourceService->getSource('https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json', 'common-gateway/xxllnc-zgw-bundle');
+        $xxllncZaakMapping                          = $this->resourceService->getMapping('https://development.zaaksysteem.nl/mapping/xxllnc.ZgwBesluitToXxllncCase.mapping.json', 'common-gateway/xxllnc-zgw-bundle');
 
         $zaakArrayObject = $zaakObject->toArray();
-        $bsn             = $zaakArrayObject['rollen'][0]['betrokkeneIdentificatie']['inpBsn'] ?? $zaakArrayObject['verantwoordelijkeOrganisatie'] ?? null;
+        $bsn             = ($zaakArrayObject['rollen'][0]['betrokkeneIdentificatie']['inpBsn'] ?? $zaakArrayObject['verantwoordelijkeOrganisatie'] ?? ) null;
         if ($bsn === null) {
             $this->logger->error('No bsn found in a rol->betrokkeneIdentificatie->inpBsn');
 
@@ -349,5 +349,6 @@ class BesluitToXxllncService
         return ['response' => $this->syncBesluitToXxllnc()];
 
     }//end besluitToXxllncHandler()
+
 
 }//end class
