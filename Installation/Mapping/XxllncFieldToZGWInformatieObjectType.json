@@ -1,0 +1,17 @@
+{
+  "title": "XxllncFieldToZGWInformatieObjectType",
+  "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncFieldToZGWInformatieObjectType.mapping.json",
+  "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
+  "version": "0.0.2",
+  "passTrough": false,
+  "mapping": {
+    "omschrijving": "{% if original_label|default %}{{ original_label }}{% elseif label|default %}{{ label }}{% else %}{{ magic_string }}{% endif %}",
+    "vertrouwelijkheidsaanduiding": "{% if publish_public|default and publish_public == true %}openbaar{% else %}zaakvertrouwelijk{% endif %}",
+    "beginGeldigheid": "{{ 'now'|date('Y-m-d') }}",
+    "informatieobjectcategorie": "xxllnc informatieobject",
+    "catalogus": "_catalogus",
+    "zaaktypeIdentificatie": "_zaaktypeIdentificatie",
+    "_sourceId": "id"
+  },
+  "cast": {}
+}

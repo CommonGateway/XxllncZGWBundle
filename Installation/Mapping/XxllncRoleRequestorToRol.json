@@ -1,0 +1,33 @@
+{
+    "title": "XxllncRoleRequestorToRol",
+    "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncRoleRequestorToRol.mapping.json",
+    "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
+    "version": "0.0.1",
+    "passTrough": false,
+    "mapping": {
+        "_sourceId": "{% if role.reference|default %}{{ role.reference }}{% endif %}",
+        "betrokkeneType": "{% if role.instance.name|default %}{% if role.instance.name == 'Behandelaar'|lower %}medewerker{% else %}medewerker{% endif %}{% endif %}",
+        "omschrijving": "{% if role.instance.name|default %}{{ role.instance.name }}{% endif %}",
+        "omschrijvingGeneriek": "{% if role.instance.description|default %}{{ role.instance.description }}{% endif %}",
+        "roltoelichting": "{% if role.instance.name|default %}{{ role.instance.name }}{% endif %}",
+        "registratiedatum": "{% if role.instance.date_created|default %}{{ role.instance.date_created }}{% endif %}",
+        "contactpersoonRol.emailadres": "{% if requestor.instance.subject.instance.email_adress|default %}{{ requestor.instance.subject.instance.email_adress }}{% endif %}",
+        "contactpersoonRol.functie": "{% if requestor.instance.subject.instance.positions.instance.rows|default %}{% for position in requestor.instance.subject.instance.positions.instance.rows %}{% if role.preview|default %}{{ role.preview }}{% endif %}{% endfor %}{% endif %}",
+        "contactpersoonRol.telefoonnummer": "{% if requestor.instance.subject.instance.phone_number|default %}{{ requestor.instance.subject.instance.phone_number }}{% endif %}",
+        "contactpersoonRol.naam": "{% if requestor.instance.subject.instance.firstname|default %}{{ requestor.instance.subject.instance.firstname }} {%  endif %}{% if requestor.instance.subject.instance.surname|default %}{{ requestor.instance.subject.instance.surname }}{% endif %}",
+        "betrokkeneIdentificatie._sourceId": "{% if requestor.reference|default %}{{ requestor.reference }}{% endif %}",
+        "betrokkeneIdentificatie.geslachtsnaam": "{% if requestor.instance.subject.instance.gender|default %}{{ requestor.instance.subject.instance.gender }}{% endif %}",
+        "betrokkeneIdentificatie.voorvoegselGeslachtsnaam": "{% if requestor.instance.subject.instance.prefix|default %}{{ requestor.instance.subject.instance.prefix }}{% endif %}",
+        "betrokkeneIdentificatie.voorletters": "{% if requestor.instance.subject.instance.initials|default %}{{ requestor.instance.subject.instance.initials }}{% endif %}",
+        "betrokkeneIdentificatie.voornamen": "{% if requestor.instance.subject.instance.first_names|default %}{{ requestor.instance.subject.instance.first_names }}{% endif %}",
+        "betrokkeneIdentificatie.geslachtsaanduiding": "{% if requestor.instance.subject.instance.geslachtsnaam|default %}{{ requestor.instance.subject.instance.geslachtsnaam }}{% endif %}",
+        "betrokkeneIdentificatie.geboortedatum": "{% if requestor.instance.subject.instance.date_of_birth|default %}{{ requestor.instance.subject.instance.date_of_birth }}{% endif %}",
+        "betrokkeneIdentificatie.achternaam": "{% if requestor.instance.subject.instance.surname|default %}{{ requestor.instance.subject.instance.surname }}{% endif %}",
+        "betrokkeneIdentificatie.verblijfsadres.wplWoonplaatsNaam": "{% if requestor.instance.subject.instance.address_residence.instance.city|default %}{{ requestor.instance.subject.instance.address_residence.instance.city }}{% endif %}",
+        "betrokkeneIdentificatie.verblijfsadres.aoaPostcode": "{% if requestor.instance.subject.instance.address_residence.instance.zipcode|default %}{{ requestor.instance.subject.instance.address_residence.instance.zipcode }}{% endif %}",
+        "betrokkeneIdentificatie.verblijfsadres.aoaHuisnummer": "{% if requestor.instance.subject.instance.address_residence.instance.street_number|default %}{{ requestor.instance.subject.instance.address_residence.instance.street_number }}{% endif %}",
+        "betrokkeneIdentificatie.verblijfsadres.aoaHuisletter": "{% if requestor.instance.subject.instance.address_residence.instance.street_number_letter|default %}{{ requestor.instance.subject.instance.address_residence.instance.street_number_letter }}{% endif %}",
+        "betrokkeneIdentificatie.verblijfsadres.aoaHuisnummertoevoeging": "{% if requestor.instance.subject.instance.address_residence.instance.street_number_suffix|default %}{{ requestor.instance.subject.instance.address_residence.instance.street_number_suffix }}{% endif %}",
+        "roltype": "{% if role.instance.name|default %}{% for roltype in roltypen %}{% if roltype.omschrijving == role.instance.name %}{{ roltype['_self']['id'] }}{% endif %}{% endfor %}{% endif %}"
+  }
+}

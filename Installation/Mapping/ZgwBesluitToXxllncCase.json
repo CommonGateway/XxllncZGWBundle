@@ -1,0 +1,22 @@
+{
+  "title": "ZgwBesluitToXxllncCase",
+  "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.ZgwBesluitToXxllncCase.mapping.json",
+  "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
+  "version": "0.0.5",
+  "passTrough": false,
+  "mapping": {
+    "date_of_registration": "resource.date_of_registration",
+    "zgwBesluit": "resource.zgwBesluit",
+    "zgwZaak": "resource.zgwZaak",
+    "casetype_id": "resource.casetype_id",
+    "source": "behandelaar",
+    "confidentiality": "public",
+    "requestor.type": "person",
+    "requestor.id": "resource.bsn"
+  },
+  "unset": {
+    "zgwBesluit": "unsetIfValue==resource.zgwBesluit",
+    "zgwZaak": "unsetIfValue==resource.zgwZaak"
+  },
+  "cast": {}
+}
