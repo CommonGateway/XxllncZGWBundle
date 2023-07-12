@@ -121,7 +121,7 @@ class BesluitToXxllncService
      *
      * @return bool True if succesfully saved to xxllnc.
      */
-    public function sendCaseRelationForBesluit(string $caseSourceId, string $besluitCaseSourceId)
+    public function sendCaseRelationForBesluit(string $caseSourceId, string $besluitCaseSourceId): bool
     {
         $xxllncAPI = $this->resourceService->getSource('https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json', 'common-gateway/xxllnc-zgw-bundle');
 
@@ -173,13 +173,12 @@ class BesluitToXxllncService
         $zaakArrayObject = $zaakObject->toArray();
         $bsn             = $zaakArrayObject['rollen'][0]['betrokkeneIdentificatie']['inpBsn'] ?? $zaakArrayObject['verantwoordelijkeOrganisatie'] ?? null;
         if ($bsn === null) {
-            $this->logger->error('No bsn found in a rol->betrokkeneIdentificatie->inpBsn');
+            $this->logger->error('No bsn found in a rol->betrokkeneIdentificatie->inpBsn or verantwoordelijkeOrganisatie.');
 
-            return [];
+            return null;
         }
 
         $besluitObjectArray = array_merge($besluitObject->toArray(), ['bsn' => $bsn, 'caseTypeId' => $besluittypeSourceId]);
-        // $besluitMappingArray = $this->setCaseDefaultValues($besluitObject, $besluittypeSourceId, $bsn, 'besluit');
         $besluitMappingArray = $this->mappingService->mapping($xxllncZaakMapping, $besluitObjectArray);
         unset($besluitMappingArray['zgwZaak']);
 
@@ -200,49 +199,13 @@ class BesluitToXxllncService
 
         $sourceId = $this->zgwToXxllncService->sendCaseToXxllnc($caseArray, $besluitObject, $synchronization);
         if ($sourceId === false) {
-            return [];
+
+            return null;
         }
 
-        return $caseArray;
+        return $sourceId;
 
     }//end mapBesluitToXxllnc()
-
-
-    /**
-     * Gets the case source id from the case.
-     *
-     * @param ObjectEntity $zaakObject The besluit object from the request.
-     */
-    private function getCaseSourceId(ObjectEntity $zaakObject): ?string
-    {
-        if ($zaakObject->getSynchronizations()->first() !== false) {
-            return $zaakObject->getSynchronizations()->first()->getSourceId();
-        }
-
-        return null;
-
-    }//end getCaseSourceId()
-
-
-    /**
-     * Gets the case source id from the case.
-     *
-     * @param ObjectEntity $besluitTypeObject The besluittype object
-     */
-    private function getBesluittypeSourceId(ObjectEntity $besluitTypeObject): ?string
-    {
-        // If set we already synced the Zaak to xxllnc as a case.
-        if ($besluitTypeObject->getSynchronizations()->first() !== false
-            && $besluitTypeObject->getSynchronizations()->first()->getSourceId() !== null
-        ) {
-            return $besluitTypeObject->getSynchronizations()->first()->getSourceId();
-        }
-
-        $this->logger->error('syncBesluitToXxllnc returned, the current besluittype had no source id so it did not came from the xxllnc api.');
-
-        return null;
-
-    }//end getBesluittypeSourceId()
 
 
     /**
@@ -250,6 +213,8 @@ class BesluitToXxllncService
      *
      * @param array        $pathParameters The path from the request.
      * @param ObjectEntity $besluitObject  The besluit object from the request.
+     * 
+     * @return ObjectEnttiy|null $zaakObject.
      */
     private function getCaseObjectAndConnectWithBesluit(array $pathParameters, ObjectEntity $besluitObject): ?ObjectEntity
     {
@@ -287,10 +252,12 @@ class BesluitToXxllncService
     private function syncBesluitToXxllnc()
     {
         $besluitObject = $this->entityManager->find('App:ObjectEntity', $this->data['response']['_self']['id']);
+
         // Get caseObject and add the case to the besluit.
-        $caseObject = $this->getCaseObjectAndConnectWithBesluit($this->data['parameters']['path'], $besluitObject);
+        $zaakObject = $this->getCaseObjectAndConnectWithBesluit($this->data['parameters']['path'], $besluitObject);
+
         // Get the case soure id.
-        $caseSourceId = $this->getCaseSourceId($caseObject);
+        $caseSourceId = $zaakObject->getSynchronizations()->first()->getSourceId() ?? null;
 
         // If the Zaak hasn't been send to xxllnc yet, do it now.
         if (isset($caseSourceId) === false) {
@@ -299,7 +266,7 @@ class BesluitToXxllncService
             // $this->syncZaakToXxllnc();
         }
 
-        $besluitTypeObject = $this->entityManager->find('App:ObjectEntity', $this->data['response']['besluit']);
+        $besluitTypeObject = $besluitObject->getValue('besluittype');
         if ($besluitTypeObject instanceof ObjectEntity === false) {
             $this->logger->error('syncBesluitToXxllnc returned, no besluitType set on besluit');
 
@@ -307,8 +274,19 @@ class BesluitToXxllncService
         }
 
         // Get the besluittype source id.
-        $besluittypeSourceId = $this->getBesluittypeSourceId($besluitTypeObject);
-        $besluitCaseSourceId = $this->mapBesluitToXxllnc($besluittypeSourceId, $besluitObject, $caseObject);
+        $besluittypeSourceId = $besluitTypeObject->getSynchronizations()->first()->getSourceId();
+        if (isset($besluittypeSourceId) === false) {
+            $this->logger->error('syncBesluitToXxllnc returned, the current besluittype had no source id so it did not came from the xxllnc api.');
+
+            return [];
+        }
+
+        // Map besluit case to xxllnc.
+        $besluitCaseSourceId = $this->mapBesluitToXxllnc($besluittypeSourceId, $besluitObject, $zaakObject);
+        if (isset($besluitCaseSourceId) === false) {
+
+            return [];
+        }
 
         // Link normal case and besluit case at xxllnc api.
         if ($this->sendCaseRelationForBesluit($caseSourceId, $besluitCaseSourceId) === false) {

@@ -134,12 +134,12 @@ class ZGWToXxllncService
     public function sendCaseToXxllnc(array $caseArray, ObjectEntity $caseObject, ?Synchronization $synchronization = null, ?string $type = 'zaak')
     {
         switch ($type) {
-        case 'zaak':
-            $resourceId = $caseArray['zgwZaak'];
-            break;
-        case 'besluit':
-            $resourceId = $caseArray['zgwBesluit'];
-            break;
+            case 'zaak':
+                $resourceId = $caseArray['zgwZaak'];
+                break;
+            case 'besluit':
+                $resourceId = $caseArray['zgwBesluit'];
+                break;
         }
 
         $objectId = $resourceId;
@@ -251,9 +251,9 @@ class ZGWToXxllncService
             return [];
         }
 
-        $bsn = ($zaakArrayObject['rollen'][0]['betrokkeneIdentificatie']['inpBsn'] ?? $zaakArrayObject['verantwoordelijkeOrganisatie'] ?? ) null;
+        $bsn = $zaakArrayObject['rollen'][0]['betrokkeneIdentificatie']['inpBsn'] ?? $zaakArrayObject['verantwoordelijkeOrganisatie'] ?? null;
         if ($bsn === null) {
-            $this->logger->error('No bsn found in a rol->betrokkeneIdentificatie->inpBsn');
+            $this->logger->error('No bsn found in a rol->betrokkeneIdentificatie->inpBsn or verantwoordelijke organisatie.');
 
             return [];
         }
@@ -264,21 +264,26 @@ class ZGWToXxllncService
         }
 
         // Base values.
-        // @todo remove when mapping works.
+        // @todo remove if mapping works.
         // $caseArray = $this->setCaseDefaultValues($zaakArrayObject, $casetypeId, $bsn);
+
         // Map ZGW Zaak to xxllnc case.
         $zaakArrayObject = array_merge($zaakArrayObject, ['bsn' => $bsn, 'caseTypeId' => $casetypeId]);
         $caseArray       = $this->mappingService->mapping($mapping, $zaakArrayObject);
 
-        // @todo Remove when mapping works.
+        // @todo Remove if mapping works.
         // $caseArray = $this->mapPostInfoObjecten($caseArray, $zaakArrayObject);
         // $caseArray = $this->mapPostEigenschappen($caseArray, $zaakArrayObject, $zaakTypeObject);
         // @todo Might be needed in the future.
         // $caseArray = $this->mapPostRollen($caseArray, $zaakArrayObject); // disabled for now.
+
         $caseObject = $this->getCaseObject($zaakArrayObject);
         $caseObject->hydrate($caseArray);
         $this->entityManager->persist($caseObject);
+
+        // @todo Remove if confirmed its not needed.
         // $caseArray = $caseObject->toArray();
+
         $synchronization = null;
         // Only get synchronization that has a sourceId.
         if ($caseObject->getSynchronizations() && isset($caseObject->getSynchronizations()[0]) === true && $caseObject->getSynchronizations()[0]->getSourceId()) {
