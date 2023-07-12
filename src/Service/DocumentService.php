@@ -1,4 +1,14 @@
 <?php
+
+namespace CommonGateway\XxllncZGWBundle\Service;
+
+use App\Entity\Gateway as Source;
+use App\Entity\ObjectEntity;
+use App\Entity\Synchronization;
+use CommonGateway\CoreBundle\Service\CallService;
+use Doctrine\ORM\EntityManagerInterface;
+use Exception;
+
 /**
  * This class handles the synchronization of a zgw drc objectinformatieobject to a xxllnc document.
  *
@@ -9,18 +19,6 @@
  *
  * @category Service
  */
-
-namespace CommonGateway\XxllncZGWBundle\Service;
-
-use App\Entity\Gateway as Source;
-use App\Entity\ObjectEntity;
-use App\Entity\Synchronization;
-use CommonGateway\CoreBundle\Service\CallService;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\Persistence\ObjectRepository;
-use Exception;
-
-
 class DocumentService
 {
 
@@ -45,17 +43,6 @@ class DocumentService
     private array $data;
 
     /**
-     * @var ObjectRepository
-     */
-    private ObjectRepository $sourceRepo;
-
-    /**
-     * @var Source|null
-     */
-    public ?Source $xxllncAPI;
-
-
-    /**
      * __construct.
      */
     public function __construct(
@@ -65,21 +52,24 @@ class DocumentService
         $this->entityManager = $entityManager;
         $this->callService   = $callService;
 
-        $this->sourceRepo = $this->entityManager->getRepository('App:Gateway');
-
     }//end __construct()
 
 
     /**
-     *
+     * Reserves a document number at the xxllnc api. 
+     * 
+     * A document number is needed to save the actual file/document/informatieobject.
+     * 
+     * @param Source $xxllncApi
+     * 
      * @return string|false $documentNumber Document number else false.
      */
-    private function reserveDocumentNumber()
+    private function reserveDocumentNumber(Source $xxllncApi)
     {
         // Send the POST request to xxllnc.
         try {
-            $response = $this->callService->call($this->xxllncAPI, '/document/reserve_number', 'POST');
-            $result   = $this->callService->decodeResponse($this->xxllncAPI, $response);
+            $response = $this->callService->call($xxllncApi, '/document/reserve_number', 'POST');
+            $result   = $this->callService->decodeResponse($xxllncApi, $response);
             var_dump($result);
             $documentNumber = $result['result']['reference'] ?? null;
         } catch (Exception $e) {
@@ -94,16 +84,19 @@ class DocumentService
 
     /**
      * Gets first sync object for objectinformatieobject or creates new one.
+     * 
+     * @param ObjectEntity $infoObject
+     * @param Source       $xxllncApi
      *
      * @return Synchronization
      */
-    private function getSynchronization(ObjectEntity $infoObject): Synchronization
+    private function getSynchronization(ObjectEntity $zaakInfoObject, Source $xxllncApi): Synchronization
     {
-        $synchronizations = $this->entityManager->getRepository('App:Synchronization')->findBy(['object' => $infoObject]);
+        $synchronizations = $this->entityManager->getRepository('App:Synchronization')->findBy(['object' => $zaakInfoObject]);
         if (empty($synchronizations) === true) {
             return new Synchronization(
-                $this->sourceRepo->findOneBy(['reference' => 'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json']),
-                $infoObject->getEntity()
+                $xxllncApi,
+                $zaakInfoObject->getEntity()
             );
         } else {
             return $synchronizations->first();
@@ -116,13 +109,17 @@ class DocumentService
      * Gets sync for zaakInformatieObject and gets documentNumber from xxllnc if needed.
      *
      * @param ObjectEntity $zaakInformatieObject
+     * @param Source       $xxllncApi
+     * 
+     * @return void Nothing.
      */
-    public function checkDocumentNumber(ObjectEntity $zaakInformatieObject)
+    public function checkDocumentNumber(string $zaakInfoId, Source $xxllncApi): void
     {
-        $synchronization = $this->getSynchronization($zaakInformatieObject);
+        $zaakInfoObject = $this->entityManager->find('App:ObjectEntity', $zaakInfoId);
+        $synchronization = $this->getSynchronization($zaakInfoObject, $xxllncApi);
 
         if ($synchronization->getSourceId() === null) {
-            $documentNumber = $this->reserveDocumentNumber();
+            $documentNumber = $this->reserveDocumentNumber($xxllncApi);
             var_dump($documentNumber);
             $synchronization->setSourceId($documentNumber);
 
