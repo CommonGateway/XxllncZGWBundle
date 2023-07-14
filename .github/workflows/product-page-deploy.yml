@@ -1,7 +1,7 @@
 name: Deploy the Product Page to GitHub Pages
 
 env: # Change these to your preferences any image url can also be a base encoded image
-  GITHUB_PAGES_BRANCH: Product-page
+  GITHUB_PAGES_BRANCH: gh-pages
 
   # Connected Repository
   GITHUB_REPOSITORY_NAME: ${{ github.event.repository.name }}
