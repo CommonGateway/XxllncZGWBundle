@@ -272,8 +272,6 @@ class ZGWToXxllncService
         // Map ZGW Zaak to xxllnc case.
         $zaakArrayObject = array_merge($zaakArrayObject, ['bsn' => $bsn, 'caseTypeId' => $casetypeId]);
         $caseArray       = $this->mappingService->mapping($mapping, $zaakArrayObject);
-        dump(json_encode($caseArray));
-        die;
 
         // @todo Remove when mapping works.
         // $caseArray = $this->mapPostInfoObjecten($caseArray, $zaakArrayObject);
@@ -350,7 +348,6 @@ class ZGWToXxllncService
 
         $zaakTypeId = $this->getZaakTypeId();
         if ($zaakTypeId === false) {
-            var_dump('test1');
             return [];
         }
 
@@ -358,7 +355,6 @@ class ZGWToXxllncService
         $casetypeId     = $zaakTypeObject->getSynchronizations()[0]->getSourceId() ?? null;
 
         if (isset($this->data['_self']['id']) === false) {
-            var_dump('test2');
             return [];
         }
 
