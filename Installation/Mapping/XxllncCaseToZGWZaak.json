@@ -2,7 +2,7 @@
     "title": "XxllncCaseToZGWZaak",
     "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseToZGWZaak.mapping.json",
     "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "passTrough": false,
     "mapping": {
         "identificatie": "reference",
@@ -15,6 +15,8 @@
         "publicatiedatum": "instance.date_target",
         "communicatiekanaal": "instance.channel_of_contact",
         "vertrouwelijkheidaanduidng": "instance.confidentiality.mapped",
+        "verlenging.reden": "{% if instance.stalled_until|default and instance.date_target|default %}Onbekend{% endif %}",
+        "verlenging.duur": "{% if instance.stalled_until|default and instance.date_target|default %}{% set difference = date(instance.stalled_until).diff(date(instance.date_target)) %}{% set differenceDays = difference.days %}{% set workableDays = differenceDays - (( differenceDays/7|round ) * 2)|round %}{{ workableDays }}{% endif %}",
         "kenmerken.0.kenmerk": "reference",
         "kenmerken.0.bron": "xxllnc v1 api",
         "betalingsindicatie": "{% if instance.price == '-' %}{{ 'nvt' }}{% elseif instance.payment_status is null or instance.payment_status == '' %}{{ 'nog_niet' }}{% else %}{{ 'geheel' }}{% endif %}",
