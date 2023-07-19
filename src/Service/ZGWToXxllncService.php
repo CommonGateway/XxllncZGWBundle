@@ -328,6 +328,8 @@ class ZGWToXxllncService
                 return $id;
             }
         }
+        $this->logger->error('No zaaktype id found on zaak in ZGWToXxllncService');
+        isset($this->style) === true && $this->style->error('No zaaktype id found on zaak in ZGWToXxllncService');
 
         return false;
 
@@ -341,6 +343,7 @@ class ZGWToXxllncService
      */
     public function syncZaakToXxllnc(): array
     {
+        $this->logger->debug('function syncZaakToXxllnc triggered');
         isset($this->style) === true && $this->style->success('function syncZaakToXxllnc triggered');
 
         $this->xxllncZaakSchema = $this->resourceService->getSchema('https://development.zaaksysteem.nl/schema/xxllnc.zaakPost.schema.json', 'xxllnc-zgw-bundle');
@@ -355,12 +358,18 @@ class ZGWToXxllncService
         $casetypeId     = $zaakTypeObject->getSynchronizations()[0]->getSourceId() ?? null;
 
         if (isset($this->data['_self']['id']) === false) {
+            $this->logger->error('No _self id found on zaak in ZGWToXxllncService');
+            isset($this->style) === true && $this->style->error('No _self id found on zaak in ZGWToXxllncService');
+
             return [];
         }
 
         $zaakArrayObject = $this->entityManager->find('App:ObjectEntity', $this->data['_self']['id']);
 
         if (isset($this->xxllncZaakSchema) === false || isset($this->xxllncAPI) === false || isset($casetypeId) === false || isset($zaakArrayObject) === false) {
+            $this->logger->error('Some objects needed could not be found in ZGWToXxllncService: $this->xxllncZaakSchema or $this->xxllncAPI or $casetypeId or $zaakArrayObject');
+            isset($this->style) === true && $this->style->error('Some objects needed could not be found in ZGWToXxllncService: $this->xxllncZaakSchema or $this->xxllncAPI or $casetypeId or $zaakArrayObject');
+
             return [];
         }
 
