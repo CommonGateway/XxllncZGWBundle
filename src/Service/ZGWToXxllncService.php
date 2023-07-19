@@ -328,6 +328,7 @@ class ZGWToXxllncService
                 return $id;
             }
         }
+
         $this->logger->error('No zaaktype id found on zaak in ZGWToXxllncService');
         isset($this->style) === true && $this->style->error('No zaaktype id found on zaak in ZGWToXxllncService');
 
