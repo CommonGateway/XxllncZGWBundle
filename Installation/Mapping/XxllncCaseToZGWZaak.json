@@ -14,6 +14,7 @@
         "einddatumGepland": "instance.date_target",
         "publicatiedatum": "instance.date_target",
         "communicatiekanaal": "instance.channel_of_contact",
+        "vertrouwelijkheidaanduidng": "instance.confidentiality.mapped",
         "kenmerken.0.kenmerk": "reference",
         "kenmerken.0.bron": "xxllnc v1 api",
         "betalingsindicatie": "{% if instance.price == '-' %}{{ 'nvt' }}{% elseif instance.payment_status is null or instance.payment_status == '' %}{{ 'nog_niet' }}{% else %}{{ 'geheel' }}{% endif %}",

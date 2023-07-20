@@ -2,8 +2,8 @@
     "title": "XxllncCaseUnsetPUT",
     "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseUnsetPUT.mapping.json",
     "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
-    "version": "0.0.2",
-    "passTrough": false,
+    "version": "0.0.1",
+    "passTrough": true,
     "mapping": {},
     "unset": [
         "_self",

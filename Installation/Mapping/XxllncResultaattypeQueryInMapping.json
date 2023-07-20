@@ -2,7 +2,7 @@
   "title": "XxllncResultaattypeQueryInMapping",
   "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncResultaattypeQueryInMapping.mapping.json",
   "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "passTrough": true,
   "mapping": {
     "zaaktypeIdentificatie": "zaaktype_identificatie",
@@ -10,7 +10,8 @@
   },
   "unset": [
     "zaaktype_identificatie",
-    "datum_geldigheid"
+    "datum_geldigheid",
+    "status"
   ],
   "cast": {
     "beginGeldigheid": "unsetIfValue==datum_geldigheid",
