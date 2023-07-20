@@ -166,8 +166,6 @@ class ZGWToXxllncService
 
         // Unset unwanted properties.
         $caseArray = $this->mappingService->mapping($unsetMapping, $caseArray);
-        var_dump(json_encode($caseArray));
-        die;
         $method = 'POST';
         $this->logger->info("$method a case to xxllnc ($type ID: $objectId) ".json_encode($caseArray));
 
@@ -176,7 +174,7 @@ class ZGWToXxllncService
         $responseBody = $this->syncService->synchronizeTemp($synchronization, $caseArray, $caseObject, $this->xxllncZaakSchema, $endpoint, 'result.reference');
         $this->entityManager->persist($synchronization);
         $this->entityManager->flush();
-        $caseId = $responseBody['result']['reference'] ?? null;
+        $caseId = $synchronization->getSourceId();
 
         // Old @todo remove when new works.
         // // Send the POST/PUT request to xxllnc.
@@ -300,6 +298,7 @@ class ZGWToXxllncService
 
         // Not needed anymore.
         // $this->saveSynchronization($synchronization, $sourceId, $caseObject);
+
         return $caseArray;
 
     }//end mapZGWToXxllnc()
@@ -370,7 +369,7 @@ class ZGWToXxllncService
             return [];
         }
 
-        $zaakArrayObject = $this->entityManager->find('App:ObjectEntity', $this->data['_self']['id']);
+        $zaakArrayObject = $this->entityManager->find('App:ObjectEntity', $this->data['_self']['id'])->toArray();
 
         if (isset($this->xxllncZaakSchema) === false || isset($this->xxllncAPI) === false || isset($casetypeId) === false || isset($zaakArrayObject) === false) {
             $this->logger->error('Some objects needed could not be found in ZGWToXxllncService: $this->xxllncZaakSchema or $this->xxllncAPI or $casetypeId or $zaakArrayObject');
@@ -379,7 +378,9 @@ class ZGWToXxllncService
             return [];
         }
 
-        return $this->mapZGWToXxllnc($casetypeId, $zaakTypeObject, $zaakObject->toArray());
+        $this->mapZGWToXxllnc($casetypeId, $zaakTypeObject, $zaakArrayObject);
+
+        return [];
 
     }//end syncZaakToXxllnc()
 
@@ -399,25 +400,40 @@ class ZGWToXxllncService
     public function updateZaakHandler(?array $data = [], ?array $configuration = []): array
     {
         $this->configuration = $configuration;
+        $zaakId = '';
 
-        if (is_array($data['response']['zaak'])) {
+        if (isset($data['response']['zaak']) === false) {
+            $this->logger->error('No zaak found in the object that should update a zaak.');
+
+            return [];
+        }
+
+        if (is_array($data['response']['zaak']) === true) {
             $zaakId = $data['response']['zaak']['_self']['id'];
         } else {
             $zaakId = substr($data['response']['zaak'], (strrpos($data['response']['zaak'], '/') + 1));
         }
 
-        if ($zaakId === false || $zaakId === null) {
+        if (Uuid::isValid($zaakId) === false && filter_var($data['response']['zaak'], FILTER_VALIDATE_URL) !== false) {
+            $zaakId = substr($data['response']['zaak'], (strrpos($data['response']['zaak'], '/') + 1));
+        }
+
+        if (Uuid::isValid($zaakId) === false) {
+            $this->logger->error('No zaak id found in the object that should update a zaak.');
+
             return ['response' => []];
         }
 
         $zaakObject = $this->entityManager->find('App:ObjectEntity', $zaakId);
         if ($zaakObject === null) {
+            $this->logger->error("No zaak object found with id: $zaakId.");
+
             return ['response' => []];
         }
 
         $this->data = $zaakObject->toArray();
 
-        return ['response' => $this->syncZaakToXxllnc($zaakTypeId)];
+        return ['response' => $this->syncZaakToXxllnc()];
 
     }//end updateZaakHandler()
 
