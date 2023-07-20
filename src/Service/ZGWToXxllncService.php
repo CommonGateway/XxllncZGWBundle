@@ -166,7 +166,7 @@ class ZGWToXxllncService
 
         // Unset unwanted properties.
         $caseArray = $this->mappingService->mapping($unsetMapping, $caseArray);
-        $method = 'POST';
+        $method    = 'POST';
         $this->logger->info("$method a case to xxllnc ($type ID: $objectId) ".json_encode($caseArray));
 
         // New
@@ -298,7 +298,6 @@ class ZGWToXxllncService
 
         // Not needed anymore.
         // $this->saveSynchronization($synchronization, $sourceId, $caseObject);
-
         return $caseArray;
 
     }//end mapZGWToXxllnc()
@@ -400,7 +399,7 @@ class ZGWToXxllncService
     public function updateZaakHandler(?array $data = [], ?array $configuration = []): array
     {
         $this->configuration = $configuration;
-        $zaakId = '';
+        $zaakId              = '';
 
         if (isset($data['response']['zaak']) === false) {
             $this->logger->error('No zaak found in the object that should update a zaak.');
