@@ -2,7 +2,7 @@
     "title": "XxllncRoleRequestorToRol",
     "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncRoleRequestorToRol.mapping.json",
     "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "passTrough": false,
     "mapping": {
         "_sourceId": "{% if role.reference|default %}{{ role.reference }}{% endif %}",
@@ -28,6 +28,6 @@
         "betrokkeneIdentificatie.verblijfsadres.aoaHuisnummer": "{% if requestor.instance.subject.instance.address_residence.instance.street_number|default %}{{ requestor.instance.subject.instance.address_residence.instance.street_number }}{% endif %}",
         "betrokkeneIdentificatie.verblijfsadres.aoaHuisletter": "{% if requestor.instance.subject.instance.address_residence.instance.street_number_letter|default %}{{ requestor.instance.subject.instance.address_residence.instance.street_number_letter }}{% endif %}",
         "betrokkeneIdentificatie.verblijfsadres.aoaHuisnummertoevoeging": "{% if requestor.instance.subject.instance.address_residence.instance.street_number_suffix|default %}{{ requestor.instance.subject.instance.address_residence.instance.street_number_suffix }}{% endif %}",
-        "roltype": "{% if role.instance.name|default %}{% for roltype in roltypen %}{% if roltype.omschrijving == role.instance.name %}{{ roltype['_self']['id'] }}{% endif %}{% endfor %}{% endif %}"
+        "roltype": "{% if role.instance.name|default %}{% for roltype in roltypen %}{% if roltype.omschrijvingGeneriek|lower == role.instance.name|lower %}{{ roltype['_self']['id'] }}{% endif %}{% endfor %}{% endif %}"
   }
 }
