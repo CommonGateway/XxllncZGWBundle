@@ -83,15 +83,6 @@
                 }
               }
             }
-          },
-          {
-            "https://vng.opencatalogi.nl/EntityEndpoint/ZaakInformatieObject.endpoint.json": {
-              "out": {
-                "body": {
-                  "mapping": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncZaakInformatieobjectResultOutMapping.mapping.json"
-                }
-              }
-            }
           }
         ]
       }
