@@ -2,21 +2,23 @@
   "title": "ZgwBesluitToXxllncCase",
   "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.ZgwBesluitToXxllncCase.mapping.json",
   "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "passTrough": false,
   "mapping": {
-    "date_of_registration": "resource.date_of_registration",
-    "zgwBesluit": "resource.zgwBesluit",
-    "zgwZaak": "resource.zgwZaak",
-    "casetype_id": "resource.casetype_id",
+    "date_of_registration": "{{ 'now'|date('Y-m-dTH:i:sZ') }}",
+    "zgwBesluit": "_self.id",
+    "casetype_id": "casetypeId",
     "source": "behandelaar",
     "confidentiality": "public",
     "requestor.type": "person",
-    "requestor.id": "resource.bsn"
+    "requestor.id": "bsn",
+    "values": "[{% if verantwoordelijkeOrganisatie|default %}\"zgw_besluit_organisatie\": [[\"{{ verantwoordelijkeOrganisatie }}\"]],{% endif %}{% if toelichting|default %}\"ztc_toelichting\": [[\"{{ toelichting }}\"]],{% endif %}{% if bestuursorgaan|default %}\"zgw_besluit_bestuursorgaan\": [[\"{{ bestuursorgaan }}\"]],{% endif %}{% if ingangsdatum|default %}\"ztc_ingangsdatum\": [[\"{{ ingangsdatum }}\"]],{% endif %}{% if vervalreden|default %}\"zgw_besluit_vervalreden\": [[\"{{ vervalreden }}\"]],{% endif %}{% if vervaldatum|default %}\"zgw_besluit_vervaldatum\": [[\"{{ vervaldatum }}\"]],{% endif %}{% if publicatiedatum|default %}\"zgw_besluit_publicatiedatum\": [[\"{{ publicatiedatum }}\"]],{% endif %}{% if verzenddatum|default %}\"zgw_besluit_verzenddatum\": [[\"{{ verzenddatum }}\"]],{% endif %}{% if uiterlijkeReactiedatum|default %}\"zgw_besluit_reactiedatum\": [[\"{{ uiterlijkeReactiedatum }}\"]],{% endif %}]"
   },
   "unset": {
     "zgwBesluit": "unsetIfValue==resource.zgwBesluit",
     "zgwZaak": "unsetIfValue==resource.zgwZaak"
   },
-  "cast": {}
+  "cast": {
+    "values": "jsonToArray"
+  }
 }
