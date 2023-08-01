@@ -332,7 +332,6 @@ class ZGWToXxllncService
      */
     private function getZaakTypeId()
     {
-        $this->data['zaaktype'] = 'http://localhost/api/ztc/v1/zaaktypen/2f5f7ad2-39d2-4b3c-a058-0c9159989414';
         if (isset($this->data['zaaktype']) === true && Uuid::isValid($this->data['zaaktype']) === true) {
             return $this->data['zaaktype'];
         }
