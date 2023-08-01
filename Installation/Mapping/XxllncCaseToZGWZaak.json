@@ -28,14 +28,18 @@
         "_sourceId": "reference",
         "bronorganisatie": "bronorganisatie",
         "verantwoordelijkeOrganisatie": "bronorganisatie",
-        "vertrouwelijkheidaanduidng": "{{ instance.confidentiality.mapped|lower }}"
+        "opschorting.indicatie": "{% if instance.stalled_until|default %}true{% else %}{% endif %}",
+        "opschorting.reden": "{% if instance.stalled_until|default %}Unknown{% endif %}"
     },
     "unset": {},
     "cast": {
         "resultaat": "jsonToArray",
         "rollen": "jsonToArray",
         "status": "jsonToArray",
-        "eigenschappen": "jsonToArray"
+        "eigenschappen": "jsonToArray",
+        "opschorting.indicatie": "unsetIfValue==",
+        "opschorting.reden": "unsetIfValue==",
+        "opschorting": "unsetIfValue=="
     }
 }
   
