@@ -186,7 +186,7 @@ class ZGWToXxllncService
 
         // Unset unwanted properties.
         $caseArray = $this->mappingService->mapping($unsetMapping, $caseArray);
-        $method = 'POST';
+        $method    = 'POST';
         $this->logger->info("$method a case to xxllnc ($type ID: $objectId) ".json_encode($caseArray));
 
         // Method is always POST in the xxllnc api for creating and updating (not needed to pass here).
@@ -277,17 +277,17 @@ class ZGWToXxllncService
         // If the zaakinformatieobjecten are already synced we need their source id (number) so we can add them to the case mapping.
         foreach ($zaakArrayObject['zaakinformatieobjecten'] as $key => $zaakInfoObject) {
             $zaakArrayObject['zaakinformatieobjecten'][$key]['xxllncDocumentNumber'] = $this->documentService->checkCustomNumber($zaakInfoObject, $this->xxllncAPI, 'zaakInfoObject');
-            $zaakArrayObject['zaakinformatieobjecten'][$key]['xxllncReferenceId'] = $this->documentService->checkCustomNumber($zaakInfoObject, $this->xxllncAPI, 'enkelvoudigInfoObject');
+            $zaakArrayObject['zaakinformatieobjecten'][$key]['xxllncReferenceId']    = $this->documentService->checkCustomNumber($zaakInfoObject, $this->xxllncAPI, 'enkelvoudigInfoObject');
             if ($zaakArrayObject['zaakinformatieobjecten'][$key]['xxllncDocumentNumber'] == null || $zaakArrayObject['zaakinformatieobjecten'][$key]['xxllncReferenceId'] == null) {
                 unset($zaakArrayObject['zaakinformatieobjecten'][$key]);
                 $this->logger->error("Ignoring infoobject {$zaakInfoObject['_self']['id']} because the document number or reference could not be created at the xxllnc api.");
             }
+
             break;
         }
 
         // Refetch Zaak object for possible synchronizations on zaakinformatieobjecten.
         // $zaakArrayObject = $this->resourceService->getObject($zaakArrayObject['_self']['id'])->toArray();
-
         // Map ZGW Zaak to xxllnc case.
         $zaakArrayObject = array_merge($zaakArrayObject, ['bsn' => $bsn, 'caseTypeId' => $casetypeId]);
         $caseArray       = $this->mappingService->mapping($mapping, $zaakArrayObject);
@@ -320,7 +320,6 @@ class ZGWToXxllncService
 
         // Not needed anymore.
         // $this->saveSynchronization($synchronization, $sourceId, $caseObject);
-
         return $caseArray;
 
     }//end mapZGWToXxllnc()
@@ -387,6 +386,7 @@ class ZGWToXxllncService
             $this->logger->error("Aborting zaak sync to xxllnc, ZaakType not found with id: $zaakTypeId.");
             return [];
         }
+
         $casetypeId = $zaakTypeObject->getSynchronizations()[0]->getSourceId() ?? null;
 
         $zaakArrayObject = $this->entityManager->find('App:ObjectEntity', $this->data['_self']['id'])->toArray();
@@ -422,7 +422,7 @@ class ZGWToXxllncService
     public function updateZaakHandler(?array $data = [], ?array $configuration = []): array
     {
         $this->configuration = $configuration;
-        $zaakId = '';
+        $zaakId              = '';
 
         if (isset($data['response']['zaak']) === false) {
             $this->logger->error('No zaak found in the object that should update a zaak.');
