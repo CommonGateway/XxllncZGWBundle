@@ -8,6 +8,7 @@
     "unset": [
         "_self",
         "requestor._self",
-        "zgwZaak"
+        "zgwZaak",
+        "zgwBesluit"
     ]
 }
