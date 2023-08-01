@@ -103,24 +103,7 @@ class ZGWToXxllncService
         $this->documentService = $documentService;
 
     }//end __construct()
-
-
-    /**
-     * Set symfony style in order to output to the console.
-     *
-     * @param SymfonyStyle $style
-     *
-     * @return self
-     */
-    public function setStyle(SymfonyStyle $style): self
-    // @TODO change to monolog
-    {
-        $this->style = $style;
-
-        return $this;
-
-    }//end setStyle()
-
+    
 
     // /**
     // * Maps the rollen from zgw to xxllnc.
@@ -172,12 +155,12 @@ class ZGWToXxllncService
     public function sendCaseToXxllnc(array $caseArray, ObjectEntity $caseObject, ?Synchronization $synchronization = null, ?string $type = 'zaak')
     {
         switch ($type) {
-        case 'zaak':
-            $resourceId = $caseArray['zgwZaak'];
-            break;
-        case 'besluit':
-            $resourceId = $caseArray['zgwBesluit'];
-            break;
+            case 'zaak':
+                $resourceId = $caseArray['zgwZaak'];
+                break;
+            case 'besluit':
+                $resourceId = $caseArray['zgwBesluit'];
+                break;
         }
 
         $objectId = $resourceId;
@@ -206,25 +189,12 @@ class ZGWToXxllncService
         $method = 'POST';
         $this->logger->info("$method a case to xxllnc ($type ID: $objectId) ".json_encode($caseArray));
 
-        // New
         // Method is always POST in the xxllnc api for creating and updating (not needed to pass here).
         $responseBody = $this->syncService->synchronizeTemp($synchronization, $caseArray, $caseObject, $this->xxllncZaakSchema, $endpoint, 'result.reference');
         $this->entityManager->persist($synchronization);
         $this->entityManager->flush();
         $caseId = $synchronization->getSourceId();
 
-        // Old @todo remove when new works.
-        // // Send the POST/PUT request to xxllnc.
-        // try {
-        // isset($this->style) === true && $this->style->info($logMessage);
-        // $response = $this->callService->call($this->xxllncAPI, $endpoint, $method, ['body' => json_encode($caseArray), 'headers' => ['Content-Type' => 'application/json']]);
-        // $result   = $this->callService->decodeResponse($this->xxllncAPI, $response);
-        // $caseId   = $result['result']['reference'] ?? null;
-        // $this->logger->info("$method succesfull for case with externalId: $caseId and response: ".json_encode($result));
-        // } catch (Exception $e) {
-        // $this->logger->error("Failed to $method case, message:  {$e->getMessage()}");
-        // return false;
-        // }//end try
         return $caseId ?? false;
 
     }//end sendCaseToXxllnc()
@@ -241,12 +211,12 @@ class ZGWToXxllncService
     public function getCaseObject(array $zaakArrayObject, string $type = 'case')
     {
         switch ($type) {
-        case 'case':
-            $name = 'zgwZaak';
-            break;
-        case 'besluit':
-            $name = 'zgwBesluit';
-            break;
+            case 'case':
+                $name = 'zgwZaak';
+                break;
+            case 'besluit':
+                $name = 'zgwBesluit';
+                break;
         }
 
         // Get needed attribute so we can find the already existing case object
@@ -363,7 +333,7 @@ class ZGWToXxllncService
      */
     private function getZaakTypeId()
     {
-        $this->data['zaaktype'] = 'http://localhost/api/ztc/v1/zaaktypen/83625e15-df29-495d-9499-8985808dddac';
+        $this->data['zaaktype'] = 'http://localhost/api/ztc/v1/zaaktypen/2f5f7ad2-39d2-4b3c-a058-0c9159989414';
         if (isset($this->data['zaaktype']) === true && Uuid::isValid($this->data['zaaktype']) === true) {
             return $this->data['zaaktype'];
         }
