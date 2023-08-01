@@ -220,13 +220,11 @@ class BesluitToXxllncService
         }
 
         if ($zaakId === null) {
-
             return null;
         }
 
         $zaakObject = $this->resourceService->getObject($zaakId);
         if ($zaakObject instanceof ObjectEntity === false) {
-
             return null;
         }
 
@@ -265,6 +263,7 @@ class BesluitToXxllncService
         return $value->getObjectEntity();
 
     }//end getCaseObject()
+
 
     /**
      * Gets the xxllnc case id from the case object.
@@ -321,10 +320,8 @@ class BesluitToXxllncService
             return [];
         }
 
-
-
         // Get the besluit object from request body.
-        $besluitId = substr($this->data['response']['besluit'], strrpos($this->data['response']['besluit'], '/') + 1);
+        $besluitId     = substr($this->data['response']['besluit'], (strrpos($this->data['response']['besluit'], '/') + 1));
         $besluitObject = $this->resourceService->getObject($besluitId);
         if ($besluitObject instanceof ObjectEntity === false) {
             $this->logger->error('syncBesluitToXxllnc returned, no besluit set on zaakBesluit');
@@ -333,14 +330,14 @@ class BesluitToXxllncService
         }
 
         // Get the besluittype object so we can check its synchronizaitons.
-        $besluitTypeId = substr($besluitObject->getValue('besluittype'), strrpos($besluitObject->getValue('besluittype'), '/') + 1);
+        $besluitTypeId     = substr($besluitObject->getValue('besluittype'), (strrpos($besluitObject->getValue('besluittype'), '/') + 1));
         $besluitTypeObject = $this->resourceService->getObject($besluitTypeId);
         if ($besluitTypeObject instanceof ObjectEntity === false) {
             $this->logger->error('syncBesluitToXxllnc returned, no besluitType set on besluit');
 
             return [];
         }
-        
+
         // Check the besluittype synchronization and source id so we know it came fromt the xxllnc api.
         if ($besluitTypeObject->getSynchronizations()->first() === false || $besluitTypeObject->getSynchronizations()->first()->getSourceId() === null) {
             $this->logger->error('syncBesluitToXxllnc returned, the associated besluittype is not synced from the xxllnc api because there is no synchronization or sourceId on that synchronization found.');
@@ -390,7 +387,8 @@ class BesluitToXxllncService
 
         if (isset($this->data['response']['_self']['id']) === false || isset($this->data['response']['besluit']) === false) {
             $this->logger->error('syncBesluitToXxllnc returned, no id or besluit found in given zaakbesluit.');
-            var_dump('died');die;
+            var_dump('died');
+            die;
 
             return [];
         }

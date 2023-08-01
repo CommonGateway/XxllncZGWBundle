@@ -103,7 +103,7 @@ class ZGWToXxllncService
         $this->documentService = $documentService;
 
     }//end __construct()
-    
+
 
     // /**
     // * Maps the rollen from zgw to xxllnc.
@@ -155,12 +155,12 @@ class ZGWToXxllncService
     public function sendCaseToXxllnc(array $caseArray, ObjectEntity $caseObject, ?Synchronization $synchronization = null, ?string $type = 'zaak')
     {
         switch ($type) {
-            case 'zaak':
-                $resourceId = $caseArray['zgwZaak'];
-                break;
-            case 'besluit':
-                $resourceId = $caseArray['zgwBesluit'];
-                break;
+        case 'zaak':
+            $resourceId = $caseArray['zgwZaak'];
+            break;
+        case 'besluit':
+            $resourceId = $caseArray['zgwBesluit'];
+            break;
         }
 
         $objectId = $resourceId;
@@ -211,12 +211,12 @@ class ZGWToXxllncService
     public function getCaseObject(array $zaakArrayObject, string $type = 'case')
     {
         switch ($type) {
-            case 'case':
-                $name = 'zgwZaak';
-                break;
-            case 'besluit':
-                $name = 'zgwBesluit';
-                break;
+        case 'case':
+            $name = 'zgwZaak';
+            break;
+        case 'besluit':
+            $name = 'zgwBesluit';
+            break;
         }
 
         // Get needed attribute so we can find the already existing case object
