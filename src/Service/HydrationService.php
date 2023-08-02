@@ -7,6 +7,7 @@
  *
  * @category Service
  */
+
 namespace CommonGateway\XxllncZGWBundle\Service;
 
 use App\Entity\Attribute;

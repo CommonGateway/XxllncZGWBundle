@@ -1,4 +1,15 @@
 <?php
+/**
+ * The BesluitToXxllncService handles the sending of ZGW Besluit to the xxllnc v1 api.
+ *
+ * By mapping, posting and creating a synchronization. Only works if the ztc besluittype also exists in the xxllnc api.
+ *
+ * @author Conduction BV <info@conduction.nl>, Barry Brands <barry@conduction.nl>, Sarai Misidjan <sarai@conduction.nl>
+ *
+ * @license EUPL <https://github.com/ConductionNL/contactcatalogus/blob/master/LICENSE.md>
+ *
+ * @category Service
+ */
 
 namespace CommonGateway\XxllncZGWBundle\Service;
 
@@ -13,20 +24,8 @@ use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-
 use function Safe\json_encode;
 
-/**
- * The BesluitToXxllncService handles the sending of ZGW Besluit to the xxllnc v1 api.
- *
- * By mapping, posting and creating a synchronization. Only works if the ztc besluittype also exists in the xxllnc api.
- *
- * @author Conduction BV <info@conduction.nl>, Barry Brands <barry@conduction.nl>, Sarai Misidjan <sarai@conduction.nl>
- *
- * @license EUPL <https://github.com/ConductionNL/contactcatalogus/blob/master/LICENSE.md>
- *
- * @category Service
- */
 class BesluitToXxllncService
 {
 

@@ -1,14 +1,4 @@
 <?php
-
-namespace CommonGateway\XxllncZGWBundle\ActionHandler;
-
-use App\Exception\GatewayException;
-use CommonGateway\CoreBundle\ActionHandler\ActionHandlerInterface;
-use CommonGateway\XxllncZGWBundle\Service\ZaakService;
-use Psr\Cache\CacheException;
-use Psr\Cache\InvalidArgumentException;
-use Respect\Validation\Exceptions\ComponentException;
-
 /**
  * This class handles the synchronization of one or more of xxllnc cases to zgw zrc zaken.
  *
@@ -19,6 +9,16 @@ use Respect\Validation\Exceptions\ComponentException;
  *
  * @category ActionHandler
  */
+
+namespace CommonGateway\XxllncZGWBundle\ActionHandler;
+
+use App\Exception\GatewayException;
+use CommonGateway\CoreBundle\ActionHandler\ActionHandlerInterface;
+use CommonGateway\XxllncZGWBundle\Service\ZaakService;
+use Psr\Cache\CacheException;
+use Psr\Cache\InvalidArgumentException;
+use Respect\Validation\Exceptions\ComponentException;
+
 class ZaakHandler implements ActionHandlerInterface
 {
 

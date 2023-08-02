@@ -1,4 +1,14 @@
 <?php
+/**
+ * This class handles the synchronization of a zgw drc objectinformatieobject to a xxllnc document.
+ *
+ * By mapping, posting and creating a synchronization. Only works if the ztc zaaktype also exists in the xxllnc api.
+ *
+ * @author  Conduction BV <info@conduction.nl>, Barry Brands <barry@conduction.nl>
+ * @license EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * @category Service
+ */
 
 namespace CommonGateway\XxllncZGWBundle\Service;
 
@@ -11,16 +21,6 @@ use Exception;
 use GuzzleHttp\Psr7\MultipartStream;
 use GuzzleHttp\Psr7\Utils;
 
-/**
- * This class handles the synchronization of a zgw drc objectinformatieobject to a xxllnc document.
- *
- * By mapping, posting and creating a synchronization. Only works if the ztc zaaktype also exists in the xxllnc api.
- *
- * @author  Conduction BV <info@conduction.nl>, Barry Brands <barry@conduction.nl>
- * @license EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
- *
- * @category Service
- */
 class DocumentService
 {
 
