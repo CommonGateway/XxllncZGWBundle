@@ -174,7 +174,6 @@ class BesluitToXxllncService
 
         $besluitObjectArray  = array_merge($besluitObject->toArray(), ['bsn' => $bsn, 'caseTypeId' => $besluittypeSourceId]);
         $besluitMappingArray = $this->mappingService->mapping($xxllncZaakMapping, $besluitObjectArray);
-        unset($besluitMappingArray['zgwZaak']);
 
         $caseObject = $this->zgwToXxllncService->getCaseObject($besluitObject->toArray(), 'besluit');
         $caseObject->hydrate($besluitMappingArray);
@@ -386,7 +385,7 @@ class BesluitToXxllncService
 
         if (isset($this->data['response']['_self']['id']) === false || isset($this->data['response']['besluit']) === false) {
             $this->logger->error('syncBesluitToXxllnc returned, no id or besluit found in given zaakbesluit.');
-            
+
             return [];
         }
 
