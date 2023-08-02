@@ -2,7 +2,7 @@
 /**
  * This class handles the synchronization of a zgw brc besluit to a xxllnc case.
  *
- * This ActionHandler executes the zgwToXxllncService->zgwToXxllncHandler.
+ * This ActionHandler executes the besluitToXxllncService->besluitToXxllncHandler.
  *
  * @author  Conduction BV <info@conduction.nl>, Barry Brands <barry@conduction.nl>
  * @license EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -14,7 +14,7 @@ namespace CommonGateway\XxllncZGWBundle\ActionHandler;
 
 use App\Exception\GatewayException;
 use CommonGateway\CoreBundle\ActionHandler\ActionHandlerInterface;
-use CommonGateway\XxllncZGWBundle\Service\ZGWToXxllncService;
+use CommonGateway\XxllncZGWBundle\Service\BesluitToXxllncService;
 use Psr\Cache\CacheException;
 use Psr\Cache\InvalidArgumentException;
 use Respect\Validation\Exceptions\ComponentException;
@@ -23,21 +23,21 @@ class BesluitToXxllncHandler implements ActionHandlerInterface
 {
 
     /**
-     * ZGWToXxllncService.
+     * BesluitToXxllncService.
      *
-     * @var ZGWToXxllncService
+     * @var BesluitToXxllncService
      */
-    private ZGWToXxllncService $zgwToXxllncService;
+    private BesluitToXxllncService $besluitToXxllncService;
 
 
     /**
      * Class constructor.
      *
-     * @param ZGWToXxllncService $zgwToXxllncService The ZGW to Xxllnc Service
+     * @param BesluitToXxllncService $besluitToXxllncService The ZGW to Xxllnc Service
      */
-    public function __construct(ZGWToXxllncService $zgwToXxllncService)
+    public function __construct(BesluitToXxllncService $besluitToXxllncService)
     {
-        $this->zgwToXxllncService = $zgwToXxllncService;
+        $this->besluitToXxllncService = $besluitToXxllncService;
 
     }//end __construct()
 
@@ -63,7 +63,7 @@ class BesluitToXxllncHandler implements ActionHandlerInterface
 
 
     /**
-     * This function runs the zgw zaaktype plugin.
+     * This function runs the besluitToXxllncHandler.
      *
      * @param array $data          The data from the call
      * @param array $configuration The configuration of the action
@@ -77,7 +77,7 @@ class BesluitToXxllncHandler implements ActionHandlerInterface
      */
     public function run(array $data, array $configuration): array
     {
-        return $this->zgwToXxllncService->besluitToXxllncHandler($data, $configuration);
+        return $this->besluitToXxllncService->besluitToXxllncHandler($data, $configuration);
 
     }//end run()
 
