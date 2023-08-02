@@ -273,16 +273,14 @@ class ZGWToXxllncService
         // Check all zaakinformatieobjecten of this Zaak. So we can check if we need to sync those indiviually.
         // If the zaakinformatieobjecten are already synced we need their source id (number) so we can add them to the case mapping.
         // foreach ($zaakArrayObject['zaakinformatieobjecten'] as $key => $zaakInfoObject) {
-        //     $zaakArrayObject['zaakinformatieobjecten'][$key]['xxllncDocumentNumber'] = $this->documentService->checkCustomNumber($zaakInfoObject, $this->xxllncAPI, 'zaakInfoObject');
-        //     $zaakArrayObject['zaakinformatieobjecten'][$key]['xxllncReferenceId']    = $this->documentService->checkCustomNumber($zaakInfoObject, $this->xxllncAPI, 'enkelvoudigInfoObject');
-        //     if ($zaakArrayObject['zaakinformatieobjecten'][$key]['xxllncDocumentNumber'] == null || $zaakArrayObject['zaakinformatieobjecten'][$key]['xxllncReferenceId'] == null) {
-        //         unset($zaakArrayObject['zaakinformatieobjecten'][$key]);
-        //         $this->logger->error("Ignoring infoobject {$zaakInfoObject['_self']['id']} because the document number or reference could not be created at the xxllnc api.");
-        //     }
-
-        //     break;
+        // $zaakArrayObject['zaakinformatieobjecten'][$key]['xxllncDocumentNumber'] = $this->documentService->checkCustomNumber($zaakInfoObject, $this->xxllncAPI, 'zaakInfoObject');
+        // $zaakArrayObject['zaakinformatieobjecten'][$key]['xxllncReferenceId']    = $this->documentService->checkCustomNumber($zaakInfoObject, $this->xxllncAPI, 'enkelvoudigInfoObject');
+        // if ($zaakArrayObject['zaakinformatieobjecten'][$key]['xxllncDocumentNumber'] == null || $zaakArrayObject['zaakinformatieobjecten'][$key]['xxllncReferenceId'] == null) {
+        // unset($zaakArrayObject['zaakinformatieobjecten'][$key]);
+        // $this->logger->error("Ignoring infoobject {$zaakInfoObject['_self']['id']} because the document number or reference could not be created at the xxllnc api.");
         // }
-
+        // break;
+        // }
         // Map ZGW Zaak to xxllnc case.
         $zaakArrayObject = array_merge($zaakArrayObject, ['bsn' => $bsn, 'caseTypeId' => $casetypeId]);
         $caseArray       = $this->mappingService->mapping($mapping, $zaakArrayObject);
