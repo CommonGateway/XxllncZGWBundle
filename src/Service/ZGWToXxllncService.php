@@ -304,7 +304,6 @@ class ZGWToXxllncService
 
         $sourceId = $this->sendCaseToXxllnc($caseArray, $caseObject, $synchronization);
         if ($sourceId === false) {
-            var_dump("POST to xxllnc failed.");
             return [];
         }
 
