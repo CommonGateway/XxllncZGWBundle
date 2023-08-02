@@ -1,4 +1,15 @@
 <?php
+/**
+ * The ZGWToXxllncService handles the sending of ZGW objects to the xxllnc v1 api.
+ *
+ * By mapping, posting and creating a synchronization. Only works if the ztc zaaktype also exists in the xxllnc api.
+ *
+ * @author Conduction BV <info@conduction.nl>, Barry Brands <barry@conduction.nl>, Sarai Misidjan <sarai@conduction.nl>
+ *
+ * @license EUPL <https://github.com/ConductionNL/contactcatalogus/blob/master/LICENSE.md>
+ *
+ * @category Service
+ */
 
 namespace CommonGateway\XxllncZGWBundle\Service;
 
@@ -19,17 +30,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 use function Safe\json_encode;
 
-/**
- * The ZGWToXxllncService handles the sending of ZGW objects to the xxllnc v1 api.
- *
- * By mapping, posting and creating a synchronization. Only works if the ztc zaaktype also exists in the xxllnc api.
- *
- * @author Conduction BV <info@conduction.nl>, Barry Brands <barry@conduction.nl>, Sarai Misidjan <sarai@conduction.nl>
- *
- * @license EUPL <https://github.com/ConductionNL/contactcatalogus/blob/master/LICENSE.md>
- *
- * @category Service
- */
 class ZGWToXxllncService
 {
 
@@ -103,41 +103,6 @@ class ZGWToXxllncService
         $this->documentService = $documentService;
 
     }//end __construct()
-
-
-    // /**
-    // * Maps the rollen from zgw to xxllnc.
-    // *
-    // * @param array $xxllncZaakArray This is the Xxllnc Zaak array.
-    // * @param array $zaakTypeArray   This is the ZGW Zaak array.
-    // *
-    // * @return array $xxllncZaakArray This is the Xxllnc Zaak array with the added eigenschappen.
-    // */
-    // private function mapPostRollen(array $xxllncZaakArray, array $zaakArrayObject): array
-    // {
-    // if (isset($zaakArrayObject['rollen']) === true && isset($zaakArrayObject['zaaktype']['roltypen']) === true) {
-    // foreach ($zaakArrayObject['rollen'] as $rol) {
-    // foreach ($zaakArrayObject['zaaktype']['roltypen'] as $rolType) {
-    // if ($rolType['omschrijvingGeneriek'] === $rol['roltoelichting']) {
-    // $rolTypeObject = $this->entityManager->find('App:ObjectEntity', $rolType['_self']['id']);
-    // if ($rolTypeObject instanceof ObjectEntity && $rolTypeObject->getExternalId() !== null) {
-    // $xxllncZaakArray['subjects'][] = [
-    // 'subject'                => [
-    // 'type'      => 'subject',
-    // 'reference' => $rolTypeObject->getExternalId(),
-    // ],
-    // 'role'                   => $rol['roltoelichting'],
-    // 'magic_string_prefix'    => $rol['roltoelichting'],
-    // 'pip_authorized'         => true,
-    // 'send_auth_notification' => false,
-    // ];
-    // }
-    // }
-    // }
-    // }
-    // }//end if
-    // return $xxllncZaakArray;
-    // }//end mapPostRollen()
 
 
     /**
@@ -285,8 +250,6 @@ class ZGWToXxllncService
         $zaakArrayObject = array_merge($zaakArrayObject, ['bsn' => $bsn, 'caseTypeId' => $casetypeId]);
         $caseArray       = $this->mappingService->mapping($mapping, $zaakArrayObject);
 
-        // @todo Might be needed in the future.
-        // $caseArray = $this->mapPostRollen($caseArray, $zaakArrayObject); // disabled for now.
         $caseObject = $this->getCaseObject($zaakArrayObject);
         $caseObject->hydrate($caseArray);
         $this->entityManager->persist($caseObject);
