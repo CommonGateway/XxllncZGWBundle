@@ -386,7 +386,7 @@ class BesluitToXxllncService
 
         if (isset($this->data['response']['_self']['id']) === false || isset($this->data['response']['besluit']) === false) {
             $this->logger->error('syncBesluitToXxllnc returned, no id or besluit found in given zaakbesluit.');
-            
+
             return [];
         }
 
