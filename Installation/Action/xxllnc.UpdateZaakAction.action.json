@@ -11,8 +11,7 @@
   "conditions": {
     "or": [
       {"==": [{"var": "entity"}, "https://vng.opencatalogi.nl/schemas/zrc.zaakEigenschap.schema.json"]},
-      {"==": [{"var": "entity"}, "https://vng.opencatalogi.nl/schemas/zrc.zaakBesluit.schema.json"]},
-      {"==": [{"var": "entity"}, "https://vng.opencatalogi.nl/schemas/zrc.zaakInformatieObject.schema.json"]}
+      {"==": [{"var": "entity"}, "https://vng.opencatalogi.nl/schemas/zrc.zaakBesluit.schema.json"]}
     ]
   },
   "class": "CommonGateway\\XxllncZGWBundle\\ActionHandler\\UpdateZaakHandler",
