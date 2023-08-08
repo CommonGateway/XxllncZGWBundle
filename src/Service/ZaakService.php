@@ -219,7 +219,7 @@ class ZaakService
      * Gets the inhoud of the document from a different endpoint that has the metadata.
      *
      * @param string $documentId document id.
-     * @param Source $xxllncV2 Need V2 api for this request.
+     * @param Source $xxllncV2   Need V2 api for this request.
      *
      * @return array $this->callService->decodeResponse() Decoded requested document as PHP array.
      */
@@ -236,7 +236,8 @@ class ZaakService
 
             return [];
         }
-    }
+
+    }//end getInhoudDocument()
 
 
     /**
@@ -255,11 +256,12 @@ class ZaakService
         if ($xxllncV2 === null) {
             return [];
         }
+
         try {
             $response  = $this->callService->call($this->xxllncAPI, "/case/$caseId/document/all", 'GET', [], false, false);
             $documents = $this->callService->decodeResponse($this->xxllncAPI, $response)['result']['instance']['rows'];
             foreach ($documents as $key => $document) {
-                $documents[$key] = $this->getActualDocument($document['instance']['number']);
+                $documents[$key]           = $this->getActualDocument($document['instance']['number']);
                 $documents[$key]['inhoud'] = $this->getInhoudDocument($document['instance']['file']['reference'], $xxllncV2);
             }
 
