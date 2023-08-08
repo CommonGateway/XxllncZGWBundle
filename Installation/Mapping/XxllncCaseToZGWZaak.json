@@ -40,7 +40,7 @@
         "eigenschappen": "jsonToArray",
         "opschorting.indicatie": "unsetIfValue==",
         "opschorting.reden": "unsetIfValue==",
-        "opschorting": "unsetIfValue=="
+        "opschorting": "unsetIfValue==",
         "zaakinformatieobjecten": "jsonToArray"
     }
 }

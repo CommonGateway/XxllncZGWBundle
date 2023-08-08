@@ -30,16 +30,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 use function Safe\json_encode;
 
-/**
- * This class handles the synchronization of a zgw zrc zaak to a xxllnc case.
- *
- * By mapping, posting and creating a synchronization. Only works if the ztc zaaktype also exists in the xxllnc api.
- *
- * @author  Conduction BV <info@conduction.nl>, Barry Brands <barry@conduction.nl>
- * @license EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
- *
- * @category Service
- */
 class ZGWToXxllncService
 {
 

@@ -16,14 +16,6 @@ use App\Entity\ObjectEntity;
 use App\Service\SynchronizationService;
 use Doctrine\ORM\EntityManagerInterface;
 
-/**
- * This class hydrates objects and sets synchronisations for objects if applicable.
- *
- * @author  Conduction BV <info@conduction.nl>, Robert Zondervan <robert@conduction.nl>
- * @license EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
- *
- * @category Service
- */
 class HydrationService
 {
 
