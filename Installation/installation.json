@@ -74,6 +74,24 @@
                 }
               }
             }
+          },
+          {
+            "https://vng.opencatalogi.nl/EntityEndpoint/ZaakTypeInformatieObjectType.endpoint.json": {
+              "in": {
+                "query": {
+                  "mapping": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncZaakTypeInformatieObjectTypeQueryInMapping.mapping.json"
+                }
+              }
+            }
+          },
+          {
+            "https://vng.opencatalogi.nl/EntityEndpoint/ZaakInformatieObject.endpoint.json": {
+              "out": {
+                "body": {
+                  "mapping": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncZaakInformatieobjectBodyOutMapping.mapping.json"
+                }
+              }
+            }
           }
         ]
       }

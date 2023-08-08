@@ -28,7 +28,9 @@
         "zaakinformatieobjecten": "[{% set index=0 %}{% if documents|default %}{% for document in documents %}{% if index != 0 %},{% endif %}{{ map('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncDocumentToZaakInformatieObject.mapping.json', document)|json_encode }}{% endfor %}{% endif %}]",
         "_sourceId": "reference",
         "bronorganisatie": "bronorganisatie",
-        "verantwoordelijkeOrganisatie": "bronorganisatie"
+        "verantwoordelijkeOrganisatie": "bronorganisatie",
+        "opschorting.indicatie": "{% if instance.stalled_until|default %}true{% else %}{% endif %}",
+        "opschorting.reden": "{% if instance.stalled_until|default %}Unknown{% endif %}"
     },
     "unset": {},
     "cast": {
@@ -36,6 +38,9 @@
         "rollen": "jsonToArray",
         "status": "jsonToArray",
         "eigenschappen": "jsonToArray",
+        "opschorting.indicatie": "unsetIfValue==",
+        "opschorting.reden": "unsetIfValue==",
+        "opschorting": "unsetIfValue=="
         "zaakinformatieobjecten": "jsonToArray"
     }
 }
