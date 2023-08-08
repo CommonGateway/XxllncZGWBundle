@@ -216,6 +216,30 @@ class ZaakService
 
 
     /**
+     * Gets the inhoud of the document from a different endpoint that has the metadata.
+     *
+     * @param string $documentId document id.
+     * @param Source $xxllncV2 Need V2 api for this request.
+     *
+     * @return array $this->callService->decodeResponse() Decoded requested document as PHP array.
+     */
+    private function getInhoudDocument(string $documentId, Source $xxllncV2): array
+    {
+        try {
+            isset($this->style) === true && $this->style->info("Fetching inhoud document: $documentId..");
+            $this->logger->info("Fetching inhoud document: $documentId..");
+            $response = $this->callService->call($xxllncV2, "/document/get_by_number/$documentId", 'GET', [], false, false);
+            return $this->callService->decodeResponse($xxllncV2, $response);
+        } catch (Exception $e) {
+            isset($this->style) === true && $this->style->error("Failed to fetch inhoud of document: $documentId, message:  {$e->getMessage()}");
+            $this->logger->error("Failed to fetch inhoud of document: $documentId, message:  {$e->getMessage()}");
+
+            return [];
+        }
+    }
+
+
+    /**
      * Gets documents (zaakinformatieobjecten) for a case without metadata.
      *
      * @param string $caseId xxllnc case id
@@ -226,11 +250,17 @@ class ZaakService
     {
         isset($this->style) === true && $this->style->info("Checking for documents on this case (zaakinformatieobjecten)..");
         $this->logger->info("Checking for documents on this case (zaakinformatieobjecten)..");
+        // Need V2 api to fetch document inhoud.
+        $xxllncV2 = $this->resourceService->getSource('https://development.zaaksysteem.nl/source/xxllnc.zaaksysteemv2.source.json', 'xxllnc-zgw-bundle');
+        if ($xxllncV2 === null) {
+            return [];
+        }
         try {
-            $response  = $this->callService->call($this->xxllncAPI, "/case/$caseId/document", 'GET', [], false, false);
+            $response  = $this->callService->call($this->xxllncAPI, "/case/$caseId/document/all", 'GET', [], false, false);
             $documents = $this->callService->decodeResponse($this->xxllncAPI, $response)['result']['instance']['rows'];
             foreach ($documents as $key => $document) {
                 $documents[$key] = $this->getActualDocument($document['instance']['number']);
+                $documents[$key]['inhoud'] = $this->getInhoudDocument($document['instance']['file']['reference'], $xxllncV2);
             }
 
             return $documents;
