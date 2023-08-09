@@ -145,7 +145,7 @@ And then you can link them to your earlier synchronized zaaktypen as besluittype
 
 `bin/console xxllnc:zaakType:connect:besluittype`
 
-These are all current commands, you can fetch your synchronized objects throught the ZGW standard endpoints:
+These are all current commands, you can fetch your synchronized objects through the ZGW standard endpoints:
 `/api/zrc/v1/zaken`
 `/api/ztc/v1/zaaktypen`
 `/api/ztc/v1/besluittypen`
