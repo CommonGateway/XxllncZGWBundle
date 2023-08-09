@@ -1,4 +1,4 @@
-# XxllncZGWBundle [![Codacy Badge](https://app.codacy.com/project/badge/Grade/636ff2fbbcbd423dab24940ec99ad19e)](https://app.codacy.com/gh/CommonGateway/XxllncZGWBundle/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+# XxllncZGWBundle [![Codacy Badge](https://app.codacy.com/project/badge/Grade/636ff2fbbcbd423dab24940ec99ad19e)](https://app.codacy.com/gh/CommonGateway/XxllncZGWBundle/dashboard?utm_source=gh\&utm_medium=referral\&utm_content=\&utm_campaign=Badge_grade)
 
 The XxllncZGWBundle is a Symfony bundle that provides functionality for the CommonGateway about handling synchronizations between the xxllnc zaaksysteem standard and the ZGW standard. So it fetches and send xxllnc objects from and to their ZGW object equilevants.
 
@@ -9,7 +9,7 @@ For more information on ZaakGerichtWerken and XXLNC, please visit [here]([https:
 The [**XxllncZGWBundle**](https://github.com/CommonGateway/XxllncZGWBundle) currently utilizes the following bundles:
 
 1.  **CoreBundle**: [GitHub Repository](https://github.com/CommonGateway/CoreBundle)
-2.  **ZGWBundle**: [GitHub Repository](https://github.com/CommonGateway/BRPBundle) (the ZGWBundle also includes other bundles like the KlantenBundle which is part of ZGW.) 
+2.  **ZGWBundle**: [GitHub Repository](https://github.com/CommonGateway/BRPBundle) (the ZGWBundle also includes other bundles like the KlantenBundle which is part of ZGW.)
 
 While the ZGW and CoreBundle can still be installed as standalone components (please refer to their respective installation guides), the XxllncZGWBundle now defaults to installing these bundles as additional plugins on the same gateway.
 
@@ -31,7 +31,6 @@ To install the backend, follow the steps below:
 2.  In the left menu, navigate to "Plugins" to view a list of installed plugins. If you don't find the "common-gateway/xxllnc-zgw-bundle" plugin listed here, you can search for it by clicking on "Search" in the upper-right corner and typing "xxllnc" in the search bar.
 3.  Click on the "common-gateway/xxllnc-zgw-bundle" card and then click on the "Install" button to install the plugin.
 4.  The admin-ui allows you to install, upgrade, or remove bundles. However, to load all the required data (schemas, endpoints, sources), you need to execute the initialization command in a php terminal.
-
 
 ### XxllncZGWBundle Installation - Terminal
 
@@ -149,6 +148,3 @@ These are all current commands, you can fetch your synchronized objects through 
 `/api/zrc/v1/zaken`
 `/api/ztc/v1/zaaktypen`
 `/api/ztc/v1/besluittypen`
-
-
-
