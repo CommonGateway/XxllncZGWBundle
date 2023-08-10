@@ -17,15 +17,15 @@ While the ZGW and CoreBundle can still be installed as standalone components (pl
 
 The XxllncZGWBundle backend codebase utilizes the Common Gateway as an open-source installation framework. This means that the XxllncZGWBundle library, in its core form, functions as a plugin on this Framework. To learn more about the Common Gateway, you can refer to the documentation [here](https://commongateway.readthedocs.io/en/latest/).
 
-The CommonGateway Admin UI frontend comes with te CommonGateway.
+The CommonGateway Gateway UI frontend comes with te CommonGateway.
 
 To install the backend, follow the steps below:
 
 ### Gateway Installation
 
-1.  If you do not have the Common Gateway installed, you can follow the installation guide provided [here](https://github.com/ConductionNL/commonground-gateway#readme). The Common Gateway installation is required for the backend setup. You can choose any installation method for the gateway, such as Haven, Kubernetes, Linux, or Azure, and any database option like MySQL, PostgreSQL, Oracle, or MsSQL. The gateway framework handles this abstraction.
+1.  If you do not have the Common Gateway installed, you can follow the installation guide provided [here](https://github.com/ConductionNL/commonground-gateway/tree/development#readme). The Common Gateway installation is required for the backend setup. You can choose any installation method for the gateway, such as Haven, Kubernetes, Linux, or Azure, and any database option like MySQL, PostgreSQL, Oracle, or MsSQL. The gateway framework handles this abstraction.
 
-### XxllncZGWBundle Installation - Admin-UI
+### XxllncZGWBundle Installation - Gateway UI
 
 1.  After successfully installing the Gateway, access the admin-ui and log in.
 2.  In the left menu, navigate to "Plugins" to view a list of installed plugins. If you don't find the "common-gateway/xxllnc-zgw-bundle" plugin listed here, you can search for it by clicking on "Search" in the upper-right corner and typing "xxllnc" in the search bar.
@@ -36,37 +36,43 @@ To install the backend, follow the steps below:
 
 1.  Open a php terminal and run the following command to install the XxllncZGWBundle:
 
-        docker-compose exec php composer require common-gateway/xxllnc-zgw-bundle
+        ```cli
+        $ composer require common-gateway/xxllnc-zgw-bundle
+        ```
 
 ### Initialization Command (Terminal)
 
 1.  To load all the data without any specific content (like testdata), execute the following command:
 
-        docker-compose exec php bin/console commongateway:initialize
+        ```cli
+        $ bin/console commongateway:initialize
+        ```
 
     OR
 
     To load all the data along with specific content (like testdata), run:
 
-        docker-compose exec php bin/console commongateway:initialize -data
+        ```cli
+        $ bin/console commongateway:initialize -data
+        ```
 
 With these steps completed, the backend setup for the XxllncZGW project should be ready to use. If you encounter any issues during the installation process, seek assistance from the development team. Happy coding!
 
-## Admin UI - Setup Instructions
+## Gateway UI - Setup Instructions
 
-Once the backend (and frontend) is up and running, the HuwelijksplannerBundle can be configured. To ensure proper functionality, the sources and Security Group (Default Anonymous user) need to be modified. Other adjustments are optional.
+Once the backend is up and running, the XxllncZGWBundle can be configured. To ensure proper functionality, the sources and Security Group (Default Anonymous user) need to be modified. Other adjustments are optional.
 
 ### Configuration Steps:
 
 1.  **Users**
     *   Change the passwords of the users if necessary. It is recommended that you change the email of the admin user.
-        *   Go to `Settings` in the Admin UI.
+        *   Go to `Settings` in the Gateway UI.
         *   Navigate to the `Users` tab.
         *   Select the user and edit the password.
 
 2.  **Security Group**
     *   Add the scopes for the Default Anonymous in the Security Group.
-        *   Go to `Settings` in the Admin UI.
+        *   Go to `Settings` in the Gateway UI.
         *   Navigate to the `Security Groups` tab
         *   Locate and select `Default Anonymous` to view its details
         *   Add the following scopes under the `Scopes` section:
@@ -121,7 +127,7 @@ Once the backend (and frontend) is up and running, the HuwelijksplannerBundle ca
 4.  **Cronjob**
     *   There is a cronjob which can be activated (check isEnabled) if all cases and casetypes need to be synced from the zaaksysteem source. Currently this is always disabled as we dont need all data from the xxllnc api.
 
-Once you have completed these steps, the XxllncZGW Admin UI should be fully configured and the project is ready to be used.
+Once you have completed these steps, the XxllncZGW Gateway UI should be fully configured and the project is ready to be used.
 
 ## Commands
 
@@ -130,19 +136,27 @@ To execute commands you need access to a PHP terminal.
 There are some commands which can be used to synchronize some single or all objects from the xxllnc api.
 The first you might want to use is the ZaakTypeCommand, it synchronizes a casetype to a ZGW ZaakType:
 
-`bin/console xxllnc:zaakType:synchronize id`
+```cli
+$ bin/console xxllnc:zaakType:synchronize id
+```
 
 If you need a certain case to a ZGW ZaakType you can also just execute the ZaakCommand and it will also synchronize its casetype to a ZGW ZaakType:
 
-`bin/console xxllnc:zaak:synchronize id`
+```cli
+$ bin/console xxllnc:zaak:synchronize id
+```
 
 If you synchronized some zaaktypen and want to synchronize some specific besluittypen and link these to your earlier synchronized zaaktypen, you can first synchronize the casetypes to besluittypen with the ZaakTypeCommand (it will auto detect if its a ZaakType or BesluitType):
 
-`bin/console xxllnc:zaakType:synchronize id`
+```cli
+$ bin/console xxllnc:zaakType:synchronize id
+```
 
 And then you can link them to your earlier synchronized zaaktypen as besluittypen with the following command:
 
-`bin/console xxllnc:zaakType:connect:besluittype`
+```cli
+$ bin/console xxllnc:zaakType:connect:besluittype
+```
 
 These are all current commands, you can fetch your synchronized objects through the ZGW standard endpoints:
 `/api/zrc/v1/zaken`
