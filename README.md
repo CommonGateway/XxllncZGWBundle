@@ -166,5 +166,6 @@ These are all current commands, you can fetch your synchronized objects through 
 ## Design decisions
 
 Special noted decisions made in this project are:
-- ZGW 'verlening' is not mappable from a xxllnc case and thus ignored during synchronization.
-- The xxllnc zaaksysteem does not ZGW BesluitTypen or Besluiten and thus there have been created 3 specific BesluitTypen as normal xxllnc casetypes which can be synced with the ZaakType command, so when a Besluit in the gateway is created for one of these 3 BesluitTypen we synchronize it back to xxllnc as a case and link it to the main case (Zaak) as related case.
+
+*   ZGW 'verlening' is not mappable from a xxllnc case and thus ignored during synchronization.
+*   The xxllnc zaaksysteem does not ZGW BesluitTypen or Besluiten and thus there have been created 3 specific BesluitTypen as normal xxllnc casetypes which can be synced with the ZaakType command, so when a Besluit in the gateway is created for one of these 3 BesluitTypen we synchronize it back to xxllnc as a case and link it to the main case (Zaak) as related case.
