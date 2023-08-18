@@ -383,7 +383,9 @@ class ZaakService
             true
         );
 
-        $this->createFileEndpoints($zaak);
+        if (isset($zaakArray['zaakinformatieobjecten']) === true) {
+            $this->createFileEndpoints($zaak);
+        }
 
         isset($this->style) === true && $this->style->info("Zaak object created/updated with id: {$zaak->getId()->toString()}");
         $this->logger->info("Zaak object created/updated with id: {$zaak->getId()->toString()}");
