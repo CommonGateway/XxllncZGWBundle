@@ -1,0 +1,16 @@
+{
+  "title": "XxllncZaakInformatieObjectQueryInMapping",
+  "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncZaakInformatieObjectQueryInMapping.mapping.json",
+  "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
+  "version": "0.0.1",
+  "description": "",
+  "mapping": {
+    "_limit": "500"
+  },
+  "unset": [],
+  "cast": [],
+  "passTrough": true,
+  "dateCreated": "2023-08-02T11:31:21+00:00",
+  "dateModified": "2023-08-02T11:31:21+00:00"
+}
+}
