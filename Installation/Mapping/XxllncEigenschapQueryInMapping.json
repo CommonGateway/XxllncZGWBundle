@@ -8,7 +8,8 @@
     "beginGeldigheid": "{% if datumGeldigheid|default %}datumGeldigheid{% endif %}"
   },
   "unset": [
-    "datumGeldigheid"
+    "datumGeldigheid",
+    "status"
   ],
   "cast": {
     "beginGeldigheid": "unsetIfValue=="
