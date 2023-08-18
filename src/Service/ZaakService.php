@@ -19,6 +19,7 @@ use CommonGateway\CoreBundle\Service\GatewayResourceService;
 use CommonGateway\CoreBundle\Service\MappingService;
 use CommonGateway\CoreBundle\Service\CallService;
 use CommonGateway\CoreBundle\Service\HydrationService;
+use CommonGateway\ZGWBundle\Service\DRCService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -46,6 +47,11 @@ class ZaakService
      * @var CallService
      */
     private CallService $callService;
+
+    /**
+     * @var DRCService
+     */
+    private DRCService $drcService;
 
     /**
      * @var ZaakTypeService
@@ -90,6 +96,7 @@ class ZaakService
         EntityManagerInterface $entityManager,
         SynchronizationService $synchronizationService,
         CallService $callService,
+        DRCService $drcService,
         ZaakTypeService $zaakTypeService,
         GatewayResourceService $resourceService,
         MappingService $mappingService,
@@ -98,6 +105,7 @@ class ZaakService
         $this->entityManager          = $entityManager;
         $this->synchronizationService = $synchronizationService;
         $this->callService            = $callService;
+        $this->drcService             = $drcService;
         $this->zaakTypeService        = $zaakTypeService;
         $this->resourceService        = $resourceService;
         $this->mappingService         = $mappingService;
@@ -276,6 +284,37 @@ class ZaakService
 
     }//end getCaseDocuments()
 
+    /**
+     * Creates file endpoints for a given ObjectEntity instance representing a "zaak".
+     *
+     * This function processes the zaak, retrieves an endpoint for downloading 
+     * an 'EnkelvoudigInformatieObject', logs an error if the endpoint is not found,
+     * and creates or updates files associated with 'zaakinformatieobjecten'.
+     *
+     * @param ObjectEntity $zaak The zaak object to process.
+     *
+     * @return void
+     */
+    private function createFileEndpoints(ObjectEntity $zaak): void
+    {
+        $zaakArray = $zaak->toArray();
+
+        $downloadEndpoint = $this->resourceService->getEndpoint('https://vng.opencatalogi.nl/endpoints/drc.downloadEnkelvoudigInformatieObject.endpoint.json', 'common-gateway/zgw-bundle');
+        if (isset($downloadEndpoint) === false) {
+            isset($this->style) === true && $this->style->error("Could not find download endpoint with ref: https://vng.opencatalogi.nl/endpoints/drc.downloadEnkelvoudigInformatieObject.endpoint.json.");
+            $this->logger->error("Could not find download endpoint with ref: https://vng.opencatalogi.nl/endpoints/drc.downloadEnkelvoudigInformatieObject.endpoint.json.");
+
+            return;
+        }
+
+        foreach ($zaakArray['zaakinformatieobjecten'] as $zaakinformatieobject) {
+            if (isset($zaakinformatieobject['informatieobject']) === true) {
+                $informatieObject = $this->entityManager->find('App:ObjectEntity', $zaakinformatieobject['informatieobject']['_self']['id']);
+                $this->drcService->createOrUpdateFile($informatieObject, $zaakinformatieobject['informatieobject'], $downloadEndpoint, false);
+            }
+        }
+    }//end createFileEndpoints()
+
 
     /**
      * Synchronises a case to zgw zaak based on the data retrieved from the Xxllnc api.
@@ -343,6 +382,8 @@ class ZaakService
             $flush,
             true
         );
+
+        $this->createFileEndpoints($zaak);
 
         isset($this->style) === true && $this->style->info("Zaak object created/updated with id: {$zaak->getId()->toString()}");
         $this->logger->info("Zaak object created/updated with id: {$zaak->getId()->toString()}");
