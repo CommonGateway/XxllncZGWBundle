@@ -152,7 +152,7 @@ class ZGWToXxllncService
         // Unset unwanted properties.
         $caseArray = $this->mappingService->mapping($unsetMapping, $caseArray);
         $method    = 'POST';
-        $this->logger->info("$method a case to xxllnc ($type ID: $objectId) ".json_encode($caseArray));
+        $this->logger->warning("$method a case to xxllnc ($type ID: $objectId) ".json_encode($caseArray));
 
         // Method is always POST in the xxllnc api for creating and updating (not needed to pass here).
         $responseBody = $this->syncService->synchronizeTemp($synchronization, $caseArray, $caseObject, $this->xxllncZaakSchema, $endpoint, 'result.reference');
@@ -281,7 +281,7 @@ class ZGWToXxllncService
      */
     private function getZaakTypeId()
     {
-        if (isset($this->data['zaaktype']) === true && Uuid::isValid($this->data['zaaktype']) === true) {
+        if (isset($this->data['zaaktype']) === true && is_array($this->data['zaaktype']) === false && Uuid::isValid($this->data['zaaktype']) === true) {
             return $this->data['zaaktype'];
         }
 
