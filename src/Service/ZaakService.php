@@ -266,8 +266,8 @@ class ZaakService
         }
 
         try {
-            $response  = $this->callService->call($xxllncV2, "/document/search_document?case_uuid=$caseId", 'GET', [], false, false);
-            $documents = $this->callService->decodeResponse($xxllncV2, $response);
+            $response        = $this->callService->call($xxllncV2, "/document/search_document?case_uuid=$caseId", 'GET', [], false, false);
+            $documents       = $this->callService->decodeResponse($xxllncV2, $response);
             $actualDocuments = [];
             foreach ($documents['data'] as $key => $document) {
                 $actualDocuments[$key]           = $this->getActualDocument($document['meta']['document_number']);
@@ -284,10 +284,11 @@ class ZaakService
 
     }//end getCaseDocuments()
 
+
     /**
      * Creates file endpoints for a given ObjectEntity instance representing a "zaak".
      *
-     * This function processes the zaak, retrieves an endpoint for downloading 
+     * This function processes the zaak, retrieves an endpoint for downloading
      * an 'EnkelvoudigInformatieObject', logs an error if the endpoint is not found,
      * and creates or updates files associated with 'zaakinformatieobjecten'.
      *
@@ -313,6 +314,7 @@ class ZaakService
                 $this->drcService->createOrUpdateFile($informatieObject, $zaakinformatieobject['informatieobject'], $downloadEndpoint, false);
             }
         }
+
     }//end createFileEndpoints()
 
 
