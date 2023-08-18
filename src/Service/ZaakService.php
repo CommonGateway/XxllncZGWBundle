@@ -221,20 +221,19 @@ class ZaakService
      * @param string $documentId document id.
      * @param Source $xxllncV2   Need V2 api for this request.
      *
-     * @return array $this->callService->decodeResponse() Decoded requested document as PHP array.
+     * @return string|null $this->callService->decodeResponse() Decoded requested document as PHP array.
      */
-    private function getInhoudDocument(string $documentId, Source $xxllncV2): array
+    private function getInhoudDocument(string $documentId, Source $xxllncV2): ?string
     {
         try {
             isset($this->style) === true && $this->style->info("Fetching inhoud document: $documentId..");
             $this->logger->info("Fetching inhoud document: $documentId..");
-            $response = $this->callService->call($xxllncV2, "/document/get_by_number/$documentId", 'GET', [], false, false);
-            return $this->callService->decodeResponse($xxllncV2, $response);
+            $response = $this->callService->call($xxllncV2, "/document/download_document?id=$documentId", 'GET', [], false, false);
+            return $this->callService->decodeResponse($xxllncV2, $response, 'application/pdf')['base64'];
         } catch (Exception $e) {
             isset($this->style) === true && $this->style->error("Failed to fetch inhoud of document: $documentId, message:  {$e->getMessage()}");
             $this->logger->error("Failed to fetch inhoud of document: $documentId, message:  {$e->getMessage()}");
-
-            return [];
+            return null;
         }
 
     }//end getInhoudDocument()
@@ -258,14 +257,15 @@ class ZaakService
         }
 
         try {
-            $response  = $this->callService->call($this->xxllncAPI, "/case/$caseId/document/all", 'GET', [], false, false);
-            $documents = $this->callService->decodeResponse($this->xxllncAPI, $response)['result']['instance']['rows'];
-            foreach ($documents as $key => $document) {
-                $documents[$key]           = $this->getActualDocument($document['instance']['number']);
-                $documents[$key]['inhoud'] = $this->getInhoudDocument($document['instance']['file']['reference'], $xxllncV2);
+            $response  = $this->callService->call($xxllncV2, "/document/search_document?case_uuid=$caseId", 'GET', [], false, false);
+            $documents = $this->callService->decodeResponse($xxllncV2, $response);
+            $actualDocuments = [];
+            foreach ($documents['data'] as $key => $document) {
+                $actualDocuments[$key]           = $this->getActualDocument($document['meta']['document_number']);
+                $actualDocuments[$key]['inhoud'] = $this->getInhoudDocument($document['id'], $xxllncV2);
             }
 
-            return $documents;
+            return $actualDocuments;
         } catch (Exception $e) {
             isset($this->style) === true && $this->style->error("Failed to fetch case documents: {$e->getMessage()}");
             $this->logger->error("Failed to fetch case documents: {$e->getMessage()}");
