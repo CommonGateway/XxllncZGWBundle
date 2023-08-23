@@ -237,15 +237,15 @@ class ZGWToXxllncService
 
         // Check all zaakinformatieobjecten of this Zaak. So we can check if we need to sync those indiviually.
         // If the zaakinformatieobjecten are already synced we need their source id (number) so we can add them to the case mapping.
-        // foreach ($zaakArrayObject['zaakinformatieobjecten'] as $key => $zaakInfoObject) {
-        // $zaakArrayObject['zaakinformatieobjecten'][$key]['xxllncDocumentNumber'] = $this->documentService->checkCustomNumber($zaakInfoObject, $this->xxllncAPI, 'zaakInfoObject');
-        // $zaakArrayObject['zaakinformatieobjecten'][$key]['xxllncReferenceId']    = $this->documentService->checkCustomNumber($zaakInfoObject, $this->xxllncAPI, 'enkelvoudigInfoObject');
-        // if ($zaakArrayObject['zaakinformatieobjecten'][$key]['xxllncDocumentNumber'] == null || $zaakArrayObject['zaakinformatieobjecten'][$key]['xxllncReferenceId'] == null) {
-        // unset($zaakArrayObject['zaakinformatieobjecten'][$key]);
-        // $this->logger->error("Ignoring infoobject {$zaakInfoObject['_self']['id']} because the document number or reference could not be created at the xxllnc api.");
-        // }
-        // break;
-        // }
+        foreach ($zaakArrayObject['zaakinformatieobjecten'] as $key => $zaakInfoObject) {
+            $zaakArrayObject['zaakinformatieobjecten'][$key]['xxllncDocumentNumber'] = $this->documentService->checkCustomNumber($zaakInfoObject, $this->xxllncAPI, 'zaakInfoObject');
+            $zaakArrayObject['zaakinformatieobjecten'][$key]['xxllncReferenceId']    = $this->documentService->checkCustomNumber($zaakInfoObject, $this->xxllncAPI, 'enkelvoudigInfoObject');
+            if ($zaakArrayObject['zaakinformatieobjecten'][$key]['xxllncDocumentNumber'] == null || $zaakArrayObject['zaakinformatieobjecten'][$key]['xxllncReferenceId'] == null) {
+                unset($zaakArrayObject['zaakinformatieobjecten'][$key]);
+                $this->logger->error("Ignoring infoobject {$zaakInfoObject['_self']['id']} because the document number or reference could not be created at the xxllnc api.");
+            }
+            break;
+        }
         // Map ZGW Zaak to xxllnc case.
         $zaakArrayObject = array_merge($zaakArrayObject, ['bsn' => $bsn, 'caseTypeId' => $casetypeId]);
         $caseArray       = $this->mappingService->mapping($mapping, $zaakArrayObject);
@@ -264,6 +264,7 @@ class ZGWToXxllncService
         $caseArray = array_filter($caseArray);
 
         $sourceId = $this->sendCaseToXxllnc($caseArray, $caseObject, $synchronization);
+        var_dump($sourceId);
         if ($sourceId === false) {
             return [];
         }
@@ -281,6 +282,7 @@ class ZGWToXxllncService
      */
     private function getZaakTypeId()
     {
+        return '4a2babc6-0a6d-4ae2-8b27-500cc80423c5';
         if (isset($this->data['zaaktype']) === true && is_array($this->data['zaaktype']) === false && Uuid::isValid($this->data['zaaktype']) === true) {
             return $this->data['zaaktype'];
         }
@@ -301,7 +303,6 @@ class ZGWToXxllncService
         }
 
         $this->logger->error('No zaaktype id found on zaak in ZGWToXxllncService');
-        isset($this->style) === true && $this->style->error('No zaaktype id found on zaak in ZGWToXxllncService');
 
         return false;
 
@@ -319,7 +320,6 @@ class ZGWToXxllncService
     public function syncZaakToXxllnc(): array
     {
         $this->logger->debug('function syncZaakToXxllnc triggered');
-        isset($this->style) === true && $this->style->success('function syncZaakToXxllnc triggered');
 
         $this->xxllncZaakSchema = $this->resourceService->getSchema('https://development.zaaksysteem.nl/schema/xxllnc.zaakPost.schema.json', 'xxllnc-zgw-bundle');
         $this->xxllncAPI        = $this->resourceService->getSource('https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json', 'xxllnc-zgw-bundle');
@@ -341,8 +341,7 @@ class ZGWToXxllncService
 
         if (isset($this->xxllncZaakSchema) === false || isset($this->xxllncAPI) === false || isset($casetypeId) === false || isset($zaakArrayObject) === false) {
             $this->logger->error('Some objects needed could not be found in ZGWToXxllncService: $this->xxllncZaakSchema or $this->xxllncAPI or $casetypeId or $zaakArrayObject');
-            isset($this->style) === true && $this->style->error('Some objects needed could not be found in ZGWToXxllncService: $this->xxllncZaakSchema or $this->xxllncAPI or $casetypeId or $zaakArrayObject');
-
+        
             return [];
         }
 
