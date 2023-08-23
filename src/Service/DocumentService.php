@@ -88,7 +88,7 @@ class DocumentService
             [
                 'name'     => 'upload',
                 'contents' => $fileStream,
-                'filename' => $infoObject['informatieobject']['bestandsnaam']
+                'filename' => $infoObject['informatieobject']['bestandsnaam'],
             ],
         ];
 
@@ -96,7 +96,7 @@ class DocumentService
         var_dump('Request prepare file:');
         $config = [
             'multipart' => $multipart,
-            'debug' => true
+            'debug'     => true,
         ];
         // try {
             $response = $this->callService->call($xxllncApi, '/case/prepare_file', 'POST', $config, false, false, true);
