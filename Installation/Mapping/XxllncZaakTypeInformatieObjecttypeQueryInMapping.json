@@ -7,7 +7,7 @@
   "mapping": {
   },
   "unset": [
-    "status",
+    "status"
   ],
   "cast": {
   }

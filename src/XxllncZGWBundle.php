@@ -1,9 +1,4 @@
 <?php
-// src/XxllncZGWBundle.php
-namespace CommonGateway\XxllncZGWBundle;
-
-use Symfony\Component\HttpKernel\Bundle\Bundle;
-
 /**
  * This main class makes the bundle findable and useable.
  *
@@ -12,6 +7,12 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
  *
  * @category Bundle
  */
+
+// src/XxllncZGWBundle.php
+namespace CommonGateway\XxllncZGWBundle;
+
+use Symfony\Component\HttpKernel\Bundle\Bundle;
+
 class XxllncZGWBundle extends Bundle
 {
 

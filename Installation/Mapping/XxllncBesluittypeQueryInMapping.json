@@ -5,7 +5,7 @@
   "version": "0.0.1",
   "passTrough": true,
   "mapping": {
-    "concept": "{% if status|default' %}{% if status == 'alles' %}alles{% elseif status == 'concept' %}true{% elseif status == 'definitief' %}false{% endif %}{% endif %}",
+    "concept": "{% if status|default %}{% if status == 'alles' %}alles{% elseif status == 'concept' %}true{% elseif status == 'definitief' %}false{% endif %}{% endif %}",
     "beginGeldigheid": "{% if datumGeldigheid|default %}datumGeldigheid{% endif %}"
   },
   "unset": [

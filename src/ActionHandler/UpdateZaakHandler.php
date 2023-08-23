@@ -1,14 +1,4 @@
 <?php
-
-namespace CommonGateway\XxllncZGWBundle\ActionHandler;
-
-use App\Exception\GatewayException;
-use CommonGateway\CoreBundle\ActionHandler\ActionHandlerInterface;
-use CommonGateway\XxllncZGWBundle\Service\ZGWToXxllncService;
-use Psr\Cache\CacheException;
-use Psr\Cache\InvalidArgumentException;
-use Respect\Validation\Exceptions\ComponentException;
-
 /**
  * This class handles the update of a zrc zaak with zrc eigenschap.
  *
@@ -20,6 +10,16 @@ use Respect\Validation\Exceptions\ComponentException;
  *
  * @category ActionHandler
  */
+
+namespace CommonGateway\XxllncZGWBundle\ActionHandler;
+
+use App\Exception\GatewayException;
+use CommonGateway\CoreBundle\ActionHandler\ActionHandlerInterface;
+use CommonGateway\XxllncZGWBundle\Service\ZGWToXxllncService;
+use Psr\Cache\CacheException;
+use Psr\Cache\InvalidArgumentException;
+use Respect\Validation\Exceptions\ComponentException;
+
 class UpdateZaakHandler implements ActionHandlerInterface
 {
 
