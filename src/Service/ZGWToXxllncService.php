@@ -205,9 +205,9 @@ class ZGWToXxllncService
 
     /**
      * Checks if we need register zaakinformatieobjecten at the xxllnc api to add them to the case we will send later.
-     * 
+     *
      * @param array $zaakArrayObject The zaak as array.
-     * 
+     *
      * @return array $zaakArrayObject The zaak as array.
      */
     private function checkDocuments(array $zaakArrayObject): array
@@ -220,11 +220,13 @@ class ZGWToXxllncService
                 unset($zaakArrayObject['zaakinformatieobjecten'][$key]);
                 $this->logger->error("Ignoring infoobject {$zaakInfoObject['_self']['id']} because the document number or reference could not be created at the xxllnc api.");
             }
+
             break;
         }
 
         return $zaakArrayObject;
-    }//end checkDocuments
+
+    }//end checkDocuments()
 
 
     /**
@@ -357,7 +359,7 @@ class ZGWToXxllncService
 
         if (isset($this->xxllncZaakSchema) === false || isset($this->xxllncAPI) === false || isset($casetypeId) === false || isset($zaakArrayObject) === false) {
             $this->logger->error('Some objects needed could not be found in ZGWToXxllncService: $this->xxllncZaakSchema or $this->xxllncAPI or $casetypeId or $zaakArrayObject');
-        
+
             return [];
         }
 

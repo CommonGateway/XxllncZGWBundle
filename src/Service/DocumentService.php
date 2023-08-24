@@ -61,7 +61,7 @@ class DocumentService
     ) {
         $this->entityManager = $entityManager;
         $this->callService   = $callService;
-        $this->logger          = $pluginLogger;
+        $this->logger        = $pluginLogger;
 
     }//end __construct()
 
@@ -88,27 +88,30 @@ class DocumentService
         }
 
         // Xxllnc v1 cant handle base64 so we create a stream.
-        $base64 = $infoObjectEntity->getValueObject('inhoud')->getFiles()->first()->getBase64();
+        $base64     = $infoObjectEntity->getValueObject('inhoud')->getFiles()->first()->getBase64();
         $binaryData = base64_decode($base64);
         $fileStream = Utils::streamFor($binaryData);
-        $config = ['multipart' => [
-            [
-                'name'     => 'upload',
-                'contents' => $fileStream,
-                'filename' => $infoObject['informatieobject']['bestandsnaam']
+        $config     = [
+            'multipart' => [
+                [
+                    'name'     => 'upload',
+                    'contents' => $fileStream,
+                    'filename' => $infoObject['informatieobject']['bestandsnaam'],
+                ],
             ],
-        ]];
+        ];
         $this->logger->warning("POST document to xxllnc /case/prepare_file (informatieobject: {$infoObject['informatieobject']['_self']['id']}");
 
         // Send the POST request to xxllnc.
         try {
-            $response = $this->callService->call($xxllncApi, '/case/prepare_file', 'POST', $config, false, false, true);
-            $result   = $this->callService->decodeResponse($xxllncApi, $response);
+            $response  = $this->callService->call($xxllncApi, '/case/prepare_file', 'POST', $config, false, false, true);
+            $result    = $this->callService->decodeResponse($xxllncApi, $response);
             $reference = array_key_first($result['result']['instance']['references']) ?? null;
         } catch (Exception $e) {
-            $this->logger->error("Something went wrong sending informatieobject: {$infoObject['informatieobject']['_self']['id']} as document to /case/prepare_file: " . $e->getMessage());
+            $this->logger->error("Something went wrong sending informatieobject: {$infoObject['informatieobject']['_self']['id']} as document to /case/prepare_file: ".$e->getMessage());
             return null;
         }//end try
+
         return $reference ?? null;
 
     }//end prepareFile()
@@ -128,11 +131,11 @@ class DocumentService
         $this->logger->warning("POST reserve document number to xxllnc /document/reserve_number");
         // Send the POST request to xxllnc.
         try {
-            $response = $this->callService->call($xxllncApi, '/document/reserve_number', 'POST');
-            $result   = $this->callService->decodeResponse($xxllncApi, $response);
+            $response       = $this->callService->call($xxllncApi, '/document/reserve_number', 'POST');
+            $result         = $this->callService->decodeResponse($xxllncApi, $response);
             $documentNumber = $result['result']['instance']['serial'] ?? null;
         } catch (Exception $e) {
-            $this->logger->error("Something went wrong sending /document/reserve_number:" . $e->getMessage());
+            $this->logger->error("Something went wrong sending /document/reserve_number:".$e->getMessage());
             return false;
         }//end try
 
