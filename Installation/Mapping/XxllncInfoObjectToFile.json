@@ -2,22 +2,22 @@
     "title": "XxllncInfoObjectToFile",
     "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncInfoObjectToFile.mapping.json",
     "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "passTrough": false,
     "mapping": {
-        "reference": "reference",
+        "reference": "xxllncReferenceId",
         "type": "metadata",
-        "name": "infoObject.titel",
-        "number": "_self.synchronizations.sourceId",
+        "name": "titel",
+        "number": "xxllncDocumentNumber",
         "metadata.type": "metadata",
-        "metadata.instance.appearance": "infoObject.informatieobject.bestandsnaam",
-        "metadata.instance.description": "infoObject.informatieobject.beschrijving",
+        "metadata.instance.appearance": "informatieobject.bestandsnaam",
+        "metadata.instance.description": "informatieobject.beschrijving",
         "metadata.instance.origin": "Inkomend",
-        "metadata.instance.origin_date": "infoObject.informatieobject.creatiedatum",
-        "metadata.instance.pronom_format": "infoObject.informatieobject.formaat",
+        "metadata.instance.origin_date": "informatieobject.creatiedatum",
+        "metadata.instance.pronom_format": "informatieobject.formaat",
         "metadata.instance.structure": "text",
-        "metadata.instance.trust_level": "{% if infoObject.integriteit.waarde|default %}{{ infoObject.integriteit.waarde }}{% else %}Openbaar{% endif %}",
+        "metadata.instance.trust_level": "{% if integriteit.waarde|default %}{{ integriteit.waarde }}{% else %}Openbaar{% endif %}",
         "metadata.instance.status": "original",
-        "metadata.instance.creation_date": "infoObject.informatieobject.creatiedatum"
+        "metadata.instance.creation_date": "informatieobject.creatiedatum"
     }
 }
