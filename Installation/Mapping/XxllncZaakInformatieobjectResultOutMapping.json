@@ -1,21 +1,22 @@
 {
-  "title": "XxllncZaakInformatieobjectBodyOutMapping",
-  "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncZaakInformatieobjectBodyOutMapping.mapping.json",
-  "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
-  "version": "0.0.1",
-  "passTrough": true,
-  "mapping": {
-    "#": "{{ results|json_encode }}"
-  },
-  "unset": [
-    "results",
-    "count",
-    "limit",
-    "total",
-    "offset",
-    "page",
-    "pages"
-  ],
-  "cast": {
-  }
+    "title": "XxllncZaakInformatieobjectBodyOutMapping",
+    "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncZaakInformatieobjectBodyOutMapping.mapping.json",
+    "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
+    "version": "0.0.2",
+    "passTrough": true,
+    "mapping": {
+      "#": "{% if results|default %}{{ results|json_encode }}{% endif %}"
+    },
+    "unset": [
+      "results",
+      "count",
+      "limit",
+      "total",
+      "offset",
+      "page",
+      "pages"
+    ],
+    "cast": {
+    }
 }
+  

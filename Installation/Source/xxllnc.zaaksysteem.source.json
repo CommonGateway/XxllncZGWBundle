@@ -9,7 +9,9 @@
     "authorizationPassthroughMethod": "header",
     "apikey": "!ChangeMe!",
     "headers": {
-        "API-Interface-ID" : "!ChangeMe!"
+        "Accept": "*/*",
+        "API-Interface-ID" : "!ChangeMe!",
+        "Content-Type": "application/json"
     },
     "isEnabled": false
 }

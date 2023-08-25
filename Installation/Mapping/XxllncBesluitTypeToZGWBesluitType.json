@@ -2,7 +2,7 @@
   "title": "XxllncBesluitTypeToZGWBesluitType",
   "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncBesluitTypeToZGWBesluitType.mapping.json",
   "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "passTrough": false,
   "mapping": {
     "zaaktypen": "",
@@ -11,7 +11,7 @@
     "publicatieIndicatie": "instance.properties.publication",
     "publicatietekst": "instance.properties.text_for_publication",
     "toelichting": "instance.properties.motivation",
-    "beginGeldigheid": ""
+    "beginGeldigheid": "{{ 'now'|date('Y-m-d') }}"
   },
   "unset": {},
   "cast": {}
