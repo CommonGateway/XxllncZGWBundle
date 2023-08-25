@@ -18,6 +18,8 @@ use App\Service\SynchronizationService;
 use CommonGateway\CoreBundle\Service\GatewayResourceService;
 use CommonGateway\CoreBundle\Service\MappingService;
 use CommonGateway\CoreBundle\Service\CallService;
+use CommonGateway\CoreBundle\Service\HydrationService;
+use CommonGateway\ZGWBundle\Service\DRCService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -45,6 +47,11 @@ class ZaakService
      * @var CallService
      */
     private CallService $callService;
+
+    /**
+     * @var DRCService
+     */
+    private DRCService $drcService;
 
     /**
      * @var ZaakTypeService
@@ -89,6 +96,7 @@ class ZaakService
         EntityManagerInterface $entityManager,
         SynchronizationService $synchronizationService,
         CallService $callService,
+        DRCService $drcService,
         ZaakTypeService $zaakTypeService,
         GatewayResourceService $resourceService,
         MappingService $mappingService,
@@ -97,6 +105,7 @@ class ZaakService
         $this->entityManager          = $entityManager;
         $this->synchronizationService = $synchronizationService;
         $this->callService            = $callService;
+        $this->drcService             = $drcService;
         $this->zaakTypeService        = $zaakTypeService;
         $this->resourceService        = $resourceService;
         $this->mappingService         = $mappingService;
@@ -126,9 +135,9 @@ class ZaakService
     /**
      * Gets a existing ZaakType or syncs one from the xxllnc api.
      *
-     * @var string xxllnc casetype
+     * @var string $caseTypeId xxllnc casetype identifier.
      *
-     * @return ObjectEntity|null $zaakType object or null
+     * @return ObjectEntity|null $zaakType ObjectEntity or null.
      */
     public function getZaakTypeByExtId(string $caseTypeId)
     {
@@ -167,7 +176,7 @@ class ZaakService
      *
      * @param array $case xxllnc case object
      *
-     * @return ObjectEntity|null
+     * @return ObjectEntity|null $zaakTypeObject ObjectEntity or null.
      */
     private function checkZaakType(array $case)
     {
@@ -192,6 +201,124 @@ class ZaakService
 
 
     /**
+     * Gets the actual document from a different endpoint that has the metadata.
+     *
+     * @param string $documentNumber document number (not the id).
+     *
+     * @return array $this->callService->decodeResponse() Decoded requested document as PHP array.
+     */
+    private function getActualDocument(string $documentNumber): array
+    {
+        try {
+            isset($this->style) === true && $this->style->info("Fetching actual document: $documentNumber..");
+            $this->logger->info("Fetching actual document: $documentNumber..");
+            $response = $this->callService->call($this->xxllncAPI, "/document/get_by_number/$documentNumber", 'GET', [], false, false);
+            return $this->callService->decodeResponse($this->xxllncAPI, $response);
+        } catch (Exception $e) {
+            isset($this->style) === true && $this->style->error("Failed to fetch actual document: $documentNumber, message:  {$e->getMessage()}");
+            $this->logger->error("Failed to fetch actual document: $documentNumber, message:  {$e->getMessage()}");
+
+            return [];
+        }
+
+    }//end getActualDocument()
+
+
+    /**
+     * Gets the inhoud of the document from a different endpoint that has the metadata.
+     *
+     * @param string $documentId document id.
+     * @param Source $xxllncV2   Need V2 api for this request.
+     *
+     * @return string|null $this->callService->decodeResponse() Decoded requested document as PHP array.
+     */
+    private function getInhoudDocument(string $documentId, Source $xxllncV2): ?string
+    {
+        try {
+            isset($this->style) === true && $this->style->info("Fetching inhoud document: $documentId..");
+            $this->logger->info("Fetching inhoud document: $documentId..");
+            $response = $this->callService->call($xxllncV2, "/document/download_document?id=$documentId", 'GET', [], false, false);
+            return $this->callService->decodeResponse($xxllncV2, $response, 'application/pdf')['base64'];
+        } catch (Exception $e) {
+            isset($this->style) === true && $this->style->error("Failed to fetch inhoud of document: $documentId, message:  {$e->getMessage()}");
+            $this->logger->error("Failed to fetch inhoud of document: $documentId, message:  {$e->getMessage()}");
+            return null;
+        }
+
+    }//end getInhoudDocument()
+
+
+    /**
+     * Gets documents (zaakinformatieobjecten) for a case without metadata.
+     *
+     * @param string $caseId xxllnc case id
+     *
+     * @return array $documents Decoded documents in an PHP array.
+     */
+    private function getCaseDocuments(string $caseId): array
+    {
+        isset($this->style) === true && $this->style->info("Checking for documents on this case (zaakinformatieobjecten)..");
+        $this->logger->info("Checking for documents on this case (zaakinformatieobjecten)..");
+        // Need V2 api to fetch document inhoud.
+        $xxllncV2 = $this->resourceService->getSource('https://development.zaaksysteem.nl/source/xxllnc.zaaksysteemv2.source.json', 'xxllnc-zgw-bundle');
+        if ($xxllncV2 === null) {
+            return [];
+        }
+
+        try {
+            $response        = $this->callService->call($xxllncV2, "/document/search_document?case_uuid=$caseId", 'GET', [], false, false);
+            $documents       = $this->callService->decodeResponse($xxllncV2, $response);
+            $actualDocuments = [];
+            foreach ($documents['data'] as $key => $document) {
+                $actualDocuments[$key]           = $this->getActualDocument($document['meta']['document_number']);
+                $actualDocuments[$key]['inhoud'] = $this->getInhoudDocument($document['id'], $xxllncV2);
+            }
+
+            return $actualDocuments;
+        } catch (Exception $e) {
+            isset($this->style) === true && $this->style->error("Failed to fetch case documents: {$e->getMessage()}");
+            $this->logger->error("Failed to fetch case documents: {$e->getMessage()}");
+
+            return [];
+        }
+
+    }//end getCaseDocuments()
+
+
+    /**
+     * Creates file endpoints for a given ObjectEntity instance representing a "zaak".
+     *
+     * This function processes the zaak, retrieves an endpoint for downloading
+     * an 'EnkelvoudigInformatieObject', logs an error if the endpoint is not found,
+     * and creates or updates files associated with 'zaakinformatieobjecten'.
+     *
+     * @param ObjectEntity $zaak The zaak object to process.
+     *
+     * @return void
+     */
+    private function createFileEndpoints(ObjectEntity $zaak): void
+    {
+        $zaakArray = $zaak->toArray();
+
+        $downloadEndpoint = $this->resourceService->getEndpoint('https://vng.opencatalogi.nl/endpoints/drc.downloadEnkelvoudigInformatieObject.endpoint.json', 'common-gateway/zgw-bundle');
+        if (isset($downloadEndpoint) === false) {
+            isset($this->style) === true && $this->style->error("Could not find download endpoint with ref: https://vng.opencatalogi.nl/endpoints/drc.downloadEnkelvoudigInformatieObject.endpoint.json.");
+            $this->logger->error("Could not find download endpoint with ref: https://vng.opencatalogi.nl/endpoints/drc.downloadEnkelvoudigInformatieObject.endpoint.json.");
+
+            return;
+        }
+
+        foreach ($zaakArray['zaakinformatieobjecten'] as $zaakinformatieobject) {
+            if (isset($zaakinformatieobject['informatieobject']) === true) {
+                $informatieObject = $this->entityManager->find('App:ObjectEntity', $zaakinformatieobject['informatieobject']['_self']['id']);
+                $this->drcService->createOrUpdateFile($informatieObject, $zaakinformatieobject['informatieobject'], $downloadEndpoint, false);
+            }
+        }
+
+    }//end createFileEndpoints()
+
+
+    /**
      * Synchronises a case to zgw zaak based on the data retrieved from the Xxllnc api.
      *
      * @param array $case  The case to synchronize.
@@ -204,6 +331,7 @@ class ZaakService
      */
     public function syncCase(array $case, bool $flush = true): ObjectEntity
     {
+        // 0. Get required config objects.
         $zaakSchema  = $this->resourceService->getSchema(
             'https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json',
             'common-gateway/xxllnc-zgw-bundle'
@@ -217,6 +345,7 @@ class ZaakService
             'common-gateway/xxllnc-zgw-bundle'
         );
 
+        // 1. Check related ZaakType if its already synced, if not sync.
         $zaakTypeObject = $this->checkZaakType($case);
         if ($zaakTypeObject instanceof ObjectEntity === false) {
             isset($this->style) === true && $this->style->error("ZaakType for case {$case['reference']} could not be found or synced, aborting.");
@@ -225,20 +354,26 @@ class ZaakService
             return null;
         }
 
+        // 2. Fetch documents (zaakinformatieobject) for this case.
+        $caseDocuments = $this->getCaseDocuments($case['reference']);
+
+        // 3. Map the case and all its subobjects.
         isset($this->style) === true && $this->style->info("Mapping case to zaak..");
         $this->logger->info("Mapping case to zaak..");
 
-        $caseAndCaseType = array_merge(
+        $hydrationService      = new HydrationService($this->synchronizationService, $this->entityManager);
+        $caseAndRelatedObjects = array_merge(
             $case,
             [
                 'zaaktype'        => $zaakTypeObject->toArray(),
                 'bronorganisatie' => ($this->configuration['bronorganisatie'] ?? 'No bronorganisatie set'),
+                'documents'       => $caseDocuments,
             ]
         );
-        $zaakArray       = $this->mappingService->mapping($caseMapping, $caseAndCaseType);
 
-        $hydrationService = new HydrationService($this->synchronizationService, $this->entityManager);
+        $zaakArray = $this->mappingService->mapping($caseMapping, $caseAndRelatedObjects);
 
+        // 4. Check or create synchronization for case and its subobjects.
         isset($this->style) === true && $this->style->info("Checking subobjects for synchronizations..");
         $this->logger->info("Checking subobjects for synchronizations..");
 
@@ -249,6 +384,10 @@ class ZaakService
             $flush,
             true
         );
+
+        if (isset($zaakArray['zaakinformatieobjecten']) === true) {
+            $this->createFileEndpoints($zaak);
+        }
 
         isset($this->style) === true && $this->style->info("Zaak object created/updated with id: {$zaak->getId()->toString()}");
         $this->logger->info("Zaak object created/updated with id: {$zaak->getId()->toString()}");
