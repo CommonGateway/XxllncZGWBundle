@@ -18,8 +18,9 @@ use App\Entity\Synchronization;
 use CommonGateway\CoreBundle\Service\CallService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
-use GuzzleHttp\Psr7\MultipartStream;
+use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Psr7\Utils;
+use Psr\Log\LoggerInterface;
 
 class DocumentService
 {
@@ -44,16 +45,23 @@ class DocumentService
      */
     private array $data;
 
+    /**
+     * @var LoggerInterface $logger.
+     */
+    private LoggerInterface $logger;
+
 
     /**
      * __construct.
      */
     public function __construct(
         EntityManagerInterface $entityManager,
-        CallService $callService
+        CallService $callService,
+        LoggerInterface $pluginLogger
     ) {
         $this->entityManager = $entityManager;
         $this->callService   = $callService;
+        $this->logger        = $pluginLogger;
 
     }//end __construct()
 
@@ -79,34 +87,31 @@ class DocumentService
             return null;
         }
 
-        $base64 = $infoObjectEntity->getValueObject('inhoud')->getFiles()->first()->getBase64();
-        // $base64 = \Safe\base64_decode($infoObjectEntity->getValueObject('inhoud')->getFiles()->first()->getBase64());
-        $file_stream = $base64;
-        // $file_stream = Utils::streamFor($base64);
-        $multipart = [
-            [
-                'name'     => 'upload',
-                'contents' => $file_stream,
-                'filename' => $infoObject['informatieobject']['bestandsnaam'],
+        // Xxllnc v1 cant handle base64 so we create a stream.
+        $base64     = $infoObjectEntity->getValueObject('inhoud')->getFiles()->first()->getBase64();
+        $binaryData = base64_decode($base64);
+        $fileStream = Utils::streamFor($binaryData);
+        $config     = [
+            'multipart' => [
+                [
+                    'name'     => 'upload',
+                    'contents' => $fileStream,
+                    'filename' => $infoObject['informatieobject']['bestandsnaam'],
+                ],
             ],
         ];
+        $this->logger->warning("POST document to xxllnc /case/prepare_file (informatieobject: {$infoObject['informatieobject']['_self']['id']}");
 
         // Send the POST request to xxllnc.
-        var_dump('Request prepare file:');
-        $config = [
-            'headers'   => ['Content-Type' => 'multipart/form-data'],
-            'debug'     => true,
-            'multipart' => $multipart,
-        ];
-        // try {
-            $response = $this->callService->call($xxllncApi, '/case/prepare_file', 'POST', $config);
-            $result   = $this->callService->decodeResponse($xxllncApi, $response);
-            var_dump('Rerefence id: ', array_key_first($result['result']['instance']['references']));
+        try {
+            $response  = $this->callService->call($xxllncApi, '/case/prepare_file', 'POST', $config, false, false, true);
+            $result    = $this->callService->decodeResponse($xxllncApi, $response);
             $reference = array_key_first($result['result']['instance']['references']) ?? null;
-        // } catch (Exception $e) {
-        // var_dump($e->getMessage());
-        // return null;
-        // }//end try
+        } catch (Exception $e) {
+            $this->logger->error("Something went wrong sending informatieobject: {$infoObject['informatieobject']['_self']['id']} as document to /case/prepare_file: ".$e->getMessage());
+            return null;
+        }//end try
+
         return $reference ?? null;
 
     }//end prepareFile()
@@ -123,14 +128,14 @@ class DocumentService
      */
     private function reserveDocumentNumber(Source $xxllncApi)
     {
+        $this->logger->warning("POST reserve document number to xxllnc /document/reserve_number");
         // Send the POST request to xxllnc.
         try {
-            $response = $this->callService->call($xxllncApi, '/document/reserve_number', 'POST');
-            $result   = $this->callService->decodeResponse($xxllncApi, $response);
-            var_dump('Document number: ', $result['result']['instance']['serial']);
+            $response       = $this->callService->call($xxllncApi, '/document/reserve_number', 'POST');
+            $result         = $this->callService->decodeResponse($xxllncApi, $response);
             $documentNumber = $result['result']['instance']['serial'] ?? null;
         } catch (Exception $e) {
-            var_dump($e->getMessage());
+            $this->logger->error("Something went wrong sending /document/reserve_number:".$e->getMessage());
             return false;
         }//end try
 
@@ -201,11 +206,9 @@ class DocumentService
 
             $this->entityManager->persist($synchronization);
             $this->entityManager->flush();
-
-            return $customNumber;
         }
 
-        return null;
+        return $synchronization->getSourceId();
 
     }//end checkCustomNumber()
 
