@@ -168,7 +168,7 @@ class ZaakTypeService
 
         try {
             isset($this->style) === true && $this->style->info("Fetching casetype: $caseTypeID");
-            $this->logger->info("Fetching casetype: $caseTypeID");
+            $this->logger->info("Fetching casetype (or possible besluittype): $caseTypeID");
             $response = $this->callService->call($xxllncAPI, "/casetype/$caseTypeID", 'GET', [], false, false);
             $caseType = $this->callService->decodeResponse($xxllncAPI, $response);
         } catch (Exception $e) {
@@ -425,7 +425,7 @@ class ZaakTypeService
         $this->entityManager->flush();
 
         if (isset($this->style) === true) {
-            $this->style->success("Created/updated zaaktype: {$besluittypeObject->getId()->toString()}");
+            $this->style->success("Created/updated besluittype: {$besluittypeObject->getId()->toString()}");
         }
 
     }//end caseTypeToBesluitType()
@@ -562,8 +562,8 @@ class ZaakTypeService
 
         if (isset($this->style) === true) {
             $this->style->info("Get the besluittypen from the casetype with id: {$caseType->getId()->toString()}");
-            $this->logger->info("Get the besluittypen from the casetype with id: {$caseType->getId()->toString()}");
         }
+        $this->logger->info("Get the besluittypen from the casetype with id: {$caseType->getId()->toString()}");
 
         // Get the ids of the besluittypen from the given zaaktype.
         $linkedBesluittypeIds = [];
@@ -580,8 +580,8 @@ class ZaakTypeService
 
         if (isset($this->style) === true) {
             $this->style->info("Set the besluittypen to the casetype with id: {$caseType->getId()->toString()}");
-            $this->logger->info("Set the besluittypen to the casetype with id: {$caseType->getId()->toString()}");
         }
+        $this->logger->info("Set the besluittypen to the casetype with id: {$caseType->getId()->toString()}");
 
         $caseType->setValue('besluittypen', $mergedBesluittypen);
         $this->entityManager->persist($caseType);
