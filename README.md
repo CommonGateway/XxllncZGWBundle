@@ -71,55 +71,10 @@ Once the backend is up and running, the XxllncZGWBundle can be configured. To en
         *   Select the user and edit the password.
 
 2.  **Security Group**
-    *   Add the scopes for the Default Anonymous in the Security Group.
+    *   Scopes have been added for the xxllnc user. You can view and adjust the scopes of the user via the following steps:
         *   Go to `Settings` in the Gateway UI.
         *   Navigate to the `Security Groups` tab
-        *   Locate and select `Default Anonymous` to view its details
-        *   Add the following scopes under the `Scopes` section:
-            \- schemas.https://vng.opencatalogi.nl/schemas/ztc.zaakType.schema.json.GET
-            \- schemas.https://vng.opencatalogi.nl/schemas/ztc.zaakType.schema.json.POST
-            \- schemas.https://vng.opencatalogi.nl/schemas/ztc.zaakType.schema.json.PUT
-            \- schemas.https://vng.opencatalogi.nl/schemas/ztc.zaakType.schema.json.PATCH
-            \- schemas.https://vng.opencatalogi.nl/schemas/ztc.besluitType.schema.json.GET
-            \- schemas.https://vng.opencatalogi.nl/schemas/ztc.besluitType.schema.json.POST
-            \- schemas.https://vng.opencatalogi.nl/schemas/ztc.besluitType.schema.json.PUT
-            \- schemas.https://vng.opencatalogi.nl/schemas/ztc.besluitType.schema.json.PATCH
-            \- schemas.https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json.GET
-            \- schemas.https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json.POST
-            \- schemas.https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json.PUT
-            \- schemas.https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json.PATCH
-            \- schemas.https://vng.opencatalogi.nl/schemas/zrc.zaakEigenschap.schema.json.GET
-            \- schemas.https://vng.opencatalogi.nl/schemas/zrc.zaakEigenschap.schema.json.POST
-            \- schemas.https://vng.opencatalogi.nl/schemas/zrc.zaakEigenschap.schema.json.PUT
-            \- schemas.https://vng.opencatalogi.nl/schemas/zrc.zaakEigenschap.schema.json.PATCH
-            \- schemas.https://vng.opencatalogi.nl/schemas/zrc.zaakBesluit.schema.json.GET
-            \- schemas.https://vng.opencatalogi.nl/schemas/zrc.zaakBesluit.schema.json.POST
-            \- schemas.https://vng.opencatalogi.nl/schemas/zrc.zaakBesluit.schema.json.PUT
-            \- schemas.https://vng.opencatalogi.nl/schemas/zrc.zaakBesluit.schema.json.PATCH
-            \- schemas.https://vng.opencatalogi.nl/schemas/brc.besluit.schema.json.GET
-            \- schemas.https://vng.opencatalogi.nl/schemas/brc.besluit.schema.json.POST
-            \- schemas.https://vng.opencatalogi.nl/schemas/brc.besluit.schema.json.PUT
-            \- schemas.https://vng.opencatalogi.nl/schemas/brc.besluit.schema.json.PATCH
-            \- schemas.https://vng.opencatalogi.nl/schemas/drc.enkelvoudigInformatieObject.schema.json.GET
-            \- schemas.https://vng.opencatalogi.nl/schemas/drc.enkelvoudigInformatieObject.schema.json.POST
-            \- schemas.https://vng.opencatalogi.nl/schemas/drc.enkelvoudigInformatieObject.schema.json.PUT
-            \- schemas.https://vng.opencatalogi.nl/schemas/drc.enkelvoudigInformatieObject.schema.json.PATCH
-            \- schemas.https://vng.opencatalogi.nl/schemas/zrc.zaakInformatieObject.schema.json.GET
-            \- schemas.https://vng.opencatalogi.nl/schemas/zrc.zaakInformatieObject.schema.json.POST
-            \- schemas.https://vng.opencatalogi.nl/schemas/zrc.zaakInformatieObject.schema.json.PUT
-            \- schemas.https://vng.opencatalogi.nl/schemas/zrc.zaakInformatieObject.schema.json.PATCH
-            \- schemas.https://vng.opencatalogi.nl/schemas/zrc.rol.schema.json.GET
-            \- schemas.https://vng.opencatalogi.nl/schemas/zrc.rol.schema.json.POST
-            \- schemas.https://vng.opencatalogi.nl/schemas/zrc.rol.schema.json.PUT
-            \- schemas.https://vng.opencatalogi.nl/schemas/zrc.rol.schema.json.PATCH
-            \- schemas.https://vng.opencatalogi.nl/schemas/zrc.resultaat.schema.json.GET
-            \- schemas.https://vng.opencatalogi.nl/schemas/zrc.resultaat.schema.json.POST
-            \- schemas.https://vng.opencatalogi.nl/schemas/zrc.resultaat.schema.json.PUT
-            \- schemas.https://vng.opencatalogi.nl/schemas/zrc.resultaat.schema.json.PATCH
-            \- schemas.https://vng.opencatalogi.nl/schemas/zrc.status.schema.json.GET
-            \- schemas.https://vng.opencatalogi.nl/schemas/zrc.status.schema.json.POST
-            \- schemas.https://vng.opencatalogi.nl/schemas/zrc.status.schema.json.PUT
-            \- schemas.https://vng.opencatalogi.nl/schemas/zrc.status.schema.json.PATCH
+        *   Locate and select `Xxllnc user security group` to view its details.
 
 3.  **Sources**
     *   Provide the required location and the API-Interface-ID and API-KEY (these two as headers) for the following source: xxllnc zaaksysteem

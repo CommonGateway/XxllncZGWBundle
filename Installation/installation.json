@@ -101,6 +101,21 @@
         ]
       }
     ],
+    "users": [
+      {
+        "$id": "https://development.zaaksysteem.nl/user/xxllnc.default.user.json",
+        "version": "0.0.1",
+        "description": "An default user with an SecurityGroup. It is not allowed to set a User password or change/create Admin Users this way.",
+        "email": "dafault@xxllnc.com",
+        "locale": "en",
+        "applications": [
+          "https://docs.commongateway.nl/application/default.application.json"
+        ],
+        "securityGroups": [
+          "https://docs.commongateway.nl/securityGroup/xxllnc.user.securityGroup.json"
+        ]
+      }
+    ],
     "cards": {
       "sources": [
         "https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json"
