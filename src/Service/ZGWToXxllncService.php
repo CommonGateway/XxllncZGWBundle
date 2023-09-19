@@ -312,7 +312,7 @@ class ZGWToXxllncService
             return $this->data['embedded']['zaaktype']['_self']['id'];
         }
 
-        if (filter_var($this->data['zaaktype'], FILTER_VALIDATE_URL) !== false) {
+        if (isset($this->data['zaaktype']) === true && filter_var($this->data['zaaktype'], FILTER_VALIDATE_URL) !== false) {
             $id = substr($this->data['zaaktype'], (strrpos($this->data['zaaktype'], '/') + 1));
             if (Uuid::isValid($id) === true) {
                 return $id;
