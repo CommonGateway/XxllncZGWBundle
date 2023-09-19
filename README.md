@@ -8,8 +8,8 @@ For more information on ZaakGerichtWerken and XXLNC, please visit [here]([https:
 
 The [**XxllncZGWBundle**](https://github.com/CommonGateway/XxllncZGWBundle) currently utilizes the following bundles:
 
-1.  **CoreBundle**: [GitHub Repository](https://github.com/CommonGateway/CoreBundle)
-2.  **ZGWBundle**: [GitHub Repository](https://github.com/CommonGateway/BRPBundle) (the ZGWBundle also includes other bundles like the KlantenBundle which is part of ZGW.)
+1. **CoreBundle**: [GitHub Repository](https://github.com/CommonGateway/CoreBundle)
+2. **ZGWBundle**: [GitHub Repository](https://github.com/CommonGateway/BRPBundle) (the ZGWBundle also includes other bundles like the KlantenBundle which is part of ZGW.)
 
 While the ZGW and CoreBundle can still be installed as standalone components (please refer to their respective installation guides), the XxllncZGWBundle now defaults to installing these bundles as additional plugins on the same gateway.
 
@@ -23,38 +23,44 @@ To install the backend, follow the steps below:
 
 ### Gateway Installation
 
-1.  If you do not have the Common Gateway installed, you can follow the installation guide provided [here](https://github.com/ConductionNL/commonground-gateway/tree/development#readme). The Common Gateway installation is required for the backend setup. You can choose any installation method for the gateway, such as Haven, Kubernetes, Linux, or Azure, and any database option like MySQL, PostgreSQL, Oracle, or MsSQL. The gateway framework handles this abstraction.
+1. If you do not have the Common Gateway installed, you can follow the installation guide provided [here](https://github.com/ConductionNL/commonground-gateway/tree/development#readme). The Common Gateway installation is required for the backend setup. You can choose any installation method for the gateway, such as Haven, Kubernetes, Linux, or Azure, and any database option like MySQL, PostgreSQL, Oracle, or MsSQL. The gateway framework handles this abstraction.
 
 ### XxllncZGWBundle Installation - Gateway UI
 
-1.  After successfully installing the Gateway, access the admin-ui and log in.
-2.  In the left menu, navigate to "Plugins" to view a list of installed plugins. If you don't find the "common-gateway/xxllnc-zgw-bundle" plugin listed here, you can search for it by clicking on "Search" in the upper-right corner and typing "xxllnc" in the search bar.
-3.  Click on the "common-gateway/xxllnc-zgw-bundle" card and then click on the "Install" button to install the plugin.
-4.  The admin-ui allows you to install, upgrade, or remove bundles. However, to load all the required data (schemas, endpoints, sources), you need to execute the initialization command in a php terminal.
+1. After successfully installing the Gateway, access the admin-ui and log in.
+2. In the left menu, navigate to "Plugins" to view a list of installed plugins. If you don't find the "common-gateway/xxllnc-zgw-bundle" plugin listed here, you can search for it by clicking on "Search" in the upper-right corner and typing "xxllnc" in the search bar.
+3. Click on the "common-gateway/xxllnc-zgw-bundle" card and then click on the "Install" button to install the plugin.
+4. The admin-ui allows you to install, upgrade, or remove bundles. However, to load all the required data (schemas, endpoints, sources), you need to execute the initialization command in a php terminal.
 
 ### XxllncZGWBundle Installation - Terminal
 
-1.  Open a php terminal and run the following command to install the XxllncZGWBundle:
+1. Open a php terminal and run the following command to install the XxllncZGWBundle:
 
-        ```cli
-        $ composer require common-gateway/xxllnc-zgw-bundle
-        ```
+   ````
+   ```cli
+   $ composer require common-gateway/xxllnc-zgw-bundle
+   ```
+   ````
 
 ### Initialization Command (Terminal)
 
-1.  To load all the data without any specific content (like testdata), execute the following command:
+1. To load all the data without any specific content (like testdata), execute the following command:
 
-        ```cli
-        $ bin/console commongateway:initialize
-        ```
+   ````
+   ```cli
+   $ bin/console commongateway:initialize
+   ```
+   ````
 
-    OR
+   OR
 
-    To load all the data along with specific content (like testdata), run:
+   To load all the data along with specific content (like testdata), run:
 
-        ```cli
-        $ bin/console commongateway:initialize -data
-        ```
+   ````
+   ```cli
+   $ bin/console commongateway:initialize -data
+   ```
+   ````
 
 With these steps completed, the backend setup for the XxllncZGW project should be ready to use. If you encounter any issues during the installation process, seek assistance from the development team. Happy coding!
 
@@ -64,23 +70,23 @@ Once the backend is up and running, the XxllncZGWBundle can be configured. To en
 
 ### Configuration Steps:
 
-1.  **Users**
-    *   Change the passwords of the users if necessary. It is recommended that you change the email of the admin user.
-        *   Go to `Settings` in the Gateway UI.
-        *   Navigate to the `Users` tab.
-        *   Select the user and edit the password.
+1. **Users**
+   * Change the passwords of the users if necessary. It is recommended that you change the email of the admin user.
+     * Go to `Settings` in the Gateway UI.
+     * Navigate to the `Users` tab.
+     * Select the user and edit the password.
 
-2.  **Security Group**
-    *   Scopes have been added for the xxllnc user. You can view and adjust the scopes of the user via the following steps:
-        *   Go to `Settings` in the Gateway UI.
-        *   Navigate to the `Security Groups` tab
-        *   Locate and select `Xxllnc user security group` to view its details.
+2. **Security Group**
+   * Scopes have been added for the xxllnc user. You can view and adjust the scopes of the user via the following steps:
+     * Go to `Settings` in the Gateway UI.
+     * Navigate to the `Security Groups` tab
+     * Locate and select `Xxllnc user security group` to view its details.
 
-3.  **Sources**
-    *   Provide the required location and the API-Interface-ID and API-KEY (these two as headers) for the following source: xxllnc zaaksysteem
+3. **Sources**
+   * Provide the required location and the API-Interface-ID and API-KEY (these two as headers) for the following source: xxllnc zaaksysteem
 
-4.  **Cronjob**
-    *   There is a cronjob which can be activated (check isEnabled) if all cases and casetypes need to be synced from the zaaksysteem source. Currently this is always disabled as we dont need all data from the xxllnc api.
+4. **Cronjob**
+   * There is a cronjob which can be activated (check isEnabled) if all cases and casetypes need to be synced from the zaaksysteem source. Currently this is always disabled as we dont need all data from the xxllnc api.
 
 Once you have completed these steps, the XxllncZGW Gateway UI should be fully configured and the project is ready to be used.
 
@@ -122,5 +128,5 @@ These are all current commands, you can fetch your synchronized objects through 
 
 Special noted decisions made in this project are:
 
-*   ZGW 'verlenging' is not mappable from a xxllnc case and thus ignored during synchronization.
-*   The xxllnc zaaksysteem does not ZGW BesluitTypen or Besluiten and thus there have been created 3 specific BesluitTypen as normal xxllnc casetypes which can be synced with the ZaakType command, so when a Besluit in the gateway is created for one of these 3 BesluitTypen we synchronize it back to xxllnc as a case and link it to the main case (Zaak) as related case.
+* ZGW 'verlenging' is not mappable from a xxllnc case and thus ignored during synchronization.
+* The xxllnc zaaksysteem does not ZGW BesluitTypen or Besluiten and thus there have been created 3 specific BesluitTypen as normal xxllnc casetypes which can be synced with the ZaakType command, so when a Besluit in the gateway is created for one of these 3 BesluitTypen we synchronize it back to xxllnc as a case and link it to the main case (Zaak) as related case.
