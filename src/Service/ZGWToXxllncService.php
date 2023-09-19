@@ -352,12 +352,18 @@ class ZGWToXxllncService
             return [];
         }
 
-        $casetypeId = $zaakTypeObject->getSynchronizations()[0]->getSourceId() ?? null;
+        $synchronizations = $zaakTypeObject->getSynchronizations();
+        if (isset($synchronizations[0]) === false || $synchronizations[0]->getSourceId() === null) {
+            $this->logger->error('ZaakType has no synchronization or sourceId, aborting case sync to xxllnc.');
+
+            return [];
+        }
+        $casetypeId = $synchronizations[0]->getSourceId();
 
         $zaakArrayObject = $this->entityManager->find('App:ObjectEntity', $this->data['_self']['id'])->toArray();
 
-        if (isset($this->xxllncZaakSchema) === false || isset($this->xxllncAPI) === false || isset($casetypeId) === false || isset($zaakArrayObject) === false) {
-            $this->logger->error('Some objects needed could not be found in ZGWToXxllncService: $this->xxllncZaakSchema or $this->xxllncAPI or $casetypeId or $zaakArrayObject');
+        if (isset($this->xxllncZaakSchema) === false || isset($this->xxllncAPI) === false || isset($zaakArrayObject) === false) {
+            $this->logger->error('Some objects needed could not be found in ZGWToXxllncService: $this->xxllncZaakSchema or $this->xxllncAPI or $zaakArrayObject');
 
             return [];
         }
