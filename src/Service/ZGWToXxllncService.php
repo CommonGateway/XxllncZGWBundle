@@ -358,6 +358,7 @@ class ZGWToXxllncService
 
             return [];
         }
+
         $casetypeId = $synchronizations[0]->getSourceId();
 
         $zaakArrayObject = $this->entityManager->find('App:ObjectEntity', $this->data['_self']['id'])->toArray();
