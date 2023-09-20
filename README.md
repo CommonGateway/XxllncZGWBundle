@@ -70,17 +70,11 @@ Once the backend is up and running, the XxllncZGWBundle can be configured. To en
 
 ### Configuration Steps:
 
-1. **Users**
-   * Change the passwords of the users if necessary. It is recommended that you change the email of the admin user.
-     * Go to `Settings` in the Gateway UI.
-     * Navigate to the `Users` tab.
-     * Select the user and edit the password.
+1.  **Users**
+    *   Change the passwords of the users if necessary. It is recommended that you change the email of the admin user using [the following steps](https://github.com/CommonGateway/CoreBundle/tree/master/docs/work-instructions/user-management.md)
 
-2. **Security Group**
-   * Scopes have been added for the xxllnc user. You can view and adjust the scopes of the user via the following steps:
-     * Go to `Settings` in the Gateway UI.
-     * Navigate to the `Security Groups` tab
-     * Locate and select `Xxllnc user security group` to view its details.
+2.  **Security Group**
+    *   Scopes have been added for the xxllnc user. You can view and adjust the scopes of the user via [the following steps](https://github.com/CommonGateway/CoreBundle/tree/master/docs/work-instructions/security-group-management.md):
 
 3. **Sources**
    * Provide the required location and the API-Interface-ID and API-KEY (these two as headers) for the following source: xxllnc zaaksysteem
