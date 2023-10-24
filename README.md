@@ -118,9 +118,42 @@ These are all current commands, you can fetch your synchronized objects through 
 `/api/ztc/v1/zaaktypen`
 `/api/ztc/v1/besluittypen`
 
+## Synchronizations
+
+There are a lot of objects being synced from and to the xxllnc zaaksysteem to zgw objects. Here is a table of them.
+
+Syncs from the zaaksysteem:
+| ZGW                  | Zaaksysteem    |Trigger            | Mapping                                                                                                                                     |
+|----------------------|----------------|-------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| BesluitType          | casetype       | Cronjob or command| [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncBesluitTypeToZGWBesluitType.json)    |
+| ZaakType             | casetype       | Cronjob or command| [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncCaseTypeToZGWZaakType.json)          |
+| StatusType           | phase          | Cronjob or command| [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncPhaseToZGWStatusType.json)           |
+| RolType              | role           | Cronjob or command| [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncRoleToZGWRolType.json)               |
+| ResultaatType        | result         | Cronjob or command| [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncResultToZGWResultaatType.json)       |
+| Eigenschap           | field          | Cronjob or command| [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncFieldToZGWEigenschap.json)           |
+| InformatieObjectType | field          | Cronjob or command| [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncFieldToZGWInformatieObjectType.json) |
+| Zaak                 | case           | Cronjob or command| [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncCaseToZGWZaak.json)                  |
+| Status               | milestone      | Cronjob or command| [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncMilestoneToStatus.json)              |
+| Resultaat            | outcome        | Cronjob or command| [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncOutcomeToResultaat.json)             |
+| Rol                  | role.requestor | Cronjob or command| [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncRoleRequestorToRol.json)             |
+| ZaakEigenschap       | attribute      | Cronjob or command| [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncAttributeToZaakEigenschap.json)      |
+| InformatieObject     | document       | Cronjob or command| [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncDocumentToZaakInformatieObject.json) |
+
+Also read [commands](#commands) on how to execute certain synchronizations.
+
+Syncs to the zaaksysteem:
+| Zaaksysteem | ZGW              | Trigger                                     | Mapping                                                                                                                       |
+|-------------|------------------|---------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|
+| case        | Zaak             | POST/PUT /zrc/zaken                         | [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncZaakToCase.json)       |
+| case        | Besluit          | POST/PUT /brc/besluiten                     | [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/ZgwBesluitToXxllncCase.json) |
+| document    | InformatieObject | POST/PUT /zrc/zaken/id/zaakinformatieobject | [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/ZgwBesluitToXxllncCase.json) |
+
+Note: casetypes can't be created yet on the zaaksysteem api so we do not sync back ZaakTypen.
+
 ## Design decisions
 
 Special noted decisions made in this project are:
 
 * ZGW 'verlenging' is not mappable from a xxllnc case and thus ignored during synchronization.
 * The xxllnc zaaksysteem does not ZGW BesluitTypen or Besluiten and thus there have been created 3 specific BesluitTypen as normal xxllnc casetypes which can be synced with the ZaakType command, so when a Besluit in the gateway is created for one of these 3 BesluitTypen we synchronize it back to xxllnc as a case and link it to the main case (Zaak) as related case.
+* Casetypes can't be created/updated through the zaaksysteem api, so we do not sync ZaakTypen back to the zaaksysteem if they are created/updated on the gateway.
