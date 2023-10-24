@@ -123,22 +123,23 @@ These are all current commands, you can fetch your synchronized objects through 
 There are a lot of objects being synced from and to the xxllnc zaaksysteem to zgw objects. Here is a table of them.
 
 Syncs from the zaaksysteem:
-| ZGW                  | Zaaksysteem    |Trigger            | Mapping                                                                                                                                     |
-|----------------------|----------------|-------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
-| BesluitType          | casetype       | Cronjob or command| [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncBesluitTypeToZGWBesluitType.json)    |
-| ZaakType             | casetype       | Cronjob or command| [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncCaseTypeToZGWZaakType.json)          |
-| StatusType           | phase          | Cronjob or command| [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncPhaseToZGWStatusType.json)           |
-| RolType              | role           | Cronjob or command| [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncRoleToZGWRolType.json)               |
-| ResultaatType        | result         | Cronjob or command| [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncResultToZGWResultaatType.json)       |
-| Eigenschap           | field          | Cronjob or command| [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncFieldToZGWEigenschap.json)           |
-| InformatieObjectType | field          | Cronjob or command| [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncFieldToZGWInformatieObjectType.json) |
-| Zaak                 | case           | Cronjob or command| [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncCaseToZGWZaak.json)                  |
-| Status               | milestone      | Cronjob or command| [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncMilestoneToStatus.json)              |
-| Resultaat            | outcome        | Cronjob or command| [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncOutcomeToResultaat.json)             |
-| Rol                  | role.requestor | Cronjob or command| [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncRoleRequestorToRol.json)             |
-| ZaakEigenschap       | attribute      | Cronjob or command| [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncAttributeToZaakEigenschap.json)      |
-| InformatieObject     | document       | Cronjob or command| [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncDocumentToZaakInformatieObject.json) |
+| ZGW                  | Zaaksysteem    | Mapping                                                                                                                                     |
+|----------------------|----------------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| BesluitType          | casetype       | [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncBesluitTypeToZGWBesluitType.json)    |
+| ZaakType             | casetype       | [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncCaseTypeToZGWZaakType.json)          |
+| StatusType           | phase          | [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncPhaseToZGWStatusType.json)           |
+| RolType              | role           | [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncRoleToZGWRolType.json)               |
+| ResultaatType        | result         | [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncResultToZGWResultaatType.json)       |
+| Eigenschap           | field          | [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncFieldToZGWEigenschap.json)           |
+| InformatieObjectType | field          | [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncFieldToZGWInformatieObjectType.json) |
+| Zaak                 | case           | [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncCaseToZGWZaak.json)                  |
+| Status               | milestone      | [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncMilestoneToStatus.json)              |
+| Resultaat            | outcome        | [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncOutcomeToResultaat.json)             |
+| Rol                  | role.requestor | [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncRoleRequestorToRol.json)             |
+| ZaakEigenschap       | attribute      | [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncAttributeToZaakEigenschap.json)      |
+| InformatieObject     | document       | [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncDocumentToZaakInformatieObject.json) |
 
+All above synchronizations are triggered by cronjob or command. Note that all child objects you see from Zaak and ZaakType are synced during synchronization of Zaak or ZaakType. 
 Also read [commands](#commands) on how to execute certain synchronizations.
 
 Syncs to the zaaksysteem:
