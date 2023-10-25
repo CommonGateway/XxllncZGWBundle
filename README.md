@@ -139,7 +139,7 @@ There are a lot of objects being synced from and to the xxllnc zaaksysteem to zg
 | ZaakEigenschap       | attribute      | [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncAttributeToZaakEigenschap.json)      |
 | InformatieObject     | document       | [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncDocumentToZaakInformatieObject.json) |
 
-All above synchronizations are triggered by cronjob or command. Note that all child objects you see from Zaak and ZaakType are synced during synchronization of Zaak or ZaakType. 
+All above synchronizations are triggered by cronjob or command. Note that all child objects you see from Zaak and ZaakType are synced during synchronization of Zaak or ZaakType.
 Also read [commands](#commands) on how to execute certain synchronizations.
 
 #### Documents:
