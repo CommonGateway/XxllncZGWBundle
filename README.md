@@ -122,7 +122,7 @@ These are all current commands, you can fetch your synchronized objects through 
 
 There are a lot of objects being synced from and to the xxllnc zaaksysteem to zgw objects. Here is a table of them.
 
-Syncs from the zaaksysteem:
+### From the zaaksysteem to the gateway:
 | ZGW                  | Zaaksysteem    | Mapping                                                                                                                                     |
 |----------------------|----------------|--------------------------------------------------------------------------------------------------------------------------------------------|
 | BesluitType          | casetype       | [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncBesluitTypeToZGWBesluitType.json)    |
@@ -142,7 +142,16 @@ Syncs from the zaaksysteem:
 All above synchronizations are triggered by cronjob or command. Note that all child objects you see from Zaak and ZaakType are synced during synchronization of Zaak or ZaakType. 
 Also read [commands](#commands) on how to execute certain synchronizations.
 
-Syncs to the zaaksysteem:
+#### Documents:
+To fetch the documents of a case we have to do some extra api calls. 
+
+First we fetch all documents from a case on the v2 api `/document/search_document?case_uuid={id}` endpoint, this gives us the document numbers/identifications (not id) belonging to the currently syncing case.
+
+Foreach document we fetch the document metadata info on the v1 api `/document/get_by_number/` endpoint to get the id. With that id we fetch the actual document on the v2 api `/document/download_document?id={id}` endpoint.
+Then we have all info and data to map the documents to ZGW informatieobjecten and add them to the mapped Zaak. 
+
+
+### From the gateway to the zaaksysteem:
 | Zaaksysteem | ZGW              | Trigger                                     | Mapping                                                                                                                       |
 |-------------|------------------|---------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|
 | case        | Zaak             | POST/PUT /zrc/zaken                         | [View on GitHub](https://github.com/CommonGateway/XxllncZGWBundle/blob/main/Installation/Mapping/XxllncZaakToCase.json)       |
