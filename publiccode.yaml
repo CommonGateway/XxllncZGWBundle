@@ -2,7 +2,7 @@ publiccodeYmlVersion: '0.1'
 name: XxllncZGWBundle
 applicationSuite: null
 url: https://github.com/CommonGateway/XxllncZGWBundle
-landingURL: null
+landingURL: https://commongateway.github.io/XxllncZGWBundle
 isBasedOn: https://github.com/CommonGateway/PetstoreBundle
 softwareVersion: null
 logo: https://avatars.githubusercontent.com/u/106860777?v=4
@@ -21,7 +21,7 @@ description:
     genericName: null
     shortDescription: "This bundle contains the necessary logic for converting xxllnc zaaksysteem to ZGW and the other way around."
     longDescription: "The XxllncZGWBundle is a Symfony bundle that provides functionality for the CommonGateway about handling synchronizations between the xxllnc zaaksysteem standard and the ZGW standard. So it fetches and send xxllnc objects from and to their ZGW object equilevants."
-    documentation: null
+    documentation: https://commongateway.github.io/XxllncZGWBundle
     apiDocumentation: null
     features:
       - Common Ground Gateway Plugin
@@ -33,7 +33,7 @@ description:
     genericName: null
     shortDescription: "Deze bundle bevat de benodigde logica voor het omzetten van xxllnc zaaksysteem naar ZGW en andersom."
     longDescription: "De XxllncZGWBundle is een Symfony bundle die functionaliteit biedt voor de CommonGateway over het afhandelen van synchronisaties tussen de xxllnc zaaksysteemstandaard en de ZGW-standaard. Het haalt en verzendt dus xxllnc-objecten van en naar hun ZGW-objectequilevanten."
-    documentation: null
+    documentation: https://commongateway.github.io/XxllncZGWBundle
     apiDocumentation: null
     features:
       - Common Ground Gateway Plugin
