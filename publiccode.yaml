@@ -18,25 +18,23 @@ softwareType: softwareAddon
 description:
   en:
     localisedName: null
-    genericName: null
-    shortDescription: "This bundle contains the necessary logic for converting xxllnc zaaksysteem to ZGW and the other way around."
-    longDescription: "The XxllncZGWBundle is a Symfony bundle that provides functionality for the CommonGateway about handling synchronizations between the xxllnc zaaksysteem standard and the ZGW standard. So it fetches and send xxllnc objects from and to their ZGW object equilevants."
+    genericName: This bundle contains the necessary logic for converting xxllnc zaaksysteem to ZGW and the other way around.
+    shortDescription: XxllncZGWBundle
+    longDescription: The XxllncZGWBundle is a Symfony bundle that provides functionality for the CommonGateway about handling synchronizations between the xxllnc zaaksysteem standard and the ZGW standard. So it fetches and send xxllnc objects from and to their ZGW object equilevants.
     documentation: null
     apiDocumentation: null
-    features:
-      - Common Ground Gateway Plugin
+    features: []
     screenshots: []
     videos: []
     awards: []
   nl:
     localisedName: null
-    genericName: null
-    shortDescription: "Deze bundle bevat de benodigde logica voor het omzetten van xxllnc zaaksysteem naar ZGW en andersom."
-    longDescription: "De XxllncZGWBundle is een Symfony bundle die functionaliteit biedt voor de CommonGateway over het afhandelen van synchronisaties tussen de xxllnc zaaksysteemstandaard en de ZGW-standaard. Het haalt en verzendt dus xxllnc-objecten van en naar hun ZGW-objectequilevanten."
+    genericName: Deze bundle bevat de benodigde logica voor het omzetten van xxllnc zaaksysteem naar ZGW en andersom.
+    shortDescription: XxllncZGWBundle
+    longDescription: De XxllncZGWBundle is een Symfony bundle die functionaliteit biedt voor de CommonGateway over het afhandelen van synchronisaties tussen de xxllnc zaaksysteemstandaard en de ZGW-standaard. Het haalt en verzendt dus xxllnc-objecten van en naar hun ZGW-objectequilevanten.
     documentation: null
     apiDocumentation: null
-    features:
-      - Common Ground Gateway Plugin
+    features: []
     screenshots: []
     videos: []
     awards: []
@@ -80,10 +78,6 @@ dependsOn:
       versionMin: 1.2
       versionMax: 1.3
       version: 1.2.47
-      optional: false
-    - name: ZGWBundle
-      versionMin: 1.0
-      version: 1.0.40
       optional: false
 roadmap: null
 inputTypes:
