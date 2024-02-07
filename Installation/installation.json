@@ -126,7 +126,8 @@
         {
           "reference": "https://development.zaaksysteem.nl/action/xxllnc.Zaak.action.json",
           "actionHandler": "CommonGateway\\XxllncZGWBundle\\ActionHandler\\ZaakHandler",
-          "listens": ["xxllnc.cronjob.trigger"]
+          "listens": ["xxllnc.cronjob.trigger", "xxllnc.case.received"],
+          "async": true
         },
         {
           "reference": "https://development.zaaksysteem.nl/action/xxllnc.ZaakType.action.json",

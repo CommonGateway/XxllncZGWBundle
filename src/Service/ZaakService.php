@@ -14,6 +14,7 @@ namespace CommonGateway\XxllncZGWBundle\Service;
 
 use App\Entity\Gateway as Source;
 use App\Entity\ObjectEntity;
+use App\Event\ActionEvent;
 use App\Service\SynchronizationService;
 use CommonGateway\CoreBundle\Service\GatewayResourceService;
 use CommonGateway\CoreBundle\Service\MappingService;
@@ -23,6 +24,7 @@ use CommonGateway\ZGWBundle\Service\DRCService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 
 class ZaakService
@@ -88,6 +90,11 @@ class ZaakService
      */
     private LoggerInterface $logger;
 
+    /**
+     * @var EventDispatcherInterface The event dispatcher.
+     */
+    private EventDispatcherInterface $eventDispatcher;
+
 
     /**
      * __construct.
@@ -100,7 +107,8 @@ class ZaakService
         ZaakTypeService $zaakTypeService,
         GatewayResourceService $resourceService,
         MappingService $mappingService,
-        LoggerInterface $pluginLogger
+        LoggerInterface $pluginLogger,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->entityManager          = $entityManager;
         $this->synchronizationService = $synchronizationService;
@@ -110,6 +118,7 @@ class ZaakService
         $this->resourceService        = $resourceService;
         $this->mappingService         = $mappingService;
         $this->logger                 = $pluginLogger;
+        $this->eventDispatcher        = $eventDispatcher;
 
     }//end __construct()
 
@@ -504,22 +513,29 @@ class ZaakService
         $createdZaakCount = 0;
         $flushCount       = 0;
         foreach ($xxllncCases as $case) {
-            if ($this->syncCase($case) instanceof ObjectEntity === false) {
-                isset($this->style) === true && $this->style->error("Could not sync a case");
-                $this->logger->error("Could not sync a case");
-
-                continue;
-            }
-
-            $createdZaakCount = ($createdZaakCount + 1);
-            $flushCount       = ($flushCount + 1);
-
-            // Flush every 20
-            if ($flushCount == 20) {
-                $this->entityManager->flush();
-                $this->entityManager->flush();
-                $flushCount = 0;
-            }//end if
+            $event = new ActionEvent(
+                'commongateway.action.event',
+                ['caseId' => $case['reference']],
+                'xxllnc.case.received'
+            );
+            $this->eventDispatcher->dispatch($event, 'commongateway.action.event');
+            
+//            if ($this->syncCase($case) instanceof ObjectEntity === false) {
+//                isset($this->style) === true && $this->style->error("Could not sync a case");
+//                $this->logger->error("Could not sync a case");
+//
+//                continue;
+//            }
+//
+//            $createdZaakCount = ($createdZaakCount + 1);
+//            $flushCount       = ($flushCount + 1);
+//
+//            // Flush every 20
+//            if ($flushCount == 20) {
+//                $this->entityManager->flush();
+//                $this->entityManager->flush();
+//                $flushCount = 0;
+//            }//end if
         }//end foreach
 
         isset($this->style) === true && $this->style->success("Created $createdZaakCount zaken from the $caseCount fetched cases");
