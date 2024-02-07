@@ -519,23 +519,23 @@ class ZaakService
                 'xxllnc.case.received'
             );
             $this->eventDispatcher->dispatch($event, 'commongateway.action.event');
-            
-//            if ($this->syncCase($case) instanceof ObjectEntity === false) {
-//                isset($this->style) === true && $this->style->error("Could not sync a case");
-//                $this->logger->error("Could not sync a case");
-//
-//                continue;
-//            }
-//
-//            $createdZaakCount = ($createdZaakCount + 1);
-//            $flushCount       = ($flushCount + 1);
-//
-//            // Flush every 20
-//            if ($flushCount == 20) {
-//                $this->entityManager->flush();
-//                $this->entityManager->flush();
-//                $flushCount = 0;
-//            }//end if
+
+            // if ($this->syncCase($case) instanceof ObjectEntity === false) {
+            // isset($this->style) === true && $this->style->error("Could not sync a case");
+            // $this->logger->error("Could not sync a case");
+            //
+            // continue;
+            // }
+            //
+            // $createdZaakCount = ($createdZaakCount + 1);
+            // $flushCount       = ($flushCount + 1);
+            //
+            // Flush every 20
+            // if ($flushCount == 20) {
+            // $this->entityManager->flush();
+            // $this->entityManager->flush();
+            // $flushCount = 0;
+            // }//end if
         }//end foreach
 
         isset($this->style) === true && $this->style->success("Created $createdZaakCount zaken from the $caseCount fetched cases");
