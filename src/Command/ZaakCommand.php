@@ -92,7 +92,7 @@ class ZaakCommand extends Command
         $this->zaakService->setStyle($style);
         $zaakId = $input->getArgument('id');
 
-        $action = $this->entityManager->getRepository('App:Action')->findOneBy(['reference' => 'https://development.zaaksysteem.nl/action/xxllnc.Zaak.action.json']);
+        $action = $this->entityManager->getRepository(Action::class)->findOneBy(['reference' => 'https://development.zaaksysteem.nl/action/xxllnc.Zaak.action.json']);
         if ($action instanceof Action === null) {
             $style->error('Action with reference https://development.zaaksysteem.nl/action/xxllnc.Zaak.action.json not found');
 

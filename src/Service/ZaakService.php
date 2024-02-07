@@ -329,7 +329,7 @@ class ZaakService
      *
      * @return ObjectEntity The resulting zaak object.
      */
-    public function syncCase(array $case, bool $flush = true): ObjectEntity
+    public function syncCase(array $case, bool $flush = true): ?ObjectEntity
     {
         // 0. Get required config objects.
         $zaakSchema  = $this->resourceService->getSchema(
@@ -471,6 +471,10 @@ class ZaakService
         // Get schemas, sources and other gateway objects.
         if ($this->getXxllncAPI() === false) {
             return null;
+        }
+
+        if (isset($data['caseId']) === true) {
+            $this->getZaak($configuration, $data['caseId']);
         }
 
         isset($this->style) === true && $this->zaakTypeService->setStyle($this->style);
