@@ -481,11 +481,14 @@ class ZaakService
         if ($this->getXxllncAPI() === false) {
             return null;
         }
-
-        var_dump($data);
-
+        
         if (isset($data['caseId']) === true) {
             $this->getZaak($configuration, $data['caseId']);
+            return $data;
+        }
+
+        if (isset($data['body']['case_uuid']) === true) {
+            $this->getZaak($configuration, $data['body']['case_uuid']);
             return $data;
         }
 
