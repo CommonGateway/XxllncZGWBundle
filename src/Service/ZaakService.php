@@ -482,6 +482,8 @@ class ZaakService
             return null;
         }
 
+        var_dump($data);
+
         if (isset($data['caseId']) === true) {
             $this->getZaak($configuration, $data['caseId']);
         }
