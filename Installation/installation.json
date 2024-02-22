@@ -164,7 +164,7 @@
       {
         "version": "0.0.1",
         "name": "Xxllnc Notificaties endpoint",
-        "reference": "https://development.zaaksysteem.nl/schema/xxllnc.zaakPost.schema.json",
+        "reference": "https://development.zaaksysteem.nl/schema/xxllnc.zaakNotification.schema.json",
         "path": "xxllnc/notifications",
         "methods": ["POST"],
         "throws": ["xxllnc.case.received"]
