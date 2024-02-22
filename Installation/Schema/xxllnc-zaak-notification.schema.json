@@ -1,0 +1,17 @@
+{
+    "$id": "https://development.zaaksysteem.nl/schema/xxllnc.zaakNotification.schema.json",
+    "$schema": "https://docs.commongateway.nl/schemas/Entity.schema.json",
+    "version": "0.0.1",
+    "title": "XxllncZaakNotification",
+    "type": "object",
+    "properties": {
+        "case_uuid": {
+            "description": "The uuid of the case in the Xxllnc registry",
+            "type": "string"
+        },
+        "event_name": {
+            "description": "The event type received",
+            "type": "string"
+        }
+    }
+}

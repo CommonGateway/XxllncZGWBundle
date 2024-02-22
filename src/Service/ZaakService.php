@@ -487,6 +487,11 @@ class ZaakService
             return $data;
         }
 
+        if (isset($data['body']['case_uuid']) === true) {
+            $this->getZaak($configuration, $data['body']['case_uuid']);
+            return $data;
+        }
+
         isset($this->style) === true && $this->zaakTypeService->setStyle($this->style);
 
         // Fetch the xxllnc cases.
