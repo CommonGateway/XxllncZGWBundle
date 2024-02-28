@@ -414,8 +414,7 @@ class ZaakService
     private function getXxllncAPI()
     {
         // Get xxllnc source
-        if (isset($this->xxllncAPI) === false
-            && ($this->xxllncAPI = $this->resourceService->getSource(
+        if (($this->xxllncAPI = $this->resourceService->getSource(
                 'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json',
                 'common-gateway/xxllnc-zgw-bundle'
             )) === null
