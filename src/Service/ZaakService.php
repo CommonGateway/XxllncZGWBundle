@@ -414,11 +414,10 @@ class ZaakService
     private function getXxllncAPI()
     {
         // Get xxllnc source
-        if (isset($this->xxllncAPI) === false
-            && ($this->xxllncAPI = $this->resourceService->getSource(
-                'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json',
-                'common-gateway/xxllnc-zgw-bundle'
-            )) === null
+        if (($this->xxllncAPI = $this->resourceService->getSource(
+            'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json',
+            'common-gateway/xxllnc-zgw-bundle'
+        )) === null
         ) {
             isset($this->style) === true && $this->style->error("Could not find Source: Xxllnc API");
             $this->logger->error("Could not find Source: Xxllnc API");
@@ -508,7 +507,6 @@ class ZaakService
         } catch (Exception $e) {
             isset($this->style) === true && $this->style->error("Failed to fetch: {$e->getMessage()}");
             $this->logger->error("Failed to fetch: {$e->getMessage()}");
-
             return null;
         }
 
