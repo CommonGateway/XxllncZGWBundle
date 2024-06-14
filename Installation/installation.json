@@ -145,7 +145,10 @@
         "actionHandler": "CommonGateway\\XxllncZGWBundle\\ActionHandler\\ZGWToXxllncHandler",
         "listens": ["commongateway.object.create", "commongateway.object.update"],
         "conditions": {
-          "==": [{"var": "entity"}, "https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json"]
+            "or": [
+                {"==": [{"var": "entity"}, "https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json"]}, 
+                {"==": [{"var": "entity"}, "https://vng.opencatalogi.nl/schemas/ztc.zaaktype.schema.json"]}
+            ]
         }
       },
       {
