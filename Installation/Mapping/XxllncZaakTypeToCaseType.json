@@ -1,12 +1,16 @@
 {
-    "title": "XxllncZaakToCase",
-    "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncZaakToCase.mapping.json",
+    "title": "XxllncZaakTypeToCaseType",
+    "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncZaakTypeToCaseType.mapping.json",
     "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
-    "version": "0.0.2",
+    "version": "0.0.1",
     "passTrough": false,
     "mapping": {
-        "zgwZaak": "_self.id",
-        "casetype_id": "caseTypeId",
+        "zgwZaakType": "_self.id",
+        "casetype_uuid": "caseTypeSourceId",
+        "casetype_version_uuid": "caseTypeSourceId",
+        "catalog_folder_uuid": "caseTypeSourceId",
+        "active": "{% if concept|default and concept === false %}true{% else %}false{% endif %}",
+        "general_attributes": "{% if fetchedEigenschappen|default %} { {% set index = 0 %}{% for eigenschap in fetchedEigenschappen %}{% if index > 0 %}, {% endif %}\"{{ eigenschap }}\": \"string\"{% set index = index + 1 %}{% endfor %} } {% endif %}",
         "source": "behandelaar",
         "date_of_registration": "{{ 'now'|date('Y-m-dTH:i:sZ') }}",
         "confidentiality": "public",
@@ -16,8 +20,12 @@
         "values": "{ {% set index = 0 %}{% for zaakEigenschap in eigenschappen %}{% if zaakEigenschap.eigenschap.naam|default %}{% if index > 0 %}, {% endif %}\"{{ zaakEigenschap.eigenschap.naam }}\":{% if zaakEigenschap.eigenschap.waarde|default and zaakEigenschap.eigenschap.specificatie.formaat|default and zaakEigenschap.eigenschap.specificatie.formaat == 'checkbox' %}[[\"{{ zaakEigenschap.eigenschap.waarde }}\"]]{% else %}[\"{{ zaakEigenschap.waarde }}\"]{% endif %}{% set index = index + 1 %}{% endif %}{% endfor %} }"
     },
     "cast": {
-        "files": "jsonToArray",
-        "values": "jsonToArray"
+        "active": "bool",
+        "general_attributes": "jsonToArray"
+    },
+    "unset": {
+        "general_attributes": "unsetIfValue=="
     }
+
 }
 

@@ -147,8 +147,14 @@
         "conditions": {
             "or": [
                 {"==": [{"var": "entity"}, "https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json"]}, 
-                {"==": [{"var": "entity"}, "https://vng.opencatalogi.nl/schemas/ztc.zaaktype.schema.json"]}
+                {"==": [{"var": "entity"}, "https://vng.opencatalogi.nl/schemas/ztc.zaakType.schema.json"]}
             ]
+        },
+        "configuration": {
+            "source": "https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json",
+            "sourceV2": "https://development.zaaksysteem.nl/source/xxllnc.zaaksysteemV2.source.json",
+            "zaakTypeToCaseTypeMapping": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncZaakTypeToCaseType.mapping.json",
+            "xxllncZaakTypeSchema": ""
         }
       },
       {
