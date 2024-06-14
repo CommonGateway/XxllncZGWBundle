@@ -449,7 +449,8 @@ class ZGWToXxllncService
         $this->data          = $data['response'];
         $this->configuration = $configuration;
 
-        dump($this->data);die;
+        dump($this->data);
+        die;
 
         $zaakTypeId = $this->getZaakTypeId();
         if ($zaakTypeId === false) {
