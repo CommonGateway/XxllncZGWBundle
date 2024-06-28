@@ -50,25 +50,26 @@ class ZaakTypeCommand extends Command
      */
     private SessionInterface $session;
 
+
     /**
      * Class constructor.
      *
      * @param ZaakTypeService        $zaakTypeService The case type service
-     * @param EntityManagerInterface $entityManager 
-     * @param SessionInterface       $session 
+     * @param EntityManagerInterface $entityManager
+     * @param SessionInterface       $session
      */
     public function __construct(
         ZaakTypeService $zaakTypeService,
         EntityManagerInterface $entityManager,
         SessionInterface $session
-        ) {
+    ) {
         $this->zaakTypeService = $zaakTypeService;
         $this->entityManager   = $entityManager;
         $this->session         = $session;
         parent::__construct();
 
     }//end __construct()
-    
+
 
     /**
      * Configures this command.
@@ -108,7 +109,7 @@ class ZaakTypeCommand extends Command
         $objectTypeId = $input->getArgument('id');
 
         $actionRef = 'https://development.zaaksysteem.nl/action/xxllnc.ZaakType.action.json';
-        $action = $this->entityManager->getRepository('App:Action')->findOneBy(['reference' => $actionRef]);
+        $action    = $this->entityManager->getRepository('App:Action')->findOneBy(['reference' => $actionRef]);
         if ($action instanceof Action === false) {
             $style->error("Action with reference $actionRef not found");
 

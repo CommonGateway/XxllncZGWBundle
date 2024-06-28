@@ -50,23 +50,24 @@ class ZaakCommand extends Command
      */
     private SessionInterface $session;
 
+
     /**
      * Class constructor.
      *
-     * @param ZaakService        $zaakService The case service
-     * @param EntityManagerInterface $entityManager 
-     * @param SessionInterface       $session 
+     * @param ZaakService            $zaakService   The case service
+     * @param EntityManagerInterface $entityManager
+     * @param SessionInterface       $session
      */
     public function __construct(
         ZaakService $zaakService,
         EntityManagerInterface $entityManager,
         SessionInterface $session
-        ) {
-        $this->zaakService = $zaakService;
-        $this->entityManager   = $entityManager;
-        $this->session         = $session;
+    ) {
+        $this->zaakService   = $zaakService;
+        $this->entityManager = $entityManager;
+        $this->session       = $session;
         parent::__construct();
-        
+
     }//end __construct()
 
 
