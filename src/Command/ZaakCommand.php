@@ -14,13 +14,14 @@ namespace CommonGateway\XxllncZGWBundle\Command;
 
 use App\Entity\Action;
 use CommonGateway\XxllncZGWBundle\Service\ZaakService;
-use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class ZaakCommand extends Command
 {
@@ -44,16 +45,27 @@ class ZaakCommand extends Command
      */
     private EntityManagerInterface $entityManager;
 
+    /**
+     * @var SessionInterface
+     */
+    private SessionInterface $session;
+
 
     /**
      * Class constructor.
      *
-     * @param ZaakService $zaakService The case service
+     * @param ZaakService            $zaakService   The case service
+     * @param EntityManagerInterface $entityManager
+     * @param SessionInterface       $session
      */
-    public function __construct(ZaakService $zaakService, EntityManagerInterface $entityManager)
-    {
+    public function __construct(
+        ZaakService $zaakService,
+        EntityManagerInterface $entityManager,
+        SessionInterface $session
+    ) {
         $this->zaakService   = $zaakService;
         $this->entityManager = $entityManager;
+        $this->session       = $session;
         parent::__construct();
 
     }//end __construct()
@@ -97,6 +109,14 @@ class ZaakCommand extends Command
             $style->error('Action with reference https://development.zaaksysteem.nl/action/xxllnc.Zaak.action.json not found');
 
             return Command::FAILURE;
+        }
+
+        $this->session->remove('currentActionUserId');
+        if ($action->getUserId() !== null && Uuid::isValid($action->getUserId()) === true) {
+            $user = $this->entityManager->getRepository('App:User')->find($action->getUserId());
+            if ($user instanceof User === true) {
+                $this->session->set('currentActionUserId', $action->getUserId());
+            }
         }
 
         if (isset($zaakId) === true

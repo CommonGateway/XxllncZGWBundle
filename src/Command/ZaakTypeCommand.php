@@ -12,6 +12,7 @@
 
 namespace CommonGateway\XxllncZGWBundle\Command;
 
+use App\Entity\Action;
 use CommonGateway\XxllncZGWBundle\Service\ZaakTypeService;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Command\Command;
@@ -19,6 +20,8 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class ZaakTypeCommand extends Command
 {
@@ -37,15 +40,32 @@ class ZaakTypeCommand extends Command
      */
     private ZaakTypeService $zaakTypeService;
 
+    /**
+     * @var EntityManagerInterface
+     */
+    private EntityManagerInterface $entityManager;
+
+    /**
+     * @var SessionInterface
+     */
+    private SessionInterface $session;
+
 
     /**
      * Class constructor.
      *
-     * @param ZaakTypeService $zaakTypeService The case type service
+     * @param ZaakTypeService        $zaakTypeService The case type service
+     * @param EntityManagerInterface $entityManager
+     * @param SessionInterface       $session
      */
-    public function __construct(ZaakTypeService $zaakTypeService)
-    {
+    public function __construct(
+        ZaakTypeService $zaakTypeService,
+        EntityManagerInterface $entityManager,
+        SessionInterface $session
+    ) {
         $this->zaakTypeService = $zaakTypeService;
+        $this->entityManager   = $entityManager;
+        $this->session         = $session;
         parent::__construct();
 
     }//end __construct()
@@ -87,6 +107,22 @@ class ZaakTypeCommand extends Command
 
         // ObjectType could be a BesluitType or ZaakType.
         $objectTypeId = $input->getArgument('id');
+
+        $actionRef = 'https://development.zaaksysteem.nl/action/xxllnc.ZaakType.action.json';
+        $action    = $this->entityManager->getRepository('App:Action')->findOneBy(['reference' => $actionRef]);
+        if ($action instanceof Action === false) {
+            $style->error("Action with reference $actionRef not found");
+
+            return Command::FAILURE;
+        }
+
+        $this->session->remove('currentActionUserId');
+        if ($action->getUserId() !== null && Uuid::isValid($action->getUserId()) === true) {
+            $user = $this->entityManager->getRepository('App:User')->find($action->getUserId());
+            if ($user instanceof User === true) {
+                $this->session->set('currentActionUserId', $action->getUserId());
+            }
+        }
 
         if (isset($objectTypeId) === true
             && Uuid::isValid($objectTypeId) === true
