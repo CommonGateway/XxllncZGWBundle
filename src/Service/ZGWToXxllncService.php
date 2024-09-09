@@ -93,6 +93,11 @@ class ZGWToXxllncService
      */
     private LoggerInterface $logger;
 
+    /**
+     * @var SymfonyStyle $style.
+     */
+    private SymfonyStyle $style;
+
 
     /**
      * __construct.
@@ -113,6 +118,24 @@ class ZGWToXxllncService
         $this->documentService = $documentService;
 
     }//end __construct()
+
+
+    /**
+     * Set symfony style in order to output to the console.
+     *
+     * @param SymfonyStyle $style
+     *
+     * @return self
+     *
+     * @todo change to monolog
+     */
+    public function setStyle(SymfonyStyle $style): self
+    {
+        $this->style = $style;
+
+        return $this;
+
+    }//end setStyle()
 
 
     /**
@@ -387,16 +410,16 @@ class ZGWToXxllncService
 
         if (isset($zaakTypeArrayObject['eigenschappen']) === true) {
             foreach ($zaakTypeArrayObject['eigenschappen'] as $key => $eigenschap) {
-                $urlParts = explode('/', $eigenschap);
-                $eigenschapObject = $this->entityManager->find(ObjectEntity::class, end($urlParts));
+                $urlParts                                   = explode('/', $eigenschap);
+                $eigenschapObject                           = $this->entityManager->find(ObjectEntity::class, end($urlParts));
                 $zaakTypeArrayObject['eigenschappen'][$key] = $eigenschapObject->toArray();
             }
         }
 
         if (isset($zaakTypeArrayObject['statustypen']) === true) {
             foreach ($zaakTypeArrayObject['statustypen'] as $key => $statustype) {
-                $urlParts = explode('/', $statustype);
-                $statustypeObject = $this->entityManager->find(ObjectEntity::class, end($urlParts));
+                $urlParts                                 = explode('/', $statustype);
+                $statustypeObject                         = $this->entityManager->find(ObjectEntity::class, end($urlParts));
                 $zaakTypeArrayObject['statustypen'][$key] = $statustypeObject->toArray();
             }
         }
