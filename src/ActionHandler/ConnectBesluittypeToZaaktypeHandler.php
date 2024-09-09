@@ -53,7 +53,7 @@ class ConnectBesluittypeToZaaktypeHandler implements ActionHandlerInterface
         return [
             '$id'         => 'https://development.zaaksysteem.nl/schemas/ZaakType.ActionHandler.schema.json',
             '$schema'     => 'https://docs.commongateway.nl/schemas/ActionHandler.schema.json',
-            'title'       => 'ZGW ZaakType Action',
+            'title'       => 'Connect BesluitType to ZaakType Action',
             'description' => 'This handler customly maps xxllnc casetype to zgw zaaktype ',
             'required'    => ['zaakTypeEntityId'],
             'properties'  => [

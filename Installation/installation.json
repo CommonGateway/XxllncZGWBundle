@@ -5,7 +5,7 @@
       "title": "Xxllnc Application",
       "$id": "https://docs.commongateway.nl/application/default.application.json",
       "$schema": "https://docs.commongateway.nl/schemas/Application.schema.json",
-      "version": "0.0.2",
+      "version": "0.0.1",
       "description": "The xxllnc application for extra configuration",
       "domains": [
         "localhost",
