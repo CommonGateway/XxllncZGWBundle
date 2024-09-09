@@ -11,21 +11,17 @@
         "catalog_folder_uuid": "caseTypeSourceId",
         "active": "{% if concept|default and concept === false %}true{% else %}false{% endif %}",
         "general_attributes": "{% if fetchedEigenschappen|default %} { {% set index = 0 %}{% for eigenschap in fetchedEigenschappen %}{% if index > 0 %}, {% endif %}\"{{ eigenschap }}\": \"string\"{% set index = index + 1 %}{% endfor %} } {% endif %}",
-        "source": "behandelaar",
-        "date_of_registration": "{{ 'now'|date('Y-m-dTH:i:sZ') }}",
-        "confidentiality": "public",
-        "requestor.id": "bsn",
-        "requestor.type": "person",
-        "files": "[{% set index = 0 %}{% for infoObject in zaakinformatieobjecten %}{% if index > 0 %}, {% endif %}{{ map('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncInfoObjectToFile.mapping.json', infoObject)|json_encode }}{% set index = index + 1 %}{% endfor %}]",
-        "values": "{ {% set index = 0 %}{% for zaakEigenschap in eigenschappen %}{% if zaakEigenschap.eigenschap.naam|default %}{% if index > 0 %}, {% endif %}\"{{ zaakEigenschap.eigenschap.naam }}\":{% if zaakEigenschap.eigenschap.waarde|default and zaakEigenschap.eigenschap.specificatie.formaat|default and zaakEigenschap.eigenschap.specificatie.formaat == 'checkbox' %}[[\"{{ zaakEigenschap.eigenschap.waarde }}\"]]{% else %}[\"{{ zaakEigenschap.waarde }}\"]{% endif %}{% set index = index + 1 %}{% endif %}{% endfor %} }"
+        "phases": "behandelaar"
     },
     "cast": {
         "active": "bool",
         "general_attributes": "jsonToArray"
     },
     "unset": {
-        "general_attributes": "unsetIfValue=="
+        "general_attributes": "unsetIfValue==",
+        "casetype_uuid": "unsetIfValue==caseTypeSourceId",
+        "casetype_version_uuid": "unsetIfValue==caseTypeSourceId",
+        "catalog_folder_uuid": "unsetIfValue==caseTypeSourceId"
     }
-
 }
 

@@ -385,6 +385,22 @@ class ZGWToXxllncService
             return [];
         }
 
+        if (isset($zaakTypeArrayObject['eigenschappen']) === true) {
+            foreach ($zaakTypeArrayObject['eigenschappen'] as $key => $eigenschap) {
+                $urlParts = explode('/', $eigenschap);
+                $eigenschapObject = $this->entityManager->find(ObjectEntity::class, end($urlParts));
+                $zaakTypeArrayObject['eigenschappen'][$key] = $eigenschapObject->toArray();
+            }
+        }
+
+        if (isset($zaakTypeArrayObject['statustypen']) === true) {
+            foreach ($zaakTypeArrayObject['statustypen'] as $key => $statustype) {
+                $urlParts = explode('/', $statustype);
+                $statustypeObject = $this->entityManager->find(ObjectEntity::class, end($urlParts));
+                $zaakTypeArrayObject['statustypen'][$key] = $statustypeObject->toArray();
+            }
+        }
+
         // Map ZGW Zaak to xxllnc case.
         $caseTypeArray = $this->mappingService->mapping($mapping, $zaakTypeArrayObject);
 

@@ -1,0 +1,31 @@
+{
+    "$id": "https://development.zaaksysteem.nl/schema/xxllnc.zaakTypePost.schema.json",
+    "$schema": "https://docs.commongateway.nl/schemas/Entity.schema.json",
+    "version": "0.5",
+    "title": "XxllncZaakTypePost",
+    "type": "object",
+    "properties": {
+        "zgwZaakType": {
+            "description": "ID of the ZGW ZaakType this case will be mapped from.",
+            "type": "string"
+        },
+        "active": {
+            "type": "bool"
+        },
+        "casetype_uuid": {
+            "type": "string"
+        },
+        "casetype_version_uuid": {
+            "type": "string"
+        },
+        "catalog_folder_uuid": {
+            "type": "string"
+        },
+        "general_attributes": {
+            "type": "array"
+        },
+        "phases": {
+            "type": "array"
+        }
+    }
+}
