@@ -193,6 +193,11 @@ class ZGWToXxllncService
         $this->entityManager->flush();
         $caseId = $synchronization->getSourceId();
 
+        if ($caseId !== null) {
+            $this->logger->error("Synchronizng Zaak $resourceId to zaaksysteem failed with request body: " . json_encode($caseArray) . " and response body: " . json_encode($responseBody));
+
+        }
+
         return $caseId ?? false;
 
     }//end sendCaseToXxllnc()
@@ -472,13 +477,10 @@ class ZGWToXxllncService
         }
 
         if (isset($this->data['zaaktype']) === true && filter_var($this->data['zaaktype'], FILTER_VALIDATE_URL) !== false) {
-            $id = substr($this->data['zaaktype'], (strrpos($this->data['zaaktype'], '/') + 1));
-            if (Uuid::isValid($id) === true) {
-                return $id;
-            }
+            return basename($this->data['zaaktype']);
         }
 
-        $this->logger->error('No zaaktype id found on zaak in ZGWToXxllncService');
+        $this->logger->error('No zaaktype id found on zaak in ZGWToXxllncService with data: ' . json_encode($this->data));
 
         return false;
 
@@ -504,11 +506,6 @@ class ZGWToXxllncService
 
         $this->xxllncZaakSchema = $this->resourceService->getSchema('https://development.zaaksysteem.nl/schema/xxllnc.zaakPost.schema.json', 'xxllnc-zgw-bundle');
         $this->xxllncAPI        = $this->resourceService->getSource('https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json', 'xxllnc-zgw-bundle');
-
-        $zaakTypeId = $this->getZaakTypeId();
-        if ($zaakTypeId === false) {
-            return [];
-        }
 
         $zaakTypeObject = $this->entityManager->find('App:ObjectEntity', $zaakTypeId);
         if ($zaakTypeObject instanceof ObjectEntity === false) {
