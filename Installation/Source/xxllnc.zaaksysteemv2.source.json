@@ -5,7 +5,8 @@
     "version": "0.0.1",
     "description": "xxllnc zaaksysteem v2 api",
     "location": "!ChangMe!",
-    "authorizationHeader": "API-KEY",
-    "authorizationPassthroughMethod": "header",
-    "isEnabled": false
+    "isEnabled": false,
+    "headers": {
+        "Content-Type": "application/json"
+    }
 }
