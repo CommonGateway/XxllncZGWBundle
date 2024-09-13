@@ -656,14 +656,21 @@ class ZGWToXxllncService
         $this->configuration = $configuration;
 
         switch ($data['entity']) {
-        case 'https://vng.opencatalogi.nl/schemas/ztc.zaakType.schema.json':
-            return ['response' => $this->syncZaakTypeToXxllnc()];
-        case 'https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json':
-            $zaakTypeId = $this->getZaakTypeId();
-            if ($zaakTypeId === false) {
-                return [];
-            }
-            return ['response' => $this->syncZaakToXxllnc($zaakTypeId)];
+            case 'https://vng.opencatalogi.nl/schemas/ztc.rolType.schema.json':
+            case 'https://vng.opencatalogi.nl/schemas/ztc.statusType.schema.json':
+                if (isset($this->data['zaaktype']) === false) {
+                    return [];
+                }
+
+                return ['response' => $this->syncZaakTypeToXxllnc()];
+            case 'https://vng.opencatalogi.nl/schemas/ztc.zaakType.schema.json':
+                return ['response' => $this->syncZaakTypeToXxllnc()];
+            case 'https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json':
+                $zaakTypeId = $this->getZaakTypeId();
+                if ($zaakTypeId === false) {
+                    return [];
+                }
+                return ['response' => $this->syncZaakToXxllnc($zaakTypeId)];
         }
 
     }//end zgwToXxllncHandler()
