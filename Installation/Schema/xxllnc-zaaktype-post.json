@@ -10,7 +10,7 @@
             "type": "string"
         },
         "active": {
-            "type": "bool"
+            "type": "boolean"
         },
         "casetype_uuid": {
             "type": "string"
@@ -22,10 +22,44 @@
             "type": "string"
         },
         "general_attributes": {
-            "type": "array"
+            "type": "array",
+            "format": "json" 
         },
         "phases": {
-            "type": "array"
+            "type": "array",
+            "format": "json" 
+        },
+        "documentation": {
+            "type": "array",
+            "format": "json" 
+        },
+        "relations": {
+            "type": "array",
+            "format": "json" 
+        },
+        "registrationform": {
+            "type": "array",
+            "format": "json" 
+        },
+        "webform": {
+            "type": "array",
+            "format": "json" 
+        },
+        "case_dossier": {
+            "type": "array",
+            "format": "json" 
+        },
+        "api": {
+            "type": "array",
+            "format": "json" 
+        },
+        "authorization": {
+            "type": "array",
+            "format": "json" 
+        },
+        "change_log": {
+            "type": "array",
+            "format": "json" 
         }
     }
 }
