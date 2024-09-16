@@ -217,19 +217,15 @@ class ZGWToXxllncService
     public function sendCaseTypeToXxllnc(array $caseTypeArray, ObjectEntity $caseTypeObject, ?Synchronization $synchronization = null)
     {
         $objectId = $caseTypeArray['zgwZaakType'];
+        $endpoint = "/admin/catalog/create_versioned_casetype";
+        $unsetMapping = $this->resourceService->getMapping('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseTypeUnsetPOST.mapping.json', 'xxllnc-zgw-bundle');
+
         // If we have a sync with a sourceId we can do a PUT.
         if ($synchronization && $synchronization->getSourceId()) {
             $endpoint = "/admin/catalog/update_versioned_casetype";
             $unsetMapping = $this->resourceService->getMapping('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseTypeUnsetPUT.mapping.json', 'xxllnc-zgw-bundle');
-        }
-
-        // If we have dont have a sync or sourceId we can do a POST.
-        if ($synchronization === null
-            || ($synchronization !== null && $synchronization->getSourceId() === null)
-        ) {
+        } else {
             $synchronization = new Synchronization($this->xxllncAPIV2, $this->xxllncZaakTypeSchema);
-            $endpoint        = "/admin/catalog/create_versioned_casetype";
-            $unsetMapping = $this->resourceService->getMapping('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseTypeUnsetPOST.mapping.json', 'xxllnc-zgw-bundle');
         }
 
         if ($unsetMapping instanceof Mapping == false) {
@@ -243,7 +239,7 @@ class ZGWToXxllncService
         $this->logger->warning("$method a casetype to xxllnc (ID: $objectId) ".json_encode($caseTypeArray));
 
         // Method is always POST in the xxllnc api for creating and updating (not needed to pass here).
-        $responseBody = $this->syncService->synchronizeTemp($synchronization, $caseTypeArray, $caseTypeObject, $this->xxllncZaakTypeSchema, $endpoint, 'data.id');
+        $this->syncService->synchronizeTemp($synchronization, $caseTypeArray, $caseTypeObject, $this->xxllncZaakTypeSchema, $endpoint, 'data.id');
         $this->entityManager->persist($synchronization);
         $this->entityManager->flush();
         $caseTypeId = $synchronization->getSourceId();
@@ -428,41 +424,10 @@ class ZGWToXxllncService
      */
     public function mapZGWZaakTypeToXxllnc(?string $casetypeId = null, ObjectEntity $zaakTypeObject, array $zaakTypeArrayObject): array
     {
-        $mapping = $this->resourceService->getMapping($this->configuration['zaakTypeToCaseTypeMapping'], 'xxllnc-zgw-bundle');
+        $mapping = $this->resourceService->getMapping('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncZaakTypeToCaseType.mapping.json', 'xxllnc-zgw-bundle');
         if ($mapping instanceof Mapping === false) {
             return [];
         }
-
-        // if (isset($zaakTypeArrayObject['eigenschappen']) === true) {
-        //     foreach ($zaakTypeArrayObject['eigenschappen'] as $key => $eigenschap) {
-        //         if (is_array($eigenschap) === false) {
-        //             $urlParts                                   = explode('/', $eigenschap);
-        //             $eigenschapObject                           = $this->entityManager->find(ObjectEntity::class, end($urlParts));
-        //             $zaakTypeArrayObject['eigenschappen'][$key] = $eigenschapObject->toArray();
-        //         }
-        //     }
-        // }
-
-        // if (isset($zaakTypeArrayObject['statustypen']) === true) {
-        //     foreach ($zaakTypeArrayObject['statustypen'] as $key => $statustype) {
-        //         if (is_array($statustype) === false) {
-        //             $urlParts                                 = explode('/', $statustype);
-        //             $statustypeObject                         = $this->entityManager->find(ObjectEntity::class, end($urlParts));
-        //             $zaakTypeArrayObject['statustypen'][$key] = $statustypeObject->toArray();
-        //         }
-        //     }
-        // }
-
-        // if (isset($zaakTypeArrayObject['roltypen']) === true) {
-        //     foreach ($zaakTypeArrayObject['roltypen'] as $key => $statustype) {
-        //         if (is_array($statustype) === false) {
-        //             $urlParts                                 = explode('/', $statustype);
-        //             $statustypeObject                         = $this->entityManager->find(ObjectEntity::class, end($urlParts));
-        //             $zaakTypeArrayObject['roltypen'][$key] = $statustypeObject->toArray();
-        //         }
-        //     }
-        // }
-
 
         $zaakTypeArrayObject = array_merge($zaakTypeArrayObject, [
             'casetypeUuid' => $casetypeId ?? Uuid::uuid4()->toString(),
@@ -477,15 +442,12 @@ class ZGWToXxllncService
         $caseTypeObject->hydrate($caseTypeArray);
         $this->entityManager->persist($caseTypeObject);
 
-        $synchronization = null;
 
         // Only get synchronization that has a sourceId.
+        $synchronization = null;
         if ($caseTypeObject->getSynchronizations() && isset($caseTypeObject->getSynchronizations()[0]) === true && $caseTypeObject->getSynchronizations()[0]->getSourceId()) {
             $synchronization = $caseTypeObject->getSynchronizations()[0];
         }
-
-        // Unset empty keys.
-        // $caseTypeArray = array_filter($caseTypeArray);
 
         $sourceId = $this->sendCaseTypeToXxllnc($caseTypeArray, $caseTypeObject, $synchronization);
         if ($sourceId === false) {
@@ -501,10 +463,16 @@ class ZGWToXxllncService
     /**
      * Gets zaaktype id on multple ways.
      *
+     * @param bool $isZaakType If this object in data is a zaaktype or not.
+     *
      * @return string|bool $zaakTypeId or bool if not found.
      */
-    private function getZaakTypeId()
+    private function getZaakTypeId(?bool $isZaakType = false)
     {
+        if ($isZaakType === true && isset($this->data['_self']['id']) === true) {
+            return $this->data['_self']['id'];
+        };
+
         if (isset($this->data['zaaktype']) === true && is_array($this->data['zaaktype']) === false && Uuid::isValid($this->data['zaaktype']) === true) {
             return $this->data['zaaktype'];
         }
@@ -520,6 +488,13 @@ class ZGWToXxllncService
         if (isset($this->data['zaaktype']) === true && filter_var($this->data['zaaktype'], FILTER_VALIDATE_URL) !== false) {
             return basename($this->data['zaaktype']);
         }
+
+
+        if (isset($this->data['zaaktype']) === true && filter_var($this->data['zaaktype'], FILTER_VALIDATE_URL) !== false) {
+            $zaakTypeId = basename($this->data['zaaktype']);
+        } elseif (isset($this->data['_self']['id']) === true) {
+            $zaakTypeId = $this->data['_self']['id'];
+        };
 
         $this->logger->error('No zaaktype id found on zaak in ZGWToXxllncService with data: ' . json_encode($this->data));
 
@@ -598,28 +573,20 @@ class ZGWToXxllncService
         $xxllncZaakTypeSchemaReference = 'https://development.zaaksysteem.nl/schema/xxllnc.zaakTypePost.schema.json';
         $this->xxllncZaakTypeSchema = $this->resourceService->getSchema($xxllncZaakTypeSchemaReference, 'xxllnc-zgw-bundle');
         if (isset($this->xxllncZaakTypeSchema) === false) {
-            $this->logger->error("Could not find Schema with reference: $xxllncZaakTypeSchemaReference aborting sync zaaktype to xxllnc");
             return [];
         }
 
         $xxllncAPIV2Reference = 'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteemv2.source.json';
         $this->xxllncAPIV2     = $this->resourceService->getSource($xxllncAPIV2Reference, 'xxllnc-zgw-bundle');
         if (isset($this->xxllncAPIV2) === false) {
-            $this->logger->error("Could not find Source with reference: $xxllncAPIV2Reference aborting sync zaaktype to xxllnc");
             return [];
         }
 
-        if (isset($this->data['zaaktype']) === true && filter_var($this->data['zaaktype'], FILTER_VALIDATE_URL) !== false) {
-            $zaakTypeId = basename($this->data['zaaktype']);
-        } elseif (isset($this->data['_self']['id']) === true) {
-            $zaakTypeId = $this->data['_self']['id'];
-        };
-
+        $zaakTypeId = $this->getZaakTypeId();
         if (isset($zaakTypeId) === false) {
             $this->logger->error('No _self.id found on ZaakType or no zaaktype field found on this object, cant sync to xxllnc');
             return [];
         }
-
 
         $zaakTypeObject = $this->entityManager->find('App:ObjectEntity', $zaakTypeId);
         if ($zaakTypeObject instanceof ObjectEntity === false) {
@@ -628,11 +595,9 @@ class ZGWToXxllncService
         }
 
         $synchronizations = $zaakTypeObject->getSynchronizations();
-
+        $casetypeId = null;
         if (isset($synchronizations[0]) === true) {
             $casetypeId = $synchronizations[0]->getSourceId();
-        } else {
-            $casetypeId = null;
         }
 
         $this->mapZGWZaakTypeToXxllnc($casetypeId, $zaakTypeObject, $zaakTypeObject->toArray());
