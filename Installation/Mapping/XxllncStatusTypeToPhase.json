@@ -1,0 +1,24 @@
+{
+    "title": "XxllncStatusTypeToPhase",
+    "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncStatusTypeToPhase.mapping.json",
+    "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
+    "version": "0.0.1",
+    "passTrough": false,
+    "mapping": {
+        "phase_name": "omschrijving",
+        "milestone_name": "statustekst",
+        "term_in_days": "doorlooptijd",
+        "custom_fields": "[]"
+    },
+    "cast": {
+        "term_in_days": "int",
+        "custom_fields": "jsonToArray"
+    },
+    "unset": {
+        "phase_name": "unsetIfValue==omschrijving",
+        "milestone_name": "unsetIfValue==statustekst",
+        "term_in_days": "unsetIfValue==doorlooptijd"
+    }
+
+}
+

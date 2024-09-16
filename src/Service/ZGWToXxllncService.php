@@ -239,6 +239,7 @@ class ZGWToXxllncService
 
         $caseTypeArray = $this->mappingService->mapping($unsetMapping, $caseTypeArray);
         $method    = 'POST';
+        $jsonEncodedBody = json_encode($caseTypeArray);
         $this->logger->warning("$method a casetype to xxllnc (ID: $objectId) ".json_encode($caseTypeArray));
 
         // Method is always POST in the xxllnc api for creating and updating (not needed to pass here).
@@ -246,6 +247,12 @@ class ZGWToXxllncService
         $this->entityManager->persist($synchronization);
         $this->entityManager->flush();
         $caseTypeId = $synchronization->getSourceId();
+
+        if ($caseTypeId !== null) {
+            $this->logger->warning("Successfully created/updated casetype with sourceId: $caseTypeId");
+        } else {
+            $this->logger->error("Something went wrong creating or updating casetype with send request body: $jsonEncodedBody");
+        }
 
         return $caseTypeId ?? false;
 
