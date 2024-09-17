@@ -8,16 +8,24 @@
         "phase_name": "omschrijving",
         "milestone_name": "statustekst",
         "term_in_days": "doorlooptijd",
-        "custom_fields": "[]"
+        "custom_fields": "[]",
+        "assignment.role_name": "{% if roltypen[0].omschrijving|default %}{{ roltypen[0].omschrijving }}{% endif %}",
+        "assignment.role_uuid": "{% if roltypen[0]._self.synchronizations[0].sourceId|default %}{{ roltypen[0]._self.synchronizations[0].sourceId| }}{% elseif roltypen[0].backupUuid|default %}{{ roltypen[0].backupUuid }}{% endif %}",
+        "assignment.enabled": "{% if roltypen[0]._self.synchronizations[0].sourceId|default or roltypen[0].backupUuid|default %}{{ 'true' }}{% endif %}"
     },
     "cast": {
         "term_in_days": "int",
-        "custom_fields": "jsonToArray"
+        "custom_fields": "jsonToArray",
+        "assignment.enabled": "bool"
     },
     "unset": {
         "phase_name": "unsetIfValue==omschrijving",
         "milestone_name": "unsetIfValue==statustekst",
-        "term_in_days": "unsetIfValue==doorlooptijd"
+        "term_in_days": "unsetIfValue==doorlooptijd",
+        "assignment": "unsetIfValue==",
+        "assignment.role_name": "unsetIfValue==",
+        "assignment.role_uuid": "unsetIfValue==",
+        "assignment.enabled": "unsetIfValue=="
     }
 
 }

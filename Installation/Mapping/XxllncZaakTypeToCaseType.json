@@ -70,7 +70,7 @@
         "child_casetype_settings.child_casetypes": "[]",
         "change_log.update_description": "{% if onderwerp|default %}{{ onderwerp }}{% else %}{{ 'test'  }}{% endif %}",
         "change_log.update_components": "[\"API\"]",
-        "phases": "[{% set index=0 %}{% if statustypen|default %}{% for statustype in statustypen %}{% if index != 0 %},{% endif %}{{ map('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncStatusTypeToPhase.mapping.json', statustype)|json_encode }}{% set index=index+1 %}{% endfor %}{% endif %}]"
+        "phases": "[{% set index=0 %}{% if statustypen|default %}{% for statustype in statustypen %}{% if index != 0 %},{% endif %}{% if roltypen|default and index < 1 %}{% set passRoltypen = {'roltypen': roltypen} %}{% set statustype = statustype|merge(passRoltypen) %}{% endif %}{{ map('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncStatusTypeToPhase.mapping.json', statustype)|json_encode }}{% set index=index+1 %}{% endfor %}{% endif %}]"
     },
     "cast": {
         "active": "bool",
