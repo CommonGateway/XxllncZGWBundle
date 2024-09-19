@@ -8,7 +8,7 @@
         "zgwZaakType": "_self.id",
         "casetype_uuid": "casetypeUuid",
         "casetype_version_uuid": "casetypeVersionUuid",
-        "catalog_folder_uuid": "catalogFolderUuid",
+        "catalog_folder_uuid": "zaaksysteemCatalogId",
         "active": "{% if concept is defined or concept is same as(true) %}true{% else %}false{% endif %}",
         "general_attributes.name": "onderwerp",
         "general_attributes.identification": "onderwerp",

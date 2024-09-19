@@ -399,7 +399,7 @@ class ZGWToXxllncService
         $zaakTypeArrayObject = array_merge($zaakTypeArrayObject, [
             'casetypeUuid' => $casetypeId,
             'casetypeVersionUuid' =>  Uuid::uuid4()->toString(),
-            'catalogFolderUuid' => $this->configuration['catalogFolderUuid']
+            'zaaksysteemCatalogId' => $this->configuration['zaaksysteemCatalogId']
         ]);
 
         if (isset($zaakTypeArrayObject['roltypen']) === true) {
@@ -537,8 +537,18 @@ class ZGWToXxllncService
     {
         $this->logger->debug('function syncZaakTypeToXxllnc triggered');
 
-        if (isset($this->configuration['catalogFolderUuid']) === false || Uuid::isValid($this->configuration['catalogFolderUuid']) === false) {
-            $this->logger->error('catalogFolderUuid not configured or is invalid uuid');
+        if (isset($this->configuration['zaaksysteemCatalogId']) === false || Uuid::isValid($this->configuration['zaaksysteemCatalogId']) === false) {
+            $this->logger->error('zaaksysteemCatalogId not configured or is invalid uuid');
+            return [];
+        }
+
+        if (isset($this->configuration['zaaksysteemDepartment']['id']) === false || isset($this->configuration['zaaksysteemDepartment']['name']) === false) {
+            $this->logger->error('zaaksysteemDepartment not configured or no name or id set');
+            return [];
+        }
+
+        if (isset($this->configuration['zaaksysteemRole']['id']) === false || isset($this->configuration['zaaksysteemRole']['name']) === false) {
+            $this->logger->error('zaaksysteemRole not configured or no name or id set');
             return [];
         }
 

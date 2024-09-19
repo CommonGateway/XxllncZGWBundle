@@ -155,7 +155,15 @@
         "configuration": {
             "source": "https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json",
             "zaakTypeToCaseTypeMapping": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncZaakTypeToCaseType.mapping.json",
-            "catalogFolderUuid": null
+            "zaaksysteemCatalogId": null,
+            "zaaksysteemRole": {
+                "id": null,
+                "name": null
+            },
+            "zaaksysteemDepartment": {
+                "id": null,
+                "name": null
+            }
         }
       },
       {
