@@ -84,11 +84,6 @@ class ZGWToXxllncService
     public ?Schema $xxllncZaakSchema;
 
     /**
-     * @var Schema|null $xxllncZaakTypeSchema.
-     */
-    public ?Schema $xxllncZaakTypeSchema;
-
-    /**
      * @var LoggerInterface $logger.
      */
     private LoggerInterface $logger;
@@ -544,12 +539,6 @@ class ZGWToXxllncService
 
         if (isset($this->configuration['catalogFolderUuid']) === false || Uuid::isValid($this->configuration['catalogFolderUuid']) === false) {
             $this->logger->error('catalogFolderUuid not configured or is invalid uuid');
-            return [];
-        }
-
-        $xxllncZaakTypeSchemaReference = 'https://development.zaaksysteem.nl/schema/xxllnc.zaakTypePost.schema.json';
-        $this->xxllncZaakTypeSchema = $this->resourceService->getSchema($xxllncZaakTypeSchemaReference, 'xxllnc-zgw-bundle');
-        if (isset($this->xxllncZaakTypeSchema) === false) {
             return [];
         }
 
