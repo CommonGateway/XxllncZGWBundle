@@ -9,9 +9,11 @@
         "milestone_name": "statustekst",
         "term_in_days": "doorlooptijd",
         "custom_fields": "[]",
-        "assignment.role_name": "{% if roltypen[0].omschrijving|default %}{{ roltypen[0].omschrijving }}{% endif %}",
-        "assignment.role_uuid": "{% if roltypen[0]._self.synchronizations[0].sourceId|default %}{{ roltypen[0]._self.synchronizations[0].sourceId| }}{% elseif roltypen[0].backupUuid|default %}{{ roltypen[0].backupUuid }}{% endif %}",
-        "assignment.enabled": "{% if roltypen[0]._self.synchronizations[0].sourceId|default or roltypen[0].backupUuid|default %}{{ 'true' }}{% endif %}"
+        "assignment.role_name": "{% if zaaksysteemRole.name|default %}{{ zaaksysteemRole.name }}{% endif %}",
+        "assignment.role_uuid": "{% if zaaksysteemRole.id|default %}{{ zaaksysteemRole.id }}{% endif %}",
+        "assignment.department_name": "{% if zaaksysteemDepartment.name|default %}{{ zaaksysteemDepartment.name }}{% endif %}",
+        "assignment.department_uuid": "{% if zaaksysteemDepartment.id|default %}{{ zaaksysteemDepartment.id }}{% endif %}",
+        "assignment.enabled": "{% if zaaksysteemRole.name|default and zaaksysteemRole.id|default and zaaksysteemDepartment.name|default and zaaksysteemDepartment.id|default %}{{ 'true' }}{% endif %}"
     },
     "cast": {
         "term_in_days": "int",
@@ -25,6 +27,8 @@
         "assignment": "unsetIfValue==",
         "assignment.role_name": "unsetIfValue==",
         "assignment.role_uuid": "unsetIfValue==",
+        "assignment.department_name": "unsetIfValue==",
+        "assignment.department_uuid": "unsetIfValue==",
         "assignment.enabled": "unsetIfValue=="
     }
 
