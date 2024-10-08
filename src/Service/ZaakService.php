@@ -505,17 +505,20 @@ class ZaakService
         }
 
         if (isset($data['caseId']) === true) {
-            $this->getZaak($configuration, $data['caseId']);
-
-            return $data;
+            $zaak = $this->getZaak($configuration, $data['caseId']);
         }
 
         if (isset($data['body']['case_uuid']) === true) {
             $zaak = $this->getZaak($configuration, $data['body']['case_uuid']);
+        }
 
+        // Check if we already synced the zaak.
+        if (isset($zaak) === true) {
+            // Check if we need to update the taak with the zaak url.
             if (isset($data['taakId']) === true) {
                 $this->updateTaak($zaak, $data['taakId']);
             }
+
             return $data;
         }
 
