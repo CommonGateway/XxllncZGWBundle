@@ -463,6 +463,29 @@ class ZaakService
 
     }//end getZaak()
 
+    /**
+     * Updates the taak with the zaak url.
+     *
+     * @param ObjectEntity $zaak The zaak object.
+     * @param string $taakId The taak id.
+     *
+     * @return ObjectEntity The updated taak object.
+     */
+    private function updateTaak(ObjectEntity $zaak, string $taakId): ObjectEntity
+    {
+        $this->logger->info("taakId found in body, trying to update taak with zaak url");
+
+        $zaak = $this->resourceService->getObject($zaak->getId()->toString(), 'common-gateway/xxllnc-zgw-bundle');
+        $taak = $this->resourceService->getObject($taakId, 'common-gateway/xxllnc-zgw-bundle');
+        $taak->setValue('url', $zaak->getValue('url'));
+        $this->entityManager->persist($taak);
+        $this->entityManager->flush();
+
+        $this->logger->info("Updated taak with zaak url");
+
+        return $taak;
+    }//end updateTaak()
+
 
     /**
      * Creates or updates a ZGW Zaak from a xxllnc case with the use of mapping.
@@ -483,11 +506,16 @@ class ZaakService
 
         if (isset($data['caseId']) === true) {
             $this->getZaak($configuration, $data['caseId']);
+
             return $data;
         }
 
         if (isset($data['body']['case_uuid']) === true) {
-            $this->getZaak($configuration, $data['body']['case_uuid']);
+            $zaak = $this->getZaak($configuration, $data['body']['case_uuid']);
+
+            if (isset($data['taakId']) === true) {
+                $this->updateTaak($zaak, $data['taakId']);
+            }
             return $data;
         }
 
