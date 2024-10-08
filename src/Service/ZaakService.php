@@ -508,9 +508,7 @@ class ZaakService
 
         if (isset($data['caseId']) === true) {
             $zaak = $this->getZaak($configuration, $data['caseId']);
-        }
-
-        if (isset($data['body']['case_uuid']) === true) {
+        } else if (isset($data['body']['case_uuid']) === true) {
             $zaak = $this->getZaak($configuration, $data['body']['case_uuid']);
         }
 
