@@ -463,11 +463,12 @@ class ZaakService
 
     }//end getZaak()
 
+
     /**
      * Updates the taak with the zaak url.
      *
-     * @param ObjectEntity $zaak The zaak object.
-     * @param string $taakId The taak id.
+     * @param ObjectEntity $zaak   The zaak object.
+     * @param string       $taakId The taak id.
      *
      * @return ObjectEntity The updated taak object.
      */
@@ -484,6 +485,7 @@ class ZaakService
         $this->logger->info("Updated taak with zaak url");
 
         return $taak;
+
     }//end updateTaak()
 
 
