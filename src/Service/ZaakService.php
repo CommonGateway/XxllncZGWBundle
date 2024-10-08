@@ -478,7 +478,7 @@ class ZaakService
 
         $zaak = $this->resourceService->getObject($zaak->getId()->toString(), 'common-gateway/xxllnc-zgw-bundle');
         $taak = $this->resourceService->getObject($taakId, 'common-gateway/xxllnc-zgw-bundle');
-        $taak->setValue('url', $zaak->getValue('url'));
+        $taak->setValue('zaak', $zaak->getValue('url'));
         $this->entityManager->persist($taak);
         $this->entityManager->flush();
 
@@ -506,10 +506,16 @@ class ZaakService
             return null;
         }
 
+        // To generalize stuff..
+        if (isset($data['body']['case_uuid']) === true) {
+            $data['case_uuid'] = $data['body']['case_uuid'];
+        }
+
+
         if (isset($data['caseId']) === true) {
             $zaak = $this->getZaak($configuration, $data['caseId']);
-        } else if (isset($data['body']['case_uuid']) === true) {
-            $zaak = $this->getZaak($configuration, $data['body']['case_uuid']);
+        } else if (isset($data['case_uuid']) === true) {
+            $zaak = $this->getZaak($configuration, $data['case_uuid']);
         }
 
         // Check if we already synced the zaak.
