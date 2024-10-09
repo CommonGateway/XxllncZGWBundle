@@ -465,6 +465,31 @@ class ZaakService
 
 
     /**
+     * Updates the taak with the zaak url.
+     *
+     * @param ObjectEntity $zaak   The zaak object.
+     * @param string       $taakId The taak id.
+     *
+     * @return ObjectEntity The updated taak object.
+     */
+    private function updateTaak(ObjectEntity $zaak, string $taakId): ObjectEntity
+    {
+        $this->logger->info("taakId found in body, trying to update taak with zaak url");
+
+        $zaak = $this->resourceService->getObject($zaak->getId()->toString(), 'common-gateway/xxllnc-zgw-bundle');
+        $taak = $this->resourceService->getObject($taakId, 'common-gateway/xxllnc-zgw-bundle');
+        $taak->setValue('zaak', $zaak->getValue('url'));
+        $this->entityManager->persist($taak);
+        $this->entityManager->flush();
+
+        $this->logger->info("Updated taak with zaak url");
+
+        return $taak;
+
+    }//end updateTaak()
+
+
+    /**
      * Creates or updates a ZGW Zaak from a xxllnc case with the use of mapping.
      *
      * @param ?array $data          Data from the handler where the xxllnc case is in.
@@ -481,13 +506,24 @@ class ZaakService
             return null;
         }
 
-        if (isset($data['caseId']) === true) {
-            $this->getZaak($configuration, $data['caseId']);
-            return $data;
+        // To generalize stuff..
+        if (isset($data['body']['case_uuid']) === true) {
+            $data['case_uuid'] = $data['body']['case_uuid'];
         }
 
-        if (isset($data['body']['case_uuid']) === true) {
-            $this->getZaak($configuration, $data['body']['case_uuid']);
+        if (isset($data['caseId']) === true) {
+            $zaak = $this->getZaak($configuration, $data['caseId']);
+        } else if (isset($data['case_uuid']) === true) {
+            $zaak = $this->getZaak($configuration, $data['case_uuid']);
+        }
+
+        // Check if we already synced the zaak.
+        if (isset($zaak) === true) {
+            // Check if we need to update the taak with the zaak url.
+            if (isset($data['taakId']) === true) {
+                $this->updateTaak($zaak, $data['taakId']);
+            }
+
             return $data;
         }
 
