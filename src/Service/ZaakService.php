@@ -269,7 +269,7 @@ class ZaakService
         isset($this->style) === true && $this->style->info("Checking for documents on this case (zaakinformatieobjecten)..");
         $this->logger->info("Checking for documents on this case (zaakinformatieobjecten)..");
         // Need V2 api to fetch document inhoud.
-        $xxllncV2 = $this->resourceService->getSource($this->configuration['sourceV2'] ?? 'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteemv2.source.json', 'xxllnc-zgw-bundle');
+        $xxllncV2 = $this->resourceService->getSource(($this->configuration['sourceV2'] ?? 'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteemv2.source.json'), 'xxllnc-zgw-bundle');
         if ($xxllncV2 === null) {
             return [];
         }
@@ -346,7 +346,7 @@ class ZaakService
             'common-gateway/xxllnc-zgw-bundle'
         );
         $xxllncAPI   = $this->resourceService->getSource(
-            $this->configuration['source'] ?? 'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json',
+            ($this->configuration['source'] ?? 'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json'),
             'common-gateway/xxllnc-zgw-bundle'
         );
         $caseMapping = $this->resourceService->getMapping(
