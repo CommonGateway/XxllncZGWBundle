@@ -127,6 +127,10 @@
         "reference": "https://development.zaaksysteem.nl/action/xxllnc.Zaak.action.json",
         "actionHandler": "CommonGateway\\XxllncZGWBundle\\ActionHandler\\ZaakHandler",
         "listens": ["xxllnc.cronjob.trigger", "xxllnc.case.received"],
+        "configuration": {
+          "source": "https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json",
+          "sourceV2": "https://development.zaaksysteem.nl/source/xxllnc.zaaksysteemv2.source.json"
+        },
         "async": true
       },
       {
