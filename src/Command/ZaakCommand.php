@@ -122,7 +122,7 @@ class ZaakCommand extends Command
         if (isset($zaakId) === true
             && Uuid::isValid($zaakId) === true
         ) {
-            if ($this->zaakService->getZaak($action->getConfiguration(), $zaakId) === true) {
+            if ($this->zaakService->zaakHandler(['caseId' => $zaakId], $action->getConfiguration()) === true) {
                 return Command::FAILURE;
             }
 
