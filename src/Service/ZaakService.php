@@ -344,7 +344,7 @@ class ZaakService
 
         // 0. Get required config objects.
         $zaakReference = 'https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json';
-        $zaakSchema  = $this->resourceService->getSchema(
+        $zaakSchema    = $this->resourceService->getSchema(
             $zaakReference,
             $pluginName
         );
@@ -356,7 +356,7 @@ class ZaakService
         }
 
         $xxllncAPIReference = ($this->configuration['source'] ?? 'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json');
-        $xxllncAPI   = $this->resourceService->getSource(
+        $xxllncAPI          = $this->resourceService->getSource(
             $xxllncAPIReference,
             $pluginName
         );
@@ -368,7 +368,7 @@ class ZaakService
         }
 
         $caseMappingReference = 'https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseToZGWZaak.mapping.json';
-        $caseMapping = $this->resourceService->getMapping(
+        $caseMapping          = $this->resourceService->getMapping(
             $caseMappingReference,
             $pluginName
         );
@@ -516,7 +516,7 @@ class ZaakService
 
         if ($zaak->getValue('zaaktype') !== null && $zaak->getValue('zaaktype')->getValue('url') !== null) {
             $zaakTypeUrl = $zaak->getValue('zaaktype')->getValue('url');
-            $data = array_merge($taak->getValue('data'), ['zaakTypeUrl' => $zaakTypeUrl]);
+            $data        = array_merge($taak->getValue('data'), ['zaakTypeUrl' => $zaakTypeUrl]);
             $taak->setValue('data', $data);
 
             $this->entityManager->persist($taak);
