@@ -340,25 +340,50 @@ class ZaakService
      */
     public function syncCase(array $case, bool $flush = true): ?ObjectEntity
     {
+        $pluginName = 'common-gateway/xxllnc-zgw-bundle';
+
         // 0. Get required config objects.
+        $zaakReference = 'https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json';
         $zaakSchema  = $this->resourceService->getSchema(
-            'https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json',
-            'common-gateway/xxllnc-zgw-bundle'
+            $zaakReference,
+            $pluginName
         );
+
+        if ($zaakSchema === null) {
+            $this->logger->error("Zaak schema $zaakReference could not be found or synced, aborting.", ['plugin' => $pluginName]);
+
+            return null;
+        }
+
+        $xxllncAPIReference = ($this->configuration['source'] ?? 'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json');
         $xxllncAPI   = $this->resourceService->getSource(
-            ($this->configuration['source'] ?? 'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json'),
-            'common-gateway/xxllnc-zgw-bundle'
+            $xxllncAPIReference,
+            $pluginName
         );
+
+        if ($xxllncAPI === null) {
+            $this->logger->error("Zaaksysteem v1 API $xxllncAPIReference could not be found or synced, aborting.", ['plugin' => $pluginName]);
+
+            return null;
+        }
+
+        $caseMappingReference = 'https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseToZGWZaak.mapping.json';
         $caseMapping = $this->resourceService->getMapping(
-            'https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseToZGWZaak.mapping.json',
-            'common-gateway/xxllnc-zgw-bundle'
+            $caseMappingReference,
+            $pluginName
         );
+
+        if ($caseMapping === null) {
+            $this->logger->error("Case mapping $caseMappingReference could not be found or synced, aborting.", ['plugin' => $pluginName]);
+
+            return null;
+        }
 
         // 1. Check related ZaakType if its already synced, if not sync.
         $zaakTypeObject = $this->checkZaakType($case);
         if ($zaakTypeObject instanceof ObjectEntity === false) {
             isset($this->style) === true && $this->style->error("ZaakType for case {$case['reference']} could not be found or synced, aborting.");
-            $this->logger->error("ZaakType for case {$case['reference']} could not be found or synced, aborting.");
+            $this->logger->error("ZaakType for case {$case['reference']} could not be found or synced, aborting.", ['plugin' => $pluginName]);
 
             return null;
         }
@@ -368,7 +393,7 @@ class ZaakService
 
         // 3. Map the case and all its subobjects.
         isset($this->style) === true && $this->style->info("Mapping case to zaak..");
-        $this->logger->info("Mapping case to zaak..");
+        $this->logger->info("Mapping case to zaak..", ['plugin' => $pluginName]);
 
         $hydrationService      = new HydrationService($this->synchronizationService, $this->entityManager);
         $caseAndRelatedObjects = array_merge(
@@ -384,7 +409,7 @@ class ZaakService
 
         // 4. Check or create synchronization for case and its subobjects.
         isset($this->style) === true && $this->style->info("Checking subobjects for synchronizations..");
-        $this->logger->info("Checking subobjects for synchronizations..");
+        $this->logger->info("Checking subobjects for synchronizations..", ['plugin' => $pluginName]);
 
         $zaak = $hydrationService->searchAndReplaceSynchronizations(
             $zaakArray,
@@ -399,7 +424,7 @@ class ZaakService
         }
 
         isset($this->style) === true && $this->style->info("Zaak object created/updated with id: {$zaak->getId()->toString()}");
-        $this->logger->info("Zaak object created/updated with id: {$zaak->getId()->toString()}");
+        $this->logger->info("Zaak object created/updated with id: {$zaak->getId()->toString()}", ['plugin' => $pluginName]);
 
         return $zaak;
 
@@ -470,20 +495,36 @@ class ZaakService
      * @param ObjectEntity $zaak   The zaak object.
      * @param string       $taakId The taak id.
      *
-     * @return ObjectEntity The updated taak object.
+     * @return ObjectEntity|null The updated taak object.
      */
-    private function updateTaak(ObjectEntity $zaak, string $taakId): ObjectEntity
+    private function updateTaak(ObjectEntity $zaak, string $taakId): ?ObjectEntity
     {
-        $this->logger->info("taakId found in body, trying to update taak with zaak url");
+        $pluginName = 'common-gateway/xxllnc-zgw-bundle';
+        $this->logger->info("taakId found in body, trying to update taak with zaak url", ['plugin' => $pluginName]);
+        $this->style->info("taakId found in body, trying to update taak with zaak url");
 
         $zaak = $this->resourceService->getObject($zaak->getId()->toString(), 'common-gateway/xxllnc-zgw-bundle');
         $taak = $this->resourceService->getObject($taakId, 'common-gateway/xxllnc-zgw-bundle');
+        if ($taak === null) {
+            $this->logger->error("Taak not found with id {$taakId}, can not add zaak and zaaktype url to it", ['plugin' => $pluginName]);
+            $this->style->error("Taak not found with id {$taakId}, can not add zaak and zaaktype url to it");
+
+            return null;
+        }
+
         $taak->setValue('zaak', $zaak->getValue('url'));
-        $this->entityManager->persist($taak);
-        $this->entityManager->flush();
 
-        $this->logger->info("Updated taak with zaak url");
+        if ($zaak->getValue('zaaktype') !== null && $zaak->getValue('zaaktype')->getValue('url') !== null) {
+            $zaakTypeUrl = $zaak->getValue('zaaktype')->getValue('url');
+            $data = array_merge($taak->getValue('data'), ['zaakTypeUrl' => $zaakTypeUrl]);
+            $taak->setValue('data', $data);
 
+            $this->entityManager->persist($taak);
+            $this->entityManager->flush();
+        }
+
+        $this->logger->info("Updated taak with zaak url and zaaktype url", ['plugin' => $pluginName]);
+        $this->style->info("Updated taak with zaak url and zaaktype url");
         return $taak;
 
     }//end updateTaak()
