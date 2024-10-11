@@ -6,6 +6,7 @@ use App\Entity\Gateway as Source;
 use App\Entity\ObjectEntity;
 use App\Event\ActionEvent;
 use App\Service\SynchronizationService;
+use CommonGateway\XxllncZGWBundle\XxllncZGWBundle;
 use CommonGateway\CoreBundle\Service\GatewayResourceService;
 use CommonGateway\CoreBundle\Service\MappingService;
 use CommonGateway\CoreBundle\Service\CallService;
@@ -29,8 +30,6 @@ use Psr\Log\LoggerInterface;
  */
 class ZaakService
 {
-
-    const PLUGIN_NAME = 'common-gateway/xxllnc-zgw-bundle';
 
     /**
      * @var SymfonyStyle
@@ -98,20 +97,20 @@ class ZaakService
     {
         $zaakTypeSchema = $this->resourceService->getSchema(
             'https://vng.opencatalogi.nl/schemas/ztc.zaakType.schema.json',
-            'common-gateway/xxllnc-zgw-bundle'
+            XxllncZGWBundle::PLUGIN_NAME
         );
 
         // Find existing zaaktype
         $zaakTypeSync = $this->synchronizationService->findSyncBySource($this->xxllncAPI, $zaakTypeSchema, $caseTypeId);
         if ($zaakTypeSync && $zaakTypeSync->getObject()) {
             isset($this->style) === true && $this->style->info("ZaakType found with id: {$zaakTypeSync->getObject()->getId()->toString()}.");
-            $this->pluginLogger->info("ZaakType found with id: {$zaakTypeSync->getObject()->getId()->toString()}.");
+            $this->pluginLogger->info("ZaakType found with id: {$zaakTypeSync->getObject()->getId()->toString()}.", ['plugin' => XxllncZGWBundle::PLUGIN_NAME]);
 
             return $zaakTypeSync->getObject();
         }
 
         isset($this->style) === true && $this->style->info("ZaakType not found, trying to fetch and synchronise casetype with id: $caseTypeId..");
-        $this->pluginLogger->info("ZaakType not found, trying to fetch and synchronise casetype with id: $caseTypeId..");
+        $this->pluginLogger->info("ZaakType not found, trying to fetch and synchronise casetype with id: $caseTypeId..", ['plugin' => XxllncZGWBundle::PLUGIN_NAME]);
         // Fetch and create new zaaktype
         $zaakTypeObject = $this->zaakTypeService->getZaakType($caseTypeId);
         if ($zaakTypeObject) {
@@ -119,7 +118,7 @@ class ZaakService
         }
 
         isset($this->style) === true && $this->style->error("Could not find or create ZaakType for id: $caseTypeId");
-        $this->pluginLogger->error("Could not find or create ZaakType for id: $caseTypeId");
+        $this->pluginLogger->error("Could not find or create ZaakType for id: $caseTypeId", ['plugin' => XxllncZGWBundle::PLUGIN_NAME]);
 
         return null;
 
@@ -138,13 +137,14 @@ class ZaakService
         // If no casetype found return null.
         if (isset($case['instance']['casetype']['reference']) === false) {
             isset($this->style) === true && $this->style->error("Case has no casetype");
-            $this->pluginLogger->error("Case has no casetype");
+            $this->pluginLogger->error("Case has no casetype", ['plugin' => XxllncZGWBundle::PLUGIN_NAME]);
 
             return null;
         }
 
         // Get ZGW ZaakType.
         isset($this->style) === true && $this->style->info("Searching for related ZaakType (xxllnc casetype) with sourceId: {$case['instance']['casetype']['reference']}..");
+        $this->pluginLogger->info("Searching for related ZaakType (xxllnc casetype) with sourceId: {$case['instance']['casetype']['reference']}..", ['plugin' => XxllncZGWBundle::PLUGIN_NAME]);
         $zaakTypeObject = $this->getZaakTypeByExtId($case['instance']['casetype']['reference']);
         if ($zaakTypeObject === null) {
             return null;
@@ -166,12 +166,12 @@ class ZaakService
     {
         try {
             isset($this->style) === true && $this->style->info("Fetching actual document: $documentNumber..");
-            $this->pluginLogger->info("Fetching actual document: $documentNumber..");
+            $this->pluginLogger->info("Fetching actual document: $documentNumber..", ['plugin' => XxllncZGWBundle::PLUGIN_NAME]);
             $response = $this->callService->call($this->xxllncAPI, "/document/get_by_number/$documentNumber", 'GET', [], false, false);
             return $this->callService->decodeResponse($this->xxllncAPI, $response);
         } catch (Exception $e) {
             isset($this->style) === true && $this->style->error("Failed to fetch actual document: $documentNumber, message:  {$e->getMessage()}");
-            $this->pluginLogger->error("Failed to fetch actual document: $documentNumber, message:  {$e->getMessage()}");
+            $this->pluginLogger->error("Failed to fetch actual document: $documentNumber, message:  {$e->getMessage()}", ['plugin' => XxllncZGWBundle::PLUGIN_NAME]);
 
             return [];
         }
@@ -191,12 +191,12 @@ class ZaakService
     {
         try {
             isset($this->style) === true && $this->style->info("Fetching inhoud document: $documentId..");
-            $this->pluginLogger->info("Fetching inhoud document: $documentId..");
+            $this->pluginLogger->info("Fetching inhoud document: $documentId..", ['plugin' => XxllncZGWBundle::PLUGIN_NAME]);
             $response = $this->callService->call($xxllncV2, "/document/download_document?id=$documentId", 'GET', [], false, false);
             return $this->callService->decodeResponse($xxllncV2, $response, 'application/pdf')['base64'];
         } catch (Exception $e) {
             isset($this->style) === true && $this->style->error("Failed to fetch inhoud of document: $documentId, message:  {$e->getMessage()}");
-            $this->pluginLogger->error("Failed to fetch inhoud of document: $documentId, message:  {$e->getMessage()}");
+            $this->pluginLogger->error("Failed to fetch inhoud of document: $documentId, message:  {$e->getMessage()}", ['plugin' => XxllncZGWBundle::PLUGIN_NAME]);
             return null;
         }
 
@@ -213,7 +213,7 @@ class ZaakService
     private function getCaseDocuments(string $caseId): array
     {
         isset($this->style) === true && $this->style->info("Checking for documents on this case (zaakinformatieobjecten)..");
-        $this->pluginLogger->info("Checking for documents on this case (zaakinformatieobjecten)..");
+        $this->pluginLogger->info("Checking for documents on this case (zaakinformatieobjecten)..", ['plugin' => XxllncZGWBundle::PLUGIN_NAME]);
         // Need V2 api to fetch document inhoud.
         $xxllncV2 = $this->resourceService->getSource(($this->configuration['sourceV2'] ?? 'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteemv2.source.json'), 'xxllnc-zgw-bundle');
         if ($xxllncV2 === null) {
@@ -232,7 +232,7 @@ class ZaakService
             return $actualDocuments;
         } catch (Exception $e) {
             isset($this->style) === true && $this->style->error("Failed to fetch case documents: {$e->getMessage()}");
-            $this->pluginLogger->error("Failed to fetch case documents: {$e->getMessage()}");
+            $this->pluginLogger->error("Failed to fetch case documents: {$e->getMessage()}", ['plugin' => XxllncZGWBundle::PLUGIN_NAME]);
 
             return [];
         }
@@ -258,7 +258,7 @@ class ZaakService
         $downloadEndpoint = $this->resourceService->getEndpoint('https://vng.opencatalogi.nl/endpoints/drc.downloadEnkelvoudigInformatieObject.endpoint.json', 'common-gateway/zgw-bundle');
         if (isset($downloadEndpoint) === false) {
             isset($this->style) === true && $this->style->error("Could not find download endpoint with ref: https://vng.opencatalogi.nl/endpoints/drc.downloadEnkelvoudigInformatieObject.endpoint.json.");
-            $this->pluginLogger->error("Could not find download endpoint with ref: https://vng.opencatalogi.nl/endpoints/drc.downloadEnkelvoudigInformatieObject.endpoint.json.");
+            $this->pluginLogger->error("Could not find download endpoint with ref: https://vng.opencatalogi.nl/endpoints/drc.downloadEnkelvoudigInformatieObject.endpoint.json.", ['plugin' => XxllncZGWBundle::PLUGIN_NAME]);
 
             return;
         }
@@ -290,11 +290,11 @@ class ZaakService
         $zaakReference = 'https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json';
         $zaakSchema    = $this->resourceService->getSchema(
             $zaakReference,
-            $this::PLUGIN_NAME
+            XxllncZGWBundle::PLUGIN_NAME
         );
 
         if ($zaakSchema === null) {
-            $this->pluginLogger->error("Zaak schema $zaakReference could not be found or synced, aborting.", ['plugin' => $this::PLUGIN_NAME]);
+            $this->pluginLogger->error("Zaak schema $zaakReference could not be found or synced, aborting.", ['plugin' => XxllncZGWBundle::PLUGIN_NAME]);
 
             return null;
         }
@@ -302,11 +302,11 @@ class ZaakService
         $xxllncAPIReference = ($this->configuration['source'] ?? 'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json');
         $xxllncAPI          = $this->resourceService->getSource(
             $xxllncAPIReference,
-            $this::PLUGIN_NAME
+            XxllncZGWBundle::PLUGIN_NAME
         );
 
         if ($xxllncAPI === null) {
-            $this->pluginLogger->error("Zaaksysteem v1 API $xxllncAPIReference could not be found or synced, aborting.", ['plugin' => $this::PLUGIN_NAME]);
+            $this->pluginLogger->error("Zaaksysteem v1 API $xxllncAPIReference could not be found or synced, aborting.", ['plugin' => XxllncZGWBundle::PLUGIN_NAME]);
 
             return null;
         }
@@ -314,11 +314,11 @@ class ZaakService
         $caseMappingReference = 'https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseToZGWZaak.mapping.json';
         $caseMapping          = $this->resourceService->getMapping(
             $caseMappingReference,
-            $this::PLUGIN_NAME
+            XxllncZGWBundle::PLUGIN_NAME
         );
 
         if ($caseMapping === null) {
-            $this->pluginLogger->error("Case mapping $caseMappingReference could not be found or synced, aborting.", ['plugin' => $this::PLUGIN_NAME]);
+            $this->pluginLogger->error("Case mapping $caseMappingReference could not be found or synced, aborting.", ['plugin' => XxllncZGWBundle::PLUGIN_NAME]);
 
             return null;
         }
@@ -327,7 +327,7 @@ class ZaakService
         $zaakTypeObject = $this->checkZaakType($case);
         if ($zaakTypeObject instanceof ObjectEntity === false) {
             isset($this->style) === true && $this->style->error("ZaakType for case {$case['reference']} could not be found or synced, aborting.");
-            $this->pluginLogger->error("ZaakType for case {$case['reference']} could not be found or synced, aborting.", ['plugin' => $this::PLUGIN_NAME]);
+            $this->pluginLogger->error("ZaakType for case {$case['reference']} could not be found or synced, aborting.", ['plugin' => XxllncZGWBundle::PLUGIN_NAME]);
 
             return null;
         }
@@ -337,7 +337,7 @@ class ZaakService
 
         // 3. Map the case and all its subobjects.
         isset($this->style) === true && $this->style->info("Mapping case to zaak..");
-        $this->pluginLogger->info("Mapping case to zaak..", ['plugin' => $this::PLUGIN_NAME]);
+        $this->pluginLogger->info("Mapping case to zaak..", ['plugin' => XxllncZGWBundle::PLUGIN_NAME]);
 
         $hydrationService      = new HydrationService($this->synchronizationService, $this->entityManager);
         $caseAndRelatedObjects = array_merge(
@@ -353,7 +353,7 @@ class ZaakService
 
         // 4. Check or create synchronization for case and its subobjects.
         isset($this->style) === true && $this->style->info("Checking subobjects for synchronizations..");
-        $this->pluginLogger->info("Checking subobjects for synchronizations..", ['plugin' => $this::PLUGIN_NAME]);
+        $this->pluginLogger->info("Checking subobjects for synchronizations..", ['plugin' => XxllncZGWBundle::PLUGIN_NAME]);
 
         $zaak = $hydrationService->searchAndReplaceSynchronizations(
             $zaakArray,
@@ -368,7 +368,7 @@ class ZaakService
         }
 
         isset($this->style) === true && $this->style->info("Zaak object created/updated with id: {$zaak->getId()->toString()}");
-        $this->pluginLogger->info("Zaak object created/updated with id: {$zaak->getId()->toString()}", ['plugin' => $this::PLUGIN_NAME]);
+        $this->pluginLogger->info("Zaak object created/updated with id: {$zaak->getId()->toString()}", ['plugin' => XxllncZGWBundle::PLUGIN_NAME]);
 
         return $zaak;
 
@@ -389,7 +389,7 @@ class ZaakService
         )) === null
         ) {
             isset($this->style) === true && $this->style->error("Could not find Source: Xxllnc API");
-            $this->pluginLogger->error("Could not find Source: Xxllnc API");
+            $this->pluginLogger->error("Could not find Source: Xxllnc API", ['plugin' => XxllncZGWBundle::PLUGIN_NAME]);
 
             return false;
         }
@@ -443,14 +443,13 @@ class ZaakService
      */
     private function updateTaak(ObjectEntity $zaak, string $taakId): ?ObjectEntity
     {
-        $this::PLUGIN_NAME = 'common-gateway/xxllnc-zgw-bundle';
-        $this->pluginLogger->info("taakId found in body, trying to update taak with zaak url", ['plugin' => $this::PLUGIN_NAME]);
+        $this->pluginLogger->info("taakId found in body, trying to update taak with zaak url", ['plugin' => XxllncZGWBundle::PLUGIN_NAME]);
         $this->style->info("taakId found in body, trying to update taak with zaak url");
 
         $zaak = $this->resourceService->getObject($zaak->getId()->toString(), 'common-gateway/xxllnc-zgw-bundle');
         $taak = $this->resourceService->getObject($taakId, 'common-gateway/xxllnc-zgw-bundle');
         if ($taak === null) {
-            $this->pluginLogger->error("Taak not found with id {$taakId}, can not add zaak and zaaktype url to it", ['plugin' => $this::PLUGIN_NAME]);
+            $this->pluginLogger->error("Taak not found with id {$taakId}, can not add zaak and zaaktype url to it", ['plugin' => XxllncZGWBundle::PLUGIN_NAME]);
             $this->style->error("Taak not found with id {$taakId}, can not add zaak and zaaktype url to it");
 
             return null;
@@ -467,7 +466,7 @@ class ZaakService
             $this->entityManager->flush();
         }
 
-        $this->pluginLogger->info("Updated taak with zaak url and zaaktype url", ['plugin' => $this::PLUGIN_NAME]);
+        $this->pluginLogger->info("Updated taak with zaak url and zaaktype url", ['plugin' => XxllncZGWBundle::PLUGIN_NAME]);
         $this->style->info("Updated taak with zaak url and zaaktype url");
         return $taak;
 
@@ -527,13 +526,13 @@ class ZaakService
             $xxllncCases = $this->callService->getAllResults($this->xxllncAPI, '/case', $callConfig, 'result.instance.rows');
         } catch (Exception $e) {
             isset($this->style) === true && $this->style->error("Failed to fetch: {$e->getMessage()}");
-            $this->pluginLogger->error("Failed to fetch: {$e->getMessage()}");
+            $this->pluginLogger->error("Failed to fetch: {$e->getMessage()}", ['plugin' => XxllncZGWBundle::PLUGIN_NAME]);
             return null;
         }
 
         $caseCount = count($xxllncCases);
         isset($this->style) === true && $this->style->success("Fetched $caseCount cases");
-        $this->pluginLogger->info("Fetched $caseCount cases");
+        $this->pluginLogger->info("Fetched $caseCount cases", ['plugin' => XxllncZGWBundle::PLUGIN_NAME]);
 
         foreach ($xxllncCases as $case) {
             $event = new ActionEvent(
