@@ -149,7 +149,25 @@
         "actionHandler": "CommonGateway\\XxllncZGWBundle\\ActionHandler\\ZGWToXxllncHandler",
         "listens": ["commongateway.object.create", "commongateway.object.update"],
         "conditions": {
-          "==": [{"var": "entity"}, "https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json"]
+            "or": [
+                {"==": [{"var": "entity"}, "https://vng.opencatalogi.nl/schemas/zrc.zaak.schema.json"]},
+                {"==": [{"var": "entity"}, "https://vng.opencatalogi.nl/schemas/ztc.zaakType.schema.json"]},
+                {"==": [{"var": "entity"}, "https://vng.opencatalogi.nl/schemas/ztc.statusType.schema.json"]},
+                {"==": [{"var": "entity"}, "https://vng.opencatalogi.nl/schemas/ztc.rolType.schema.json"]}
+            ]
+        },
+        "configuration": {
+            "source": "https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json",
+            "zaakTypeToCaseTypeMapping": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncZaakTypeToCaseType.mapping.json",
+            "zaaksysteemCatalogId": null,
+            "zaaksysteemRole": {
+                "id": null,
+                "name": null
+            },
+            "zaaksysteemDepartment": {
+                "id": null,
+                "name": null
+            }
         }
       },
       {

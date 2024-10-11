@@ -54,7 +54,7 @@ class ZGWToXxllncHandler implements ActionHandlerInterface
             '$id'         => 'https://development.zaaksysteem.nl/schemas/ZGWToXxllnc.ActionHandler.schema.json',
             '$schema'     => 'https://docs.commongateway.nl/schemas/ActionHandler.schema.json',
             'title'       => 'ZGWToXxllnc',
-            'description' => 'This handler posts zgw zaak to xxllnc',
+            'description' => 'This handler posts zgw zaak or zgw zaaktype to xxllnc',
             'required'    => [],
             'properties'  => [],
         ];

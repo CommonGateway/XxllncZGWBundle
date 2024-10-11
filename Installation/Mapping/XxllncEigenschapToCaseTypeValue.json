@@ -1,0 +1,27 @@
+{
+    "title": "XxllncEigenschapToCaseTypeValue",
+    "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncEigenschapToCaseTypeValue.mapping.json",
+    "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
+    "version": "0.0.1",
+    "passTrough": false,
+    "mapping": {
+        "order": "order",
+        "is_group": "false",
+        "attribute_type": "textblock",
+        "title": "naam",
+        "help_intern": "",
+        "publish_pip": "false",
+        "uuid": "{% if _self.synchronizations[0].sourceId|default %}{{ _self.synchronizations[0].sourceId| }}{% elseif backupUuid|default %}{{ backupUuid }}{% endif %}"
+    },
+    "cast": {
+        "order": "int",
+        "is_group": "bool",
+        "publish_pip": "bool"
+    },
+    "unset": {
+        "order": "unsetIfValue==order",
+        "uuid": "unsetIfValue=="
+    }
+
+}
+

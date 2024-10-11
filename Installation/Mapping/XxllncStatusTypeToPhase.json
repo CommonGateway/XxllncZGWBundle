@@ -1,0 +1,36 @@
+{
+    "title": "XxllncStatusTypeToPhase",
+    "$id": "https://development.zaaksysteem.nl/mapping/xxllnc.XxllncStatusTypeToPhase.mapping.json",
+    "$schema": "https://docs.commongateway.nl/schemas/Mapping.schema.json",
+    "version": "0.0.1",
+    "passTrough": false,
+    "mapping": {
+        "phase_name": "omschrijving",
+        "milestone_name": "statustekst",
+        "term_in_days": "doorlooptijd",
+        "custom_fields": "[{% set index=0 %}{% if eigenschappen|default %}{% for eigenschap in eigeschappen %}{% if index != 0 %},{% endif %}{% set passOrder = {'order': loop.index} %}{% set eigenschap = eigenschap|merge(passOrder) %}{% endif %}{{ map('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncEigenschapToCaseTypeValue.mapping.json', eigenschap)|json_encode }}{% set index=index+1 %}{% endfor %}{% endif %}]",
+        "assignment.role_name": "{% if zaaksysteemRole.name|default %}{{ zaaksysteemRole.name }}{% endif %}",
+        "assignment.role_uuid": "{% if zaaksysteemRole.id|default %}{{ zaaksysteemRole.id }}{% endif %}",
+        "assignment.department_name": "{% if zaaksysteemDepartment.name|default %}{{ zaaksysteemDepartment.name }}{% endif %}",
+        "assignment.department_uuid": "{% if zaaksysteemDepartment.id|default %}{{ zaaksysteemDepartment.id }}{% endif %}",
+        "assignment.enabled": "{% if zaaksysteemRole.name|default and zaaksysteemRole.id|default and zaaksysteemDepartment.name|default and zaaksysteemDepartment.id|default %}{{ 'true' }}{% endif %}"
+    },
+    "cast": {
+        "term_in_days": "int",
+        "custom_fields": "jsonToArray",
+        "assignment.enabled": "bool"
+    },
+    "unset": {
+        "phase_name": "unsetIfValue==omschrijving",
+        "milestone_name": "unsetIfValue==statustekst",
+        "term_in_days": "unsetIfValue==doorlooptijd",
+        "assignment": "unsetIfValue==",
+        "assignment.role_name": "unsetIfValue==",
+        "assignment.role_uuid": "unsetIfValue==",
+        "assignment.department_name": "unsetIfValue==",
+        "assignment.department_uuid": "unsetIfValue==",
+        "assignment.enabled": "unsetIfValue=="
+    }
+
+}
+
