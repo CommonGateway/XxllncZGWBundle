@@ -18,6 +18,7 @@ class XxllncZGWBundle extends Bundle
 
     const PLUGIN_NAME = 'common-gateway/xxllnc-zgw-bundle';
 
+
     /**
      * Returns the path the bundle is in.
      *

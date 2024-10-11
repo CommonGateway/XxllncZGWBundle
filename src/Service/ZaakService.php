@@ -51,6 +51,7 @@ class ZaakService
      */
     private ?Source $xxllncAPI;
 
+
     /**
      * __construct.
      */
@@ -65,6 +66,7 @@ class ZaakService
         private readonly LoggerInterface $pluginLogger,
         private readonly EventDispatcherInterface $eventDispatcher
     ) {
+
     }//end __construct()
 
 
