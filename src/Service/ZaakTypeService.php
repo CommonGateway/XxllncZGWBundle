@@ -160,13 +160,15 @@ class ZaakTypeService
      * Fetches a xxllnc casetype and maps it to a zgw zaaktype.
      *
      * @param string $caseTypeId This is the xxllnc casetype id.
+     * @param Source|null $xxllncAPI  This is the xxllnc api source.
      *
      * @return object|null $zaakTypeObject Fetched and mapped ZGW ZaakType.
      */
-    public function getZaakType(string $caseTypeID)
+    public function getZaakType(string $caseTypeID, ?Source $xxllncAPI = null)
     {
-        $xxllncAPI = $this->resourceService->getSource('https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json', 'common-gateway/xxllnc-zgw-bundle');
-
+        if ($xxllncAPI === null) {
+            $xxllncAPI = $this->resourceService->getSource($this->configuration['source'] ?? 'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json', 'common-gateway/xxllnc-zgw-bundle');
+        }
         try {
             isset($this->style) === true && $this->style->info("Fetching casetype: $caseTypeID");
             $this->logger->info("Fetching casetype (or possible besluittype): $caseTypeID");
@@ -254,15 +256,16 @@ class ZaakTypeService
     /**
      * Synchronises a casetype to zgw zaaktype based on the data retrieved from the Xxllnc api.
      *
-     * @param array $caseType The caseType to synchronize.
-     * @param bool  $flush    Wether or not the casetype should be flushed already (not functional at this time)
+     * @param array        $caseType The caseType to synchronize.
+     * @param bool         $flush    Wether or not the casetype should be flushed already (not functional at this time)
+     * @param Source|null  $xxllncAPI The xxllnc api source
      *
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\SyntaxError
      *
      * @return ObjectEntity The resulting zaaktype object.
      */
-    public function syncCaseType(array $caseType, bool $flush = true): ObjectEntity
+    public function syncCaseType(array $caseType, bool $flush = true, ?Source $xxllncAPI = null): ObjectEntity
     {
         $this->getCatalogusObject();
 
@@ -270,10 +273,14 @@ class ZaakTypeService
             'https://vng.opencatalogi.nl/schemas/ztc.zaakType.schema.json',
             'common-gateway/xxllnc-zgw-bundle'
         );
-        $xxllncAPI       = $this->resourceService->getSource(
-            'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json',
-            'common-gateway/xxllnc-zgw-bundle'
-        );
+
+        if ($xxllncAPI === null) {
+            $xxllncAPI       = $this->resourceService->getSource(
+                $this->confgiuration['source'] ?? 'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json',
+                'common-gateway/xxllnc-zgw-bundle'
+            );
+        }
+
         $caseTypeMapping = $this->resourceService->getMapping(
             'https://development.zaaksysteem.nl/mapping/xxllnc.XxllncCaseTypeToZGWZaakType.mapping.json',
             'common-gateway/xxllnc-zgw-bundle'

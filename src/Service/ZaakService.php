@@ -114,7 +114,7 @@ class ZaakService
         isset($this->style) === true && $this->style->info("ZaakType not found, trying to fetch and synchronise casetype with id: $caseTypeId..");
         $this->pluginLogger->info("ZaakType not found, trying to fetch and synchronise casetype with id: $caseTypeId..", ['plugin' => XxllncZGWBundle::PLUGIN_NAME]);
         // Fetch and create new zaaktype
-        $zaakTypeObject = $this->zaakTypeService->getZaakType($caseTypeId);
+        $zaakTypeObject = $this->zaakTypeService->getZaakType($caseTypeId, $this->xxllncAPI);
         if ($zaakTypeObject) {
             return $zaakTypeObject;
         }
