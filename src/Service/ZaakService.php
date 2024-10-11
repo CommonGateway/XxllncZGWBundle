@@ -386,7 +386,7 @@ class ZaakService
     {
         // Get xxllnc source
         if (($this->xxllncAPI = $this->resourceService->getSource(
-            'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json',
+            $this->configuration['source'] ?? 'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json',
             'common-gateway/xxllnc-zgw-bundle'
         )) === null
         ) {
