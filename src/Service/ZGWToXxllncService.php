@@ -404,12 +404,10 @@ class ZGWToXxllncService
             'zaaksysteemRole' => $this->configuration['zaaksysteemRole']
         ]);
 
-        if (isset($zaakTypeArrayObject['roltypen']) === true) {
-            foreach ($zaakTypeArrayObject['roltypen'] as $key => $roltype) {
-                if (is_array($roltype) === true) {
-                    // Backup uuid is for when creating a rol in zaaksysteem (u have to give uuid instead they generate it).
-                    $zaakTypeArrayObject['roltypen'][$key]['backupUuid'] = Uuid::uuid4()->toString();
-                }
+        foreach ($zaakTypeArrayObject['eigenschappen'] as $key => $eigenschap) {
+            if (is_array($eigenschap) === true) {
+                // Backup uuid is for when creating a rol in zaaksysteem (u have to give uuid instead they generate it).
+                $zaakTypeArrayObject['eigenschappen'][$key]['backupUuid'] = Uuid::uuid4()->toString();
             }
         }
 

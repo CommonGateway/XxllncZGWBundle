@@ -8,7 +8,7 @@
         "phase_name": "omschrijving",
         "milestone_name": "statustekst",
         "term_in_days": "doorlooptijd",
-        "custom_fields": "[]",
+        "custom_fields": "[{% set index=0 %}{% if eigenschappen|default %}{% for eigenschap in eigeschappen %}{% if index != 0 %},{% endif %}{% set passOrder = {'order': loop.index} %}{% set eigenschap = eigenschap|merge(passOrder) %}{% endif %}{{ map('https://development.zaaksysteem.nl/mapping/xxllnc.XxllncEigenschapToCaseTypeValue.mapping.json', eigenschap)|json_encode }}{% set index=index+1 %}{% endfor %}{% endif %}]",
         "assignment.role_name": "{% if zaaksysteemRole.name|default %}{{ zaaksysteemRole.name }}{% endif %}",
         "assignment.role_uuid": "{% if zaaksysteemRole.id|default %}{{ zaaksysteemRole.id }}{% endif %}",
         "assignment.department_name": "{% if zaaksysteemDepartment.name|default %}{{ zaaksysteemDepartment.name }}{% endif %}",
