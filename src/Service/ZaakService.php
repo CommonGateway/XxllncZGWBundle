@@ -194,7 +194,7 @@ class ZaakService
         try {
             isset($this->style) === true && $this->style->info("Fetching inhoud document: $documentId..");
             $this->pluginLogger->info("Fetching inhoud document: $documentId..", ['plugin' => XxllncZGWBundle::PLUGIN_NAME]);
-            $response = $this->callService->call($xxllncV2, "/document/download_document?id=$documentId", 'GET', [], false, false);
+            $response = $this->callService->call($xxllncV2, "/document/download_document?id=$documentId", 'GET');
             return $this->callService->decodeResponse($xxllncV2, $response, 'application/pdf')['base64'];
         } catch (Exception $e) {
             isset($this->style) === true && $this->style->error("Failed to fetch inhoud of document: $documentId, message:  {$e->getMessage()}");
@@ -223,7 +223,7 @@ class ZaakService
         }
 
         try {
-            $response        = $this->callService->call($xxllncV2, "/document/search_document?case_uuid=$caseId", 'GET', [], false, false);
+            $response        = $this->callService->call($xxllncV2, "/document/search_document?case_uuid=$caseId", 'GET');
             $documents       = $this->callService->decodeResponse($xxllncV2, $response);
             $actualDocuments = [];
             foreach ($documents['data'] as $key => $document) {
