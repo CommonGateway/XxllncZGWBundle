@@ -446,13 +446,13 @@ class ZaakService
     private function updateTaak(ObjectEntity $zaak, string $taakId): ?ObjectEntity
     {
         $this->pluginLogger->info("taakId found in body, trying to update taak with zaak url", ['plugin' => XxllncZGWBundle::PLUGIN_NAME]);
-        $this->style->info("taakId found in body, trying to update taak with zaak url");
+        isset($this->style) === true && $this->style->info("taakId found in body, trying to update taak with zaak url");
 
         $zaak = $this->resourceService->getObject($zaak->getId()->toString(), 'common-gateway/xxllnc-zgw-bundle');
         $taak = $this->resourceService->getObject($taakId, 'common-gateway/xxllnc-zgw-bundle');
         if ($taak === null) {
             $this->pluginLogger->error("Taak not found with id {$taakId}, can not add zaak and zaaktype url to it", ['plugin' => XxllncZGWBundle::PLUGIN_NAME]);
-            $this->style->error("Taak not found with id {$taakId}, can not add zaak and zaaktype url to it");
+            isset($this->style) === true &&$this->style->error("Taak not found with id {$taakId}, can not add zaak and zaaktype url to it");
 
             return null;
         }
@@ -469,7 +469,7 @@ class ZaakService
         }
 
         $this->pluginLogger->info("Updated taak with zaak url and zaaktype url", ['plugin' => XxllncZGWBundle::PLUGIN_NAME]);
-        $this->style->info("Updated taak with zaak url and zaaktype url");
+        isset($this->style) === true && $this->style->info("Updated taak with zaak url and zaaktype url");
         return $taak;
 
     }//end updateTaak()
