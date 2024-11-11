@@ -193,7 +193,7 @@ class ZaakTypeService
         // Else create a normal ZGW ZaakType.
         $caseType        = $caseType['result'];
         $caseType['url'] = $xxllncAPI->getLocation().'/casetype/'.$caseType['reference'];
-        return $this->syncCaseType($caseType);
+        return $this->syncCaseType(caseType: $caseType, flush: true, xxllncAPI: $xxllncAPI);
 
     }//end getZaakType()
 
@@ -277,7 +277,7 @@ class ZaakTypeService
 
         if ($xxllncAPI === null) {
             $xxllncAPI = $this->resourceService->getSource(
-                ($this->confgiuration['source'] ?? 'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json'),
+                ($this->configuration['source'] ?? 'https://development.zaaksysteem.nl/source/xxllnc.zaaksysteem.source.json'),
                 'common-gateway/xxllnc-zgw-bundle'
             );
         }
